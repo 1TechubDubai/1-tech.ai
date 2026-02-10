@@ -3,12 +3,11 @@ import one from "../assets/about1.svg";
 import two from "../assets/about2.svg";
 import three from "../assets/about3.svg";
 import earth from "../assets/earth.svg";
-import tick from "../assets/tick.svg";
 import coreSp from "../assets/coreSp.svg";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import { ArrowRight, Check, Globe, Linkedin, Mail, Twitter } from 'lucide-react';
+import { ArrowRight, Check, Globe, Linkedin, Mail, Zap } from 'lucide-react';
 
 
 const Card = ({ title, description, image, index = 0 }) => (
@@ -56,109 +55,158 @@ const Card = ({ title, description, image, index = 0 }) => (
     </div>
 
     {/* Title */}
-    <h3 className="relative z-10 text-base sm:text-lg md:text-lg font-semibold text-white tracking-tight group-hover:text-cyan-200 transition-colors mb-2 sm:mb-3">
+    <h3 className="text-left relative z-10 text-base sm:text-lg md:text-lg font-semibold text-white tracking-tight group-hover:text-cyan-200 transition-colors mb-2 sm:mb-3">
       {title}
     </h3>
 
     {/* Description */}
-    <p className="relative z-10 text-xs sm:text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+    <p className="text-left relative z-10 text-xs sm:text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
       {description}
     </p>
   </div>
 );
 
-const GlobalScale = ({ earth, points }) => {
-  return (
-    <section className="relative py-8 sm:py-12 md:py-16 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-20 overflow-hidden">
-      {/* Gradient Background with Fade-out */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E1F]/40 via-transparent to-transparent pointer-events-none -z-10" />
-      
-      {/* Background Ambient Glow with animations */}
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-64 sm:w-80 md:w-96 lg:w-[500px] h-64 sm:h-80 md:h-96 lg:h-[500px] bg-blue-600/15 rounded-full blur-[80px] sm:blur-[100px] md:blur-[120px] -z-10 animate-pulse-glow" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }} />
-      <div className="absolute bottom-1/4 left-1/4 w-64 sm:w-72 md:w-80 lg:w-96 h-64 sm:h-72 md:h-80 lg:h-96 bg-cyan-500/10 rounded-full blur-[80px] sm:blur-[100px] -z-10 animate-float-slow" />
+const GlobalScale = ({ earth, points = [] }) => {
+  const displayPoints = points.length > 0 ? points : [
+    "Regional HQs in London & Singapore",
+    "24/7 Global Support Centers",
+    "Tier-4 Data Centers Worldwide",
+    "Multi-lingual AI Capabilities"
+  ];
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-24 items-center relative z-10">
+  return (
+    <section className="relative sm:py-18 lg:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
+      
+      {/* --- BACKGROUND EFFECTS --- */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E1F] via-[#020617] to-[#020617] pointer-events-none -z-20" />
+      
+      {/* Mobile-Optimized Glows */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10 animate-pulse-slow" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] -z-10" />
+
+      {/* Main Container: Flex Col on Mobile (Stack), Grid on Desktop */}
+      <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center relative z-10">
         
-        {/* Left Content */}
-        <div className="space-y-6 sm:space-y-8 relative z-10 animate-fade-in">
+        {/* --- RIGHT COLUMN --- */}
+        {/* ORDERING: Top on Mobile (order-1), Right on Desktop (lg:order-2) */}
+        <div className="w-full relative order-1 lg:order-2 perspective-1000">
           
-          {/* Badge */}
-          <div className="flex justify-start w-fit items-center gap-2 px-3 sm:px-3 py-1 sm:py-1.5 rounded-full bg-blue-950/30 border border-blue-500/30 hover:border-blue-400/60 transition-colors duration-300">
-            <Globe className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-blue-400" />
-            <span className="text-xs font-bold tracking-widest text-blue-400 uppercase">
-              Global Presence
-            </span>
+          {/* Mobile Image Container with Gradient Fade at bottom */}
+          <div className="relative z-10 w-full max-w-[320px] sm:max-w-[400px] lg:max-w-none mx-auto lg:mx-0">
+            
+            {/* Glow Behind Image */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-cyan-500/20 rounded-full blur-[50px] animate-pulse-slow" />
+            
+            <div className="relative transition-transform duration-500 hover:scale-[1.02]">
+              {earth ? (
+                <>
+                  <img
+                    src={earth}
+                    alt="Global Network"
+                    className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-none object-contain drop-shadow-2xl mx-auto"
+                    loading="lazy"
+                  />
+                  {/* Mobile Only: Gradient Mask to blend image bottom into text */}
+                  <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#020617] to-transparent lg:hidden" />
+                </>
+              ) : (
+                /* Fallback Placeholder */
+                <div className="w-full aspect-square max-w-[300px] mx-auto rounded-full bg-slate-900/50 border border-slate-700/50 flex flex-col items-center justify-center backdrop-blur-md">
+                   <Globe className="w-16 h-16 text-slate-600 mb-2" />
+                   <span className="text-slate-500 text-xs uppercase tracking-widest">Earth Visual</span>
+                </div>
+              )}
+            </div>
+
+            {/* Floating Tech Dots */}
+            <div className="absolute top-4 right-10 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
+            <div className="absolute bottom-10 left-4 w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping delay-1000" />
+          </div>
+        </div>
+
+        {/* --- LEFT COLUMN --- */}
+        {/* ORDERING: Bottom on Mobile (order-2), Left on Desktop (lg:order-1) */}
+        <div className="w-full space-y-6 sm:space-y-8 order-2 lg:order-1 text-center lg:text-left">
+          
+          {/* Badge (Centered on mobile, Left on desktop) */}
+          <div className="flex justify-center lg:justify-start">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/30 border border-blue-500/20 backdrop-blur-sm shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)]">
+              <Globe className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-[10px] sm:text-xs font-bold tracking-widest text-blue-300 uppercase">
+                Global Presence
+              </span>
+            </div>
           </div>
 
-          <div className="text-left space-y-3 sm:space-y-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.2] sm:leading-[1.15]">
-              Anchored in Dubai. <br />
+          {/* Heading */}
+          <div className="space-y-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+              Anchored in Dubai. <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                 Scaling Globally.
               </span>
             </h2>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0">
               We believe innovation should have no boundaries. We support global
               growth with solutions that are scalable, secure, and engineered for
               long-term impact.
             </p>
           </div>
 
-          {/* Points List */}
-          <div className="space-y-3 sm:space-y-4">
-            {points.map((point, index) => (
-              <div key={index} className="flex items-start gap-2 sm:gap-3 group" style={{ animation: `slideUp 0.6s ease-out ${index * 0.1}s both` }}>
-                <div className="mt-0.5 sm:mt-1 min-w-[18px] sm:min-w-[20px]">
-                  <Check className="w-4 sm:w-5 h-4 sm:h-5 text-cyan-500 group-hover:text-cyan-300 transition-colors flex-shrink-0" />
+          {/* Points Grid - Compact 2-col on mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left max-w-lg mx-auto lg:mx-0">
+            {displayPoints.map((point, index) => (
+              <div 
+                key={index} 
+                className="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:bg-slate-800/60 transition-colors"
+              >
+                <div className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-cyan-500/10">
+                  <Check className="w-3.5 h-3.5 text-cyan-400" strokeWidth={3} />
                 </div>
-                <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed group-hover:text-white transition-colors">
+                <span className="text-sm text-slate-300 font-medium leading-snug">
                   {point}
-                </p>
+                </span>
               </div>
             ))}
           </div>
 
           {/* CTA Button */}
-        <div className="pt-2 sm:pt-3 md:pt-4 w-full flex justify-start">
+          <div className="pt-4 sm:pt-6 flex justify-center lg:justify-start">
             <Link 
-                to="/book" 
-                className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#00B8DB] rounded-full overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(0,184,219,0.5)] hover:-translate-y-1 text-sm sm:text-base font-semibold"
+              to="/book" 
+              className="
+                group relative inline-flex items-center justify-center gap-2.5 
+                px-8 py-3.5 sm:py-4 
+                bg-gradient-to-r from-cyan-500 to-blue-600 
+                rounded-full overflow-hidden 
+                transition-all duration-300 
+                hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:-translate-y-0.5
+                w-full sm:w-auto
+              "
             >
-                <span className="relative z-10 text-black font-semibold tracking-wide">
-                Learn More
-                </span>
-                <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 text-black relative z-10 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-                
-                {/* Button Shine Effect */}
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <span className="relative z-10 text-white font-bold tracking-wide text-sm sm:text-base">
+                Expand Your Reach
+              </span>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 group-hover:translate-x-1 transition-transform" />
+              
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-in-out" />
             </Link>
-        </div>
-
-        </div>
-
-        {/* Right Visual */}
-        <div className="relative group perspective-1000 animate-fade-in mt-6 sm:mt-0" style={{ animationDelay: '0.2s' }}>
-          {/* Decorative Glow Behind Image */}
-          <div className="absolute inset-2 sm:inset-4 bg-cyan-500/20 rounded-full blur-[40px] sm:blur-[60px] group-hover:bg-cyan-400/30 transition-colors duration-500 animate-pulse-glow" />
-          
-          <div className="relative transition-transform duration-700 ease-out group-hover:scale-[1.03] group-hover:rotate-1">
-             {earth ? (
-                <img
-                  src={earth}
-                  alt="Global Presence"
-                  className="w-full h-auto object-contain drop-shadow-2xl"
-                />
-             ) : (
-                 // Fallback if image prop is missing
-                <div className="w-full aspect-square rounded-full bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center text-slate-500 text-sm sm:text-base">
-                  Earth Visual
-                </div>
-             )}
           </div>
+
         </div>
 
       </div>
+
+      <style>{`
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 6s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 };
@@ -176,47 +224,83 @@ const CoreSpecializations = ({ image }) => {
   ];
 
   return (
-    <section className="relative py-8 sm:py-12 md:py-16 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-20 overflow-hidden ">
-      {/* Gradient Background with Fade-out */}
-      <div className="absolute inset-0 pointer-events-none -z-10" />
+    <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 px-10 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
       
-      {/* Background Glow Effects with animations */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 sm:w-72 md:w-80 lg:w-96 h-64 sm:h-72 md:h-80 lg:h-96 rounded-full blur-[80px] sm:blur-[100px] -z-10 animate-float-slow" />
-      <div className="absolute bottom-1/3 right-1/4 w-64 sm:w-72 md:w-80 lg:w-96 h-64 sm:h-72 md:h-80 lg:h-96 bg-blue-600/10 rounded-full blur-[80px] sm:blur-[100px] -z-10 animate-pulse-glow" style={{ animation: 'pulse-glow 5s ease-in-out infinite reverse' }} />
+      {/* --- BACKGROUND EFFECTS --- */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#0A0E1F] to-[#020617] pointer-events-none -z-20" />
+      
+      {/* Animated Glows */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] -z-10 animate-pulse-slow" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-[100px] -z-10" />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-24 items-center relative z-10">
+      {/* Main Container: Flex Col (Mobile) -> Grid (Desktop) */}
+      <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center relative z-10">
         
-        {/* Left Content */}
-        <div className="relative z-10 text-left animate-fade-in">
+        {/* --- RIGHT COLUMN --- */}
+        {/* ORDERING: Top on Mobile (order-1), Right on Desktop (lg:order-2) */}
+        <div className="w-full relative order-1 lg:order-2 perspective-1000 group">
+          
+          {/* Decorative Glow Behind Image */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur opacity-40 group-hover:opacity-60 transition duration-1000 animate-pulse-slow" />
+          
+          <div className="relative rounded-2xl bg-[#0a0f1d] border border-slate-800/80 p-1 sm:p-2 shadow-2xl overflow-hidden">
+            {coreSp ? (
+              <>
+                <img
+                  src={coreSp}
+                  alt="Core Specializations"
+                  className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-none object-cover sm:object-contain rounded-xl transform transition-transform duration-700 group-hover:scale-[1.02]"
+                />
+                {/* Mobile Gradient Mask to blend image bottom */}
+                <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#0a0f1d] via-[#0a0f1d]/80 to-transparent lg:hidden" />
+              </>
+            ) : (
+              <div className="w-full aspect-[4/3] bg-slate-900 rounded-xl flex flex-col items-center justify-center text-slate-500 border border-slate-800">
+                <Zap className="w-12 h-12 mb-3 text-slate-600" />
+                <span className="text-xs uppercase tracking-widest">Image Placeholder</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* --- LEFT COLUMN --- */}
+        {/* ORDERING: Bottom on Mobile (order-2), Left on Desktop (lg:order-1) */}
+        <div className="w-full relative order-2 lg:order-1 text-left">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-3 py-1 sm:py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 mb-4 sm:mb-6 hover:border-cyan-400/60 transition-colors duration-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0"></span>
-            <span className="text-xs font-bold tracking-widest text-cyan-400 uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 mb-5 sm:mb-6 hover:border-cyan-400/50 transition-colors backdrop-blur-md">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="text-[10px] sm:text-xs font-bold tracking-widest text-cyan-300 uppercase">
               Core Specializations
             </span>
           </div>
 
           {/* Heading */}
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-bold text-white leading-[1.2] sm:leading-[1.15] mb-4 sm:mb-6">
-            End-to-end capabilities <br />
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-4 sm:mb-6">
+            End-to-end capabilities <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
               driving transformation.
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base md:text-lg text-slate-400 mb-6 sm:mb-8 md:mb-10 max-w-lg leading-relaxed">
-            We merge autonomous intelligence with robust infrastructure to help enterprises scale efficiently.
+          <p className="text-sm sm:text-base text-slate-400 mb-8 sm:mb-10 max-w-lg leading-relaxed">
+            We merge autonomous intelligence with robust infrastructure to help enterprises scale efficiently and securely.
           </p>
 
-          {/* Feature List - Split into 2 columns for better alignment */}
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-2 sm:gap-y-4 mb-8 sm:mb-10">
+          {/* Feature List - Grid 1 col on mobile, 2 col on tablet+ */}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-8 sm:mb-10">
             {items.map((item, index) => (
-              <li key={index} className="flex items-start gap-2 sm:gap-3 group" style={{ animation: `slideUp 0.6s ease-out ${index * 0.05}s both` }}>
-                <div className="mt-0.5 sm:mt-1 min-w-[18px] sm:min-w-[20px]">
-                  <Check className="w-4 sm:w-5 h-4 sm:h-5 text-cyan-500 group-hover:text-cyan-300 transition-colors flex-shrink-0" strokeWidth={3} />
+              <li 
+                key={index} 
+                className="flex items-start gap-3 group p-2 rounded-lg hover:bg-white/5 transition-colors"
+              >
+                <div className="mt-0.5 min-w-[18px]">
+                  <Check className="w-4 h-4 text-cyan-500 group-hover:text-cyan-300 transition-colors" strokeWidth={3} />
                 </div>
-                <span className="text-slate-300 text-xs sm:text-sm font-medium leading-snug group-hover:text-white transition-colors">
+                <span className="text-slate-300 text-sm font-medium leading-snug group-hover:text-white transition-colors">
                   {item}
                 </span>
               </li>
@@ -224,38 +308,34 @@ const CoreSpecializations = ({ image }) => {
           </ul>
 
           {/* CTA Button */}
-          <button className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-transparent overflow-hidden rounded-full transition-all hover:bg-cyan-500/10 text-sm sm:text-base">
-            {/* Gradient Border Trick */}
-            <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors"></div>
-            
-            <span className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
-              Explore Analytics
-            </span>
-            <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 text-cyan-400 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-          </button>
-        </div>
-
-        {/* Right Image Container */}
-        <div className="relative lg:h-auto group animate-fade-in mt-6 sm:mt-0" style={{ animationDelay: '0.2s' }}>
-          {/* Decorative Glow Behind Image */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg sm:rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 animate-pulse-glow"></div>
-          
-          <div className="relative rounded-lg sm:rounded-2xl bg-[#0a0f1d] border border-slate-800 p-1 sm:p-2 shadow-2xl overflow-hidden">
-             {coreSp ? (
-                <img
-                  src={coreSp}
-                  alt="Core Specializations"
-                  className="w-full h-auto rounded-lg sm:rounded-xl transform transition-transform duration-700 group-hover:scale-[1.02]"
-                />
-             ) : (
-                <div className="w-full aspect-[4/3] bg-slate-900 rounded-lg sm:rounded-xl flex items-center justify-center text-slate-600 text-sm">
-                  Image Placeholder
-                </div>
-             )}
+          <div>
+            <Link 
+              to="/services" 
+              className="group relative inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 bg-transparent overflow-hidden rounded-full transition-all hover:bg-cyan-500/10"
+            >
+              {/* Border Gradient */}
+              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors"></div>
+              
+              <span className="text-sm sm:text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                Explore Analytics
+              </span>
+              <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
+
         </div>
 
       </div>
+
+      <style>{`
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 5s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 };
@@ -360,7 +440,6 @@ const LeadershipTeam = () => {
   );
 };
 
-// Helper Component for Social Buttons
 const SocialButton = ({ icon: Icon, gradient }) => (
   <button className="relative group/btn p-2 sm:p-3 rounded-full overflow-hidden transition-all duration-300">
     {/* Button Background (Hidden by default, shown on hover) */}
@@ -379,101 +458,119 @@ const NetworkBackground = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
     let animationFrameId;
     let particles = [];
     
-    // Configuration - Adjusted for mobile
-    const particleColor = 'rgba(6, 182, 212, 0.5)'; // Cyan-500
-    const lineColor = 'rgba(6, 182, 212, 0.15)'; // Faint cyan
-    const connectionDistance = 150;
-    const moveSpeed = 0.3; // Reduced for better performance
+    // --- CONFIGURATION ---
+    // Detect mobile for specific tuning
+    const isMobile = window.innerWidth < 768;
 
-    // Handle Resize
+    const config = {
+      particleColor: '255, 255, 255', // White core for crispness
+      lineColor: '6, 182, 212',       // Cyan-500 for connections
+      particleCount: isMobile ? 35 : 90, // Much fewer on mobile for clean look
+      connectionDistance: isMobile ? 110 : 160, // Shorter connections on mobile
+      baseSpeed: isMobile ? 0.15 : 0.25, // Slower, premium feel
+      sizeRange: isMobile ? { min: 0.5, max: 1.5 } : { min: 1, max: 2 }
+    };
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      initParticles();
     };
 
-    // Particle Class
+    // --- PARTICLE CLASS ---
     class Particle {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * moveSpeed;
-        this.vy = (Math.random() - 0.5) * moveSpeed;
-        this.size = Math.random() * 1.5 + 0.5;
+        // Random direction with constant slow speed
+        this.vx = (Math.random() - 0.5) * config.baseSpeed;
+        this.vy = (Math.random() - 0.5) * config.baseSpeed;
+        this.size = Math.random() * (config.sizeRange.max - config.sizeRange.min) + config.sizeRange.min;
+        // Opacity creates depth (some particles look further away)
+        this.opacity = Math.random() * 0.5 + 0.2; 
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Bounce off edges
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        // Smooth wrap-around (infinite space effect) instead of hard bounce
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
       }
 
       draw() {
-        ctx.fillStyle = particleColor;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        // Cyan glow with white core
+        ctx.fillStyle = `rgba(${config.particleColor}, ${this.opacity})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `rgba(${config.lineColor}, 0.8)`;
         ctx.fill();
+        ctx.shadowBlur = 0; // Reset shadow for lines to save performance
       }
     }
 
+    // --- INITIALIZATION ---
     const initParticles = () => {
       particles = [];
-      // Adaptive particle count based on device - much lower on mobile
-      let particleCount;
-      if (window.innerWidth < 640) {
-        // Mobile: fewer particles
-        particleCount = Math.floor((canvas.width * canvas.height) / 25000);
-      } else if (window.innerWidth < 1024) {
-        // Tablet: medium particles
-        particleCount = Math.floor((canvas.width * canvas.height) / 18000);
-      } else {
-        // Desktop: more particles
-        particleCount = Math.floor((canvas.width * canvas.height) / 12000);
-      }
-      
-      for (let i = 0; i < particleCount; i++) {
+      for (let i = 0; i < config.particleCount; i++) {
         particles.push(new Particle());
       }
     };
 
+    // --- ANIMATION LOOP ---
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Update and Draw Particles
-      particles.forEach((particle, index) => {
-        particle.update();
-        particle.draw();
+      // Double loop for connections (optimized)
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+        p1.update();
+        p1.draw();
 
-        // Draw Connections - skip some for performance on mobile
-        const skipConnections = window.innerWidth < 640 ? 2 : 1;
-        for (let j = index + skipConnections; j < particles.length; j += skipConnections) {
-          const dx = particle.x - particles[j].x;
-          const dy = particle.y - particles[j].y;
+        // Check connections
+        // We start j at i+1 to avoid duplicate checks and self-checks
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          // Euclidean distance
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < connectionDistance) {
+          if (distance < config.connectionDistance) {
+            // Opacity based on distance (closer = brighter)
+            const opacity = 1 - distance / config.connectionDistance;
+            
             ctx.beginPath();
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 1 - distance / connectionDistance;
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(particles[j].x, particles[j].y);
+            // Thinner lines on mobile for elegance
+            ctx.lineWidth = isMobile ? 0.3 : 0.6; 
+            ctx.strokeStyle = `rgba(${config.lineColor}, ${opacity * 0.4})`; // Low opacity lines
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
             ctx.stroke();
           }
         }
-      });
+      }
 
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('resize', resizeCanvas);
+    // Setup
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initParticles(); // Re-init on resize to maintain density
+    });
+    
     resizeCanvas();
+    initParticles();
     animate();
 
     return () => {
@@ -482,8 +579,22 @@ const NetworkBackground = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />;
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* Canvas */}
+      <canvas 
+        ref={canvasRef} 
+        className="absolute inset-0 w-full h-full opacity-60" 
+      />
+      
+      {/* VIGNETTE OVERLAY: This is key for the "Professional" look.
+          It fades the edges to black so the particles don't look cut off,
+          and focuses attention on the center content. */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020617_90%)]" />
+    </div>
+  );
 };
+
 
 const About = () => {
   const content1 = [

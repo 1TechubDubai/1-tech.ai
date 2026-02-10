@@ -3,7 +3,7 @@ import './App.css';
 
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
-import Services from './pages/Services_clean.jsx'; // Ensure this points to your Services.jsx file
+import Services from './pages/Services.jsx'; // Ensure this points to your Services.jsx file
 import Contact from './pages/Contact.jsx';
 import Partners from './pages/Partners.jsx';
 

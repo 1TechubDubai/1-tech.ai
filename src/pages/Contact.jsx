@@ -1,4 +1,3 @@
-import React from 'react';
 import Navbar from "../components/Navbar";
 import MessageForm from "../components/MessageForm";
 import Footer from "../components/Footer"; // Assuming you have this from previous steps

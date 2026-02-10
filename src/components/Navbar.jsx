@@ -4,7 +4,6 @@ import {
   ChevronDown, 
   Menu, 
   X, 
-  ChevronRight, 
   ArrowLeft 
 } from "lucide-react";
 import { allServicesData } from "../data/ServicesData"; 
@@ -53,34 +52,28 @@ const Navbar = () => {
   return (
     <>
       {/* --- MAIN NAVBAR BAR --- */}
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+      <div className="fixed top-4 left-0 right-0 z-[60] flex justify-center px-4">
         <nav
           className="
             relative
             flex items-center justify-between
-            bg-[#0a0f1d]/80 backdrop-blur-md
-            border border-slate-800/60
+            bg-[#0a0f1d]/90 backdrop-blur-xl
+            border border-slate-800/80
             shadow-2xl shadow-black/50
             rounded-full
-            px-6 py-3
-            transition-all duration-300
-            hover:border-cyan-500/30
+            px-5 py-2.5 sm:px-6 sm:py-3
             max-w-5xl w-full
           "
         >
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-semibold text-white text-lg tracking-tight z-50">
-            {/* <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-              <span className="text-black font-bold">1</span>
-            </div>
-            <span className="hidden sm:inline">1TecHub</span> */}
-            <img src={logo}></img>
+          <Link to="/" className="flex items-center gap-2 z-50">
+            <img src={logo} alt="1TecHub" className="h-7 sm:h-8 w-auto" />
           </Link>
 
-          {/* --- DESKTOP MENU (Hidden on Mobile) --- */}
+          {/* --- DESKTOP MENU --- */}
           <div className="hidden md:flex items-center gap-8">
-            <NavLink to="/" label="Home" />
-            <NavLink to="/about" label="About" />
+            <NavLink to="/" label="Home" location={location} />
+            <NavLink to="/about" label="About" location={location} />
 
             {/* Desktop Services Dropdown */}
             <div
@@ -92,7 +85,7 @@ const Navbar = () => {
                 className={`
                   flex items-center gap-1 text-sm font-medium
                   transition-all duration-200
-                  ${serviceOpen ? "text-cyan-400" : "text-slate-300 hover:text-cyan-400"}
+                  ${serviceOpen || location.pathname.startsWith('/services') ? "text-cyan-400" : "text-slate-300 hover:text-cyan-400"}
                 `}
               >
                 Services
@@ -125,18 +118,34 @@ const Navbar = () => {
                           return (
                             <Link
                               key={slug}
-                              to={`/services/${slug}`}
+                              to={`/services/${service.slug}`}
                               onClick={() => setServiceOpen(false)}
-                              className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-800/50 transition-all duration-200"
+                              className={`group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 ${
+                                location.pathname === `/services/${service.slug}`
+                                  ? "bg-cyan-500/20 border border-cyan-500/30"
+                                  : "hover:bg-slate-800/50"
+                              }`}
                             >
-                              <div className="mt-1 text-slate-500 group-hover:text-cyan-400 transition-colors">
+                              <div className={`mt-1 transition-colors ${
+                                location.pathname === `/services/${service.slug}`
+                                  ? "text-cyan-400"
+                                  : "text-slate-500 group-hover:text-cyan-400"
+                              }`}>
                                 {Icon && <Icon size={18} />}
                               </div>
                               <div>
-                                <div className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">
+                                <div className={`text-sm font-medium transition-colors ${
+                                  location.pathname === `/services/${service.slug}`
+                                    ? "text-white"
+                                    : "text-slate-200 group-hover:text-white"
+                                }`}>
                                   {service.title}
                                 </div>
-                                <div className="text-[10px] text-slate-500 leading-tight mt-0.5 line-clamp-1 group-hover:text-slate-400">
+                                <div className={`text-[10px] leading-tight mt-0.5 line-clamp-1 transition-colors ${
+                                  location.pathname === `/services/${service.slug}`
+                                    ? "text-slate-300"
+                                    : "text-slate-500 group-hover:text-slate-400"
+                                }`}>
                                   {service.hero?.description?.split('.')[0] || "Advanced solutions."}
                                 </div>
                               </div>
@@ -150,12 +159,12 @@ const Navbar = () => {
               </div>
             </div>
 
-            <NavLink to="/partners" label="Partners" />
-            <NavLink to="/contact" label="Contact" />
+            <NavLink to="/partners" label="Partners" location={location} />
+            <NavLink to="/contact" label="Contact" location={location} />
           </div>
 
           {/* CTA & Mobile Toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               to="https://calendly.com/"
               className="
@@ -172,13 +181,13 @@ const Navbar = () => {
 
             {/* Hamburger Button */}
             <button 
-              className="md:hidden text-white p-1 z-50 relative"
+              className="md:hidden text-white p-1 z-50 focus:outline-none"
               onClick={() => {
                 setMobileMenuOpen(!mobileMenuOpen);
-                setMobileView('main'); // Reset view on toggle
+                setMobileView('main');
               }}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={24} className="text-cyan-400" /> : <Menu size={24} />}
             </button>
           </div>
         </nav>
@@ -186,82 +195,80 @@ const Navbar = () => {
 
       {/* --- MOBILE FULL SCREEN OVERLAY --- */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#020617] md:hidden flex flex-col pt-24 pb-8 px-6 animate-fade-in overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#020617] md:hidden flex flex-col pt-20 pb-6 px-5 h-[100dvh]">
           
           {/* VIEW 1: MAIN MENU */}
           {mobileView === 'main' ? (
-            <div className="flex flex-col h-full animate-slide-up">
-              <div className="space-y-6 flex-1">
-                <Link to="/" className="text-3xl font-bold text-white block">Home</Link>
-                <Link to="/about" className="text-3xl font-bold text-white block">About</Link>
+            <div className="flex flex-col h-full justify-between animate-in fade-in slide-in-from-bottom-4 duration-200">
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <Link to="/" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-white'}`}>Home</Link>
+                <Link to="/about" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/about' ? 'text-cyan-400' : 'text-white'}`}>About</Link>
                 
                 {/* Services Trigger */}
                 <button 
                   onClick={() => setMobileView('services')}
-                  // Added 'w-full' here:
-                  className="w-full flex items-center justify-center gap-2 text-3xl font-bold text-white group pl-3"
+                  className={`text-lg font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
                 >
-                  Services
-                  <ChevronRight className="text-slate-500 group-hover:text-cyan-400 transition-colors pt-2" size={28} />
+                  Services  →
                 </button>
 
-                <Link to="/partners" className="text-3xl font-bold text-white block">Partner Platforms</Link>
-                <Link to="/contact" className="text-3xl font-bold text-white block">Contact</Link>
+                <Link to="/partners" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/partners' ? 'text-cyan-400' : 'text-white'}`}>Partner Platforms</Link>
+                <Link to="/contact" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/contact' ? 'text-cyan-400' : 'text-white'}`}>Contact</Link>
               </div>
 
-              {/* Bottom CTA */}
-              <div className="mt-auto space-y-8">
-                <Link to="/book" className="block w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+              {/* Bottom CTA - Fixed at bottom */}
+              <div className="w-full pt-4 flex-shrink-0">
+                <Link to="/book" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg shadow-cyan-900/20 active:scale-[0.98] transition-transform">
                   Book Strategy
                 </Link>
-                
-                {/* Socials / Footer info */}
-                <div className="flex justify-center gap-6 text-slate-500">
-                   {/* Add Social Icons here if needed */}
-                   <span>LinkedIn</span>
-                   <span>Instagram</span>
-                </div>
-                <div className="text-center text-xs text-slate-600">
-                  © 2026 1TecHub. All rights reserved.
-                </div>
               </div>
             </div>
           ) : (
-            /* VIEW 2: SERVICES SUB-MENU */
-            <div className="flex flex-col h-full animate-slide-up">
+            /* VIEW 2: SERVICES SUB-MENU - Redesigned for better space usage */
+            <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-8 duration-200">
               
-              {/* Header */}
-              <div className="flex items-center justify-between mb-8">
+              {/* Compact Header */}
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10 flex-shrink-0">
                 <button 
                   onClick={() => setMobileView('main')}
-                  className="flex items-center text-slate-400 hover:text-white transition-colors"
+                  className="flex items-center text-slate-400 hover:text-white transition-colors py-1"
                 >
-                  <ArrowLeft size={20} className="mr-2" />
-                  Back
+                  <ArrowLeft size={18} className="mr-1" />
+                  <span className="text-sm font-medium">Back</span>
                 </button>
-                <h2 className="text-xl font-bold text-white">Services</h2>
-                <div className="w-8"></div> {/* Spacer for centering */}
+                <h2 className="text-base font-bold text-white">Our Services</h2>
+                <div className="w-12"></div>
               </div>
 
-              {/* Services Grid */}
-              <div className="grid grid-cols-2 gap-4 overflow-y-auto pb-8">
+              {/* Services Grid - 3 columns for better space usage, no scrolling needed */}
+              <div className="grid grid-cols-3 gap-2 flex-shrink-0">
                 {allServicesData.map((service) => {
                    const Icon = service.sections?.[0]?.icon;
+                   const isActive = location.pathname === `/services/${service.slug}`;
                    return (
                     <Link
                       key={service.id}
                       to={`/services/${service.slug}`}
-                      className="
-                        flex flex-col items-center justify-center text-center p-4 rounded-2xl
-                        bg-[#0a0f1d] border border-slate-800
-                        hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]
-                        transition-all duration-300 aspect-square
-                      "
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`
+                        flex flex-col items-center gap-1.5 p-2 rounded-lg
+                        transition-all
+                        ${isActive 
+                          ? 'bg-cyan-500/20 border border-cyan-500/50' 
+                          : 'bg-[#0a0f1d] border border-slate-800 active:bg-slate-800'
+                        }
+                      `}
                     >
-                      <div className="w-10 h-10 rounded-full bg-cyan-900/30 flex items-center justify-center text-cyan-400 mb-3">
-                        {Icon && <Icon size={20} />}
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                        isActive 
+                          ? 'bg-cyan-500/30 text-cyan-400' 
+                          : 'bg-cyan-900/30 text-cyan-400'
+                      }`}>
+                        {Icon && <Icon size={18} />}
                       </div>
-                      <span className="text-xs font-bold text-slate-200 leading-tight">
+                      <span className={`text-[9px] font-bold leading-tight text-center line-clamp-2 transition-colors ${
+                        isActive ? 'text-cyan-400' : 'text-slate-200'
+                      }`}>
                         {service.title}
                       </span>
                     </Link>
@@ -269,9 +276,9 @@ const Navbar = () => {
                 })}
               </div>
 
-              {/* Bottom CTA (Repeated for consistency) */}
-              <div className="mt-auto pt-4">
-                 <Link to="/book" className="block w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+              {/* Bottom CTA - Fixed at bottom, always visible */}
+              <div className="w-full pt-4 mt-auto flex-shrink-0">
+                 <Link to="/book" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform">
                   Book Strategy
                 </Link>
               </div>
@@ -283,13 +290,20 @@ const Navbar = () => {
   );
 };
 
-const NavLink = ({ to, label }) => (
-  <Link
-    to={to}
-    className="text-sm font-medium text-slate-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all"
-  >
-    {label}
-  </Link>
-);
+const NavLink = ({ to, label, location }) => {
+  const isActive = location.pathname === to;
+  return (
+    <Link
+      to={to}
+      className={`text-sm font-medium transition-all ${
+        isActive
+          ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+          : "text-slate-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+};
 
 export default Navbar;

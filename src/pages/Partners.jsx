@@ -8,13 +8,12 @@ import {
   BarChart3, 
   Box, 
   Activity,
-  Lock,
-  Users,
-  Cloud,
-  Video
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+
+import Omnivio from '../assets/omnivio.svg';
+import RC from '../assets/rc.svg';
 
 // --- DATA: SUITE GRID (Top Section) ---
 const suiteItems = [
@@ -70,7 +69,8 @@ const partners = [
       { label: "Fleet Analytics", icon: BarChart3 }
     ],
     theme: "cyan",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" // Tech map placeholder
+    image: RC, // Tech map placeholder
+    link: 'https://roadcast.in/'
   },
   {
     id: "02",
@@ -84,22 +84,23 @@ const partners = [
       { label: "Risk Management", icon: Shield }
     ],
     theme: "purple",
-    image: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=80&w=1000&auto=format&fit=crop" // Network nodes placeholder
+    image: Omnivio, // Network nodes placeholder
+    link: 'https://omnivio.io/'
   },
-  {
-    id: "03",
-    name: "ICEWARP",
-    sub: "Secure Collaboration",
-    desc: "Unified communication platform integrating email, team chat, and storage for secure enterprise collaboration.",
-    features: [
-      { label: "Encrypted Email", icon: Lock },
-      { label: "Team Chat", icon: MessageSquare },
-      { label: "Video Calls", icon: Video },
-      { label: "Cloud Storage", icon: Cloud }
-    ],
-    theme: "emerald",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop" // Cyber security placeholder
-  }
+  // {
+  //   id: "03",
+  //   name: "ICEWARP",
+  //   sub: "Secure Collaboration",
+  //   desc: "Unified communication platform integrating email, team chat, and storage for secure enterprise collaboration.",
+  //   features: [
+  //     { label: "Encrypted Email", icon: Lock },
+  //     { label: "Team Chat", icon: MessageSquare },
+  //     { label: "Video Calls", icon: Video },
+  //     { label: "Cloud Storage", icon: Cloud }
+  //   ],
+  //   theme: "emerald",
+  //   image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop" // Cyber security placeholder
+  // }
 ];
 
 
@@ -284,6 +285,7 @@ const Partners = () => {
                       e.currentTarget.style.backgroundColor = themeColor;
                       e.currentTarget.style.filter = 'brightness(1)';
                     }}
+                    onClick={()=>{window.open(partner.link, '_blank').focus();}}
                   >
                     Visit Platform
                     <ArrowRight size={16} />
@@ -309,11 +311,19 @@ const Partners = () => {
                 </div>
 
                 {/* Main Image */}
-                <img 
-                  src={partner.image} 
-                  alt={partner.name} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
-                />
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black p-4">
+                  
+                  {/* 1. The White Background Overlay (Covers entire parent) */}
+                  <div className="absolute inset-0 bg-black z-0" />
+
+                  {/* 2. The Image (Centered on top of the white background) */}
+                  <img 
+                    src={partner.image} 
+                    alt={partner.name} 
+                    className="relative z-10 object-contain max-w-full max-h-full transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
+                  />
+
+                </div>
 
                 {/* Stats Overlay (Decorative) */}
                 <div className="absolute top-6 right-6 z-30 flex gap-2">
