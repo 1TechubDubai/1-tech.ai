@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from "../assets/logo.svg";
 import { Linkedin, Instagram, Mail, Phone, Cpu, Twitter } from 'lucide-react';
 
 const Footer = () => {
@@ -14,7 +15,7 @@ const Footer = () => {
           <div className="space-y-6 max-w-sm">
             {/* Logo area */}
             <div className="flex items-center gap-2 text-white">
-              <img src="/src/assets/logo.svg" alt="1TecHub Logo" className="w-1/2 h-1/2" />
+              <img src={logo} alt="1TecHub Logo" className="w-1/2 h-1/2" />
             </div>
             
             <div className="space-y-4">

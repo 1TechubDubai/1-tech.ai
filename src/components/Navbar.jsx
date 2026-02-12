@@ -241,7 +241,7 @@ const Navbar = () => {
               </div>
 
               {/* Services Grid - 3 columns for better space usage, no scrolling needed */}
-              <div className="grid grid-cols-3 gap-2 flex-shrink-0">
+              <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                 {allServicesData.map((service) => {
                    const Icon = service.sections?.[0]?.icon;
                    const isActive = location.pathname === `/services/${service.slug}`;
@@ -251,7 +251,7 @@ const Navbar = () => {
                       to={`/services/${service.slug}`}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`
-                        flex flex-col items-center gap-1.5 p-2 rounded-lg
+                        flex flex-col items-center gap-1.5 p-4 rounded-lg
                         transition-all
                         ${isActive 
                           ? 'bg-cyan-500/20 border border-cyan-500/50' 
@@ -264,9 +264,9 @@ const Navbar = () => {
                           ? 'bg-cyan-500/30 text-cyan-400' 
                           : 'bg-cyan-900/30 text-cyan-400'
                       }`}>
-                        {Icon && <Icon size={18} />}
+                        {Icon && <Icon size={20} />}
                       </div>
-                      <span className={`text-[9px] font-bold leading-tight text-center line-clamp-2 transition-colors ${
+                      <span className={`text-[12px] font-bold leading-tight text-center line-clamp-2 mt-2 transition-colors ${
                         isActive ? 'text-cyan-400' : 'text-slate-200'
                       }`}>
                         {service.title}

@@ -464,17 +464,23 @@ const NetworkBackground = () => {
     let animationFrameId;
     let particles = [];
     
-    // --- CONFIGURATION ---
-    // Detect mobile for specific tuning
+    // Track mouse position for interactive connections
+    let mouse = { x: null, y: null };
+
     const isMobile = window.innerWidth < 768;
 
+    // --- UPDATED CONFIGURATION ---
     const config = {
-      particleColor: '255, 255, 255', // White core for crispness
-      lineColor: '6, 182, 212',       // Cyan-500 for connections
-      particleCount: isMobile ? 35 : 90, // Much fewer on mobile for clean look
-      connectionDistance: isMobile ? 110 : 160, // Shorter connections on mobile
-      baseSpeed: isMobile ? 0.15 : 0.25, // Slower, premium feel
-      sizeRange: isMobile ? { min: 0.5, max: 1.5 } : { min: 1, max: 2 }
+      particleColor: '255, 255, 255', 
+      lineColor: '6, 182, 212',       
+      // 1. INCREASED DENSITY: More particles to make the network look fuller
+      particleCount: isMobile ? 50 : 130, 
+      // 2. LONGER REACH: Allows lines to stretch further, creating complex webs
+      connectionDistance: isMobile ? 130 : 190, 
+      // 3. SLIGHTLY FASTER: Gives it a bit more kinetic energy
+      baseSpeed: isMobile ? 0.25 : 0.4, 
+      // 4. BIGGER PARTICLES: Makes the glowing nodes much more visible
+      sizeRange: isMobile ? { min: 1, max: 2.5 } : { min: 1.5, max: 3.5 }
     };
 
     const resizeCanvas = () => {
@@ -482,24 +488,21 @@ const NetworkBackground = () => {
       canvas.height = window.innerHeight;
     };
 
-    // --- PARTICLE CLASS ---
     class Particle {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        // Random direction with constant slow speed
         this.vx = (Math.random() - 0.5) * config.baseSpeed;
         this.vy = (Math.random() - 0.5) * config.baseSpeed;
         this.size = Math.random() * (config.sizeRange.max - config.sizeRange.min) + config.sizeRange.min;
-        // Opacity creates depth (some particles look further away)
-        this.opacity = Math.random() * 0.5 + 0.2; 
+        // 5. BRIGHTER BASE OPACITY: Nodes stand out more
+        this.opacity = Math.random() * 0.6 + 0.4; 
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Smooth wrap-around (infinite space effect) instead of hard bounce
         if (this.x < 0) this.x = canvas.width;
         if (this.x > canvas.width) this.x = 0;
         if (this.y < 0) this.y = canvas.height;
@@ -509,16 +512,15 @@ const NetworkBackground = () => {
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        // Cyan glow with white core
         ctx.fillStyle = `rgba(${config.particleColor}, ${this.opacity})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `rgba(${config.lineColor}, 0.8)`;
+        // 6. STRONGER GLOW: Increased shadow blur for a neon effect
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `rgba(${config.lineColor}, 1)`;
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow for lines to save performance
+        ctx.shadowBlur = 0; 
       }
     }
 
-    // --- INITIALIZATION ---
     const initParticles = () => {
       particles = [];
       for (let i = 0; i < config.particleCount; i++) {
@@ -526,33 +528,46 @@ const NetworkBackground = () => {
       }
     };
 
-    // --- ANIMATION LOOP ---
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Double loop for connections (optimized)
       for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
         p1.update();
         p1.draw();
 
-        // Check connections
-        // We start j at i+1 to avoid duplicate checks and self-checks
+        // 7. MOUSE INTERACTION: Draw lines from particles to the cursor
+        if (mouse.x != null && mouse.y != null) {
+          const dxMouse = p1.x - mouse.x;
+          const dyMouse = p1.y - mouse.y;
+          const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+          
+          // Mouse has a slightly larger gravitational pull/reach
+          if (distanceMouse < config.connectionDistance * 1.5) {
+            ctx.beginPath();
+            const mouseOpacity = 1 - distanceMouse / (config.connectionDistance * 1.5);
+            ctx.strokeStyle = `rgba(${config.lineColor}, ${mouseOpacity * 0.8})`;
+            ctx.lineWidth = 1.2;
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+          }
+        }
+
+        // Standard particle-to-particle connections
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
-          // Euclidean distance
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < config.connectionDistance) {
-            // Opacity based on distance (closer = brighter)
             const opacity = 1 - distance / config.connectionDistance;
             
             ctx.beginPath();
-            // Thinner lines on mobile for elegance
-            ctx.lineWidth = isMobile ? 0.3 : 0.6; 
-            ctx.strokeStyle = `rgba(${config.lineColor}, ${opacity * 0.4})`; // Low opacity lines
+            // 8. THICKER, BRIGHTER LINES: Increased line width and opacity multiplier
+            ctx.lineWidth = isMobile ? 0.6 : 1.0; 
+            ctx.strokeStyle = `rgba(${config.lineColor}, ${opacity * 0.8})`; 
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
             ctx.stroke();
@@ -563,11 +578,23 @@ const NetworkBackground = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    // Setup
+    // Mouse Event Listeners
+    const handleMouseMove = (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+    
+    const handleMouseOut = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+
     window.addEventListener('resize', () => {
       resizeCanvas();
-      initParticles(); // Re-init on resize to maintain density
+      initParticles(); 
     });
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseout', handleMouseOut);
     
     resizeCanvas();
     initParticles();
@@ -575,26 +602,27 @@ const NetworkBackground = () => {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseout', handleMouseOut);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-      {/* Canvas */}
+    // Make sure pointer-events are enabled here so it can detect the mouse!
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      
+      {/* 9. INCREASED CANVAS OPACITY: Changed from opacity-60 to opacity-90 */}
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 w-full h-full opacity-60" 
+        className="absolute inset-0 w-full h-full opacity-90" 
       />
       
-      {/* VIGNETTE OVERLAY: This is key for the "Professional" look.
-          It fades the edges to black so the particles don't look cut off,
-          and focuses attention on the center content. */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020617_90%)]" />
+      {/* 10. SOFTER VIGNETTE: Pushed the transparent center out to 20% and made the dark edges slightly softer so they don't swallow the particles */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(2,6,23,0.95)_100%)] pointer-events-none" />
     </div>
   );
 };
-
 
 const About = () => {
   const content1 = [
@@ -663,7 +691,7 @@ const About = () => {
       <Navbar />
 
       {/* --- HERO SECTION WRAPPER --- */}
-      <div className="relative pt-16 sm:pt-24 md:pt-32 lg:pt-40 pb-12 sm:pb-16 md:pb-24 lg:pb-32 flex flex-col items-center text-center overflow-hidden">
+      <div className="relative pt-24 sm:pt-26 md:pt-32 lg:pt-40 pb-12 sm:pb-16 md:pb-24 lg:pb-32 flex flex-col items-center text-center overflow-hidden">
         
         {/* 1. Base Gradient Background */}
         <div 
