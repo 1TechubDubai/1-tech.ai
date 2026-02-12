@@ -9,7 +9,7 @@ import Partners from './pages/Partners.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/1-tech.ai">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
