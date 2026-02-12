@@ -83,45 +83,104 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Basic Validation
-    if (!formData.fullName || !formData.email || !formData.message) {
-      setToast({ type: 'error', message: 'Please fill in all required fields.' });
-      return;
-    }
+      e.preventDefault();
 
-    setStatus('loading');
+      // 1. Basic Validation
+      if (!formData.fullName || !formData.email || !formData.message) {
+        setToast({ type: 'error', message: 'Please fill in all required fields.' });
+        return;
+      }
 
-    // --- EMAIL SENDING LOGIC ---
-    try {
-      /* REPLACE THESE STRINGS WITH YOUR ACTUAL EMAILJS KEYS 
-         Get them from https://dashboard.emailjs.com/
-      */
-      const SERVICE_ID = 'YOUR_SERVICE_ID'; 
-      const TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; 
-      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; 
+      setStatus('loading');
 
-      // NOTE: Remove this simulated timeout when using real EmailJS
-      // await emailjs.send(SERVICE_ID, TEMPLATE_ID, formData, PUBLIC_KEY);
-      
-      // SIMULATION (For demo purposes so you see the UI work immediately)
-      await new Promise(resolve => setTimeout(resolve, 2000)); 
-      
-      setStatus('success');
-      setToast({ type: 'success', message: 'We have received your inquiry. Our team will contact you shortly.' });
-      
-      // Reset Form
-      setFormData({ fullName: '', email: '', phone: '', company: '', service: '', message: '' });
+      // 2. Load Environment Variables
+      const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      const backendApiUrl = import.meta.env.VITE_API_BASE_URL || '';
 
-    } catch (error) {
-      console.error('Email Error:', error);
-      setStatus('error');
-      setToast({ type: 'error', message: 'Failed to send message. Please try again later or email us directly.' });
-    } finally {
-      setStatus('idle');
-    }
-  };
+      // Check configuration status
+      const isEmailJsConfigured = emailJsServiceId && emailJsTemplateId && emailJsPublicKey;
+      const isBackendApiConfigured = !!backendApiUrl;
+
+      try {
+        // --- STRATEGY 1: EmailJS (Primary) ---
+        if (isEmailJsConfigured) {
+          try {
+            await emailjs.send(
+              emailJsServiceId,
+              emailJsTemplateId,
+              {
+                // Map your formData to the EmailJS template variables
+                name: formData.fullName, 
+                email: formData.email,
+                phone_number: formData.phone,
+                company: formData.company,
+                service_interest: formData.service,
+                message: formData.message,
+              },
+              {
+                publicKey: emailJsPublicKey,
+              }
+            );
+
+            // Success via EmailJS
+            setStatus('success');
+            setToast({ type: 'success', message: 'Message sent successfully via email!' });
+            setFormData({ fullName: '', email: '', phone: '', company: '', service: '', message: '' });
+            return; // Exit function
+
+          } catch (emailError) {
+            console.error("EmailJS failed, attempting fallback...", emailError);
+            
+            // If EmailJS fails, checks if we can fallback to Backend API
+            if (!isBackendApiConfigured) {
+              throw new Error("EmailJS failed and no backend configured.");
+            }
+            // If backend IS configured, proceed to fallback logic below...
+          }
+        }
+
+        // --- STRATEGY 2: Backend API (Fallback or Primary if EmailJS missing) ---
+        if (isBackendApiConfigured) {
+          try {
+            // Replace this fetch with your specific API logic
+            const response = await fetch(`${backendApiUrl}/api/contact`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) throw new Error('Backend API response not ok');
+
+            // Success via Backend
+            setStatus('success');
+            setToast({ type: 'success', message: 'Message sent successfully via server!' });
+            setFormData({ fullName: '', email: '', phone: '', company: '', service: '', message: '' });
+
+          } catch (backendError) {
+            console.error("Backend API failed", backendError);
+            throw new Error("All sending methods failed.");
+          }
+        } else if (!isEmailJsConfigured) {
+          // Neither configured
+          console.warn("No email service configured.");
+          setToast({ type: 'error', message: 'System configuration error: No email service set.' });
+          setStatus('idle'); // Reset to allow retry if config changes
+          return;
+        }
+
+      } catch (error) {
+        console.error('Submission Error:', error);
+        setStatus('error');
+        setToast({ type: 'error', message: 'Failed to send message. Please try again later.' });
+      } finally {
+        // Optional: Reset status to idle after a delay if you want the button to reset
+        if (status !== 'success') {
+          setStatus('idle');
+        }
+      }
+    };
 
   return (
     <div className={`w-full font-sans relative ${className}`}>

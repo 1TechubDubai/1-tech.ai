@@ -2,6 +2,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Make all scrollbars transparent */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+
 @keyframes marquee {
   0% {
     transform: translateX(0);
