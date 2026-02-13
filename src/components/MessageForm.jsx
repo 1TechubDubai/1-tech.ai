@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, ArrowRight, Check, Loader2, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
 
 // --- INTERNAL TOAST COMPONENT ---
@@ -357,21 +357,45 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl 
-                         shadow-[0_0_20px_-5px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.7)] hover:-translate-y-0.5
-                         disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none
-                         transition-all duration-300 flex items-center justify-center gap-2 group text-sm sm:text-base relative overflow-hidden"
+              className="
+                w-full 
+                bg-gradient-to-r from-cyan-500 to-blue-600 
+                hover:from-cyan-400 hover:to-blue-500 
+                text-white font-bold py-4 rounded-xl 
+                
+                /* Shadows & Glow */
+                shadow-[0_0_20px_-5px_rgba(6,182,212,0.5)] 
+                hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.7)] 
+                hover:-translate-y-0.5
+                
+                /* Disabled State */
+                disabled:opacity-70 disabled:cursor-not-allowed 
+                disabled:hover:translate-y-0 disabled:hover:shadow-none
+                
+                /* Transitions */
+                transition-all duration-300 
+                flex items-center justify-center gap-2 group 
+                text-sm sm:text-base relative overflow-hidden
+              "
             >
-              {status === 'loading' ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Sending...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Message</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
+              {/* Text Label */}
+              <span>{status === 'loading' ? 'Sending...' : 'Send Message'}</span>
+
+              {/* Paper Rocket Icon */}
+              <Send 
+                className={`
+                  w-5 h-5 
+                  transition-all duration-500 ease-in-out
+                  ${status === 'loading' 
+                    ? 'translate-x-8 -translate-y-8 opacity-0' /* FLY AWAY ANIMATION */
+                    : 'group-hover:translate-x-1 group-hover:-translate-y-1' /* HOVER WIGGLE */
+                  }
+                `} 
+              />
+
+              {/* Optional: Subtle Spinner that fades in behind the rocket */}
+              {status === 'loading' && (
+                <Loader2 className="absolute right-6 w-5 h-5 animate-spin opacity-50" />
               )}
             </button>
           </div>

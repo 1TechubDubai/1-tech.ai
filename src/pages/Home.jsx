@@ -24,7 +24,8 @@ import {
   Users, 
   TrendingUp,
   Quote,
-  Link
+  Link,
+  Rocket, ChevronRight, Sparkles, ArrowDown
 } from 'lucide-react';
 
 import seamless from "../assets/seamlessInt.svg";
@@ -199,13 +200,42 @@ const IntroSection = () => {
 
         {/* Buttons - tighter margin */}
         <div 
-          className="mt-12 sm:mt-8 flex flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-lg mx-auto opacity-0 animate-[fadeIn_1s_ease-out_0.8s_forwards] flex-wrap"
+          className="
+            /* --- SPACING & ANIMATION --- */
+            mt-12 sm:mt-8 
+            mx-auto 
+            opacity-0 animate-[fadeIn_1s_ease-out_0.8s_forwards]
+            
+            /* --- LAYOUT --- */
+            flex 
+            flex-col sm:flex-row 
+            items-center justify-center 
+            gap-3 sm:gap-4 
+            
+            /* --- SIZING --- */
+            w-[80%] sm:w-full max-w-lg
+          "
         >
-          <Intro text="Start Your Journey" onClick={() => {navigate('/contact')}} />
-          <Intro text="Explore Services" onClick={() => {
-            const element = document.getElementById('capabilities');
-            element?.scrollIntoView({ behavior: 'smooth' });
-          }} />
+          <Intro 
+            text="Start Your Journey" 
+            variant={1} 
+            left={<Rocket className="w-5 h-5" />}        /* Launch Icon */
+            right={<ChevronRight className="w-5 h-5" />} /* Forward Icon */
+            className="w-full sm:w-auto"
+            onClick={() => {navigate('/contact')}} 
+          />
+          
+          <Intro 
+            text="Explore Services" 
+            
+            left={<Sparkles className="w-5 h-5" />}      /* Magic/AI Icon */
+            right={<ArrowDown className="w-5 h-5" />}    /* Scroll Down Icon */
+            className="w-full sm:w-auto"
+            onClick={() => {
+              const element = document.getElementById('capabilities');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }} 
+          />
         </div>
 
         {/* Stats Section - Pushed to bottom of available space, but with padding to be safe */}

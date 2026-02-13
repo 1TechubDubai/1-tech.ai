@@ -1,61 +1,41 @@
-const Intro = ({ text, onClick, left, right, className = "" }) => {
+const Intro = ({ text, onClick, left, right, className = "", variant = 0 }) => {
   return (
     <button
       onClick={onClick}
       className={`
-        group relative z-10
-        flex items-center justify-center
-        overflow-hidden
-        whitespace-nowrap
-        px-4 py-2 sm:px-10 sm:py-4
-        rounded-full
-        
-        /* --- COLOR SCHEME & GRADIENT --- */
-        bg-gradient-to-r from-cyan-500 to-blue-600
-        text-white font-bold tracking-wide
-        
-        /* --- GLOW & SHADOWS --- */
-        shadow-[0_0_20px_rgba(6,182,212,0.4)]
-        border border-white/10
-        
-        /* --- TRANSITIONS & INTERACTION --- */
+        /* ... keep your existing classes here ... */
+        group relative z-10 flex items-center justify-center
+        overflow-hidden whitespace-nowrap
+        px-6 py-2 sm:px-8 sm:py-2.5 rounded-lg
+        border border-cyan-500 font-semibold tracking-wide
         transition-all duration-300 ease-out
-        hover:scale-105
-        hover:-translate-y-1
-        hover:shadow-[0_0_40px_rgba(6,182,212,0.7)]
-        hover:brightness-110
-        
-        active:scale-95
-        active:translate-y-0
-        active:shadow-[0_0_10px_rgba(6,182,212,0.4)]
-        
+        hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:-translate-y-0.5
+        active:scale-[0.98] active:translate-y-0
+        ${variant === 1 
+          ? "bg-cyan-500 text-slate-900 hover:bg-transparent hover:text-cyan-400" 
+          : "bg-transparent text-cyan-400 hover:bg-cyan-500 hover:text-slate-900"
+        }
         ${className}
       `}
     >
-      {/* SHINE EFFECT OVERLAY */}
-      <div className="absolute inset-0 -translate-x-[200%] bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out z-0" />
-
-      {/* LEFT ICON */}
+      {/* LEFT ICON (Updated to support SVGs) */}
       {left && (
-        <img 
-          src={left} 
-          alt="" 
-          className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 mr-3 object-contain transition-transform duration-300 group-hover:-translate-x-1" 
-        />
+        <span className="relative z-10 mr-2.5 transition-transform duration-300 group-hover:-translate-x-1 flex items-center">
+           {/* If it's a string, render img, otherwise render the component directly */}
+           {typeof left === 'string' ? <img src={left} alt="" className="w-5 h-5 object-contain" /> : left}
+        </span>
       )}
 
       {/* TEXT */}
-      <span className="relative z-10 text-sm sm:text-base drop-shadow-md">
+      <span className="relative z-10 text-sm sm:text-base">
         {text}
       </span>
 
-      {/* RIGHT ICON */}
+      {/* RIGHT ICON (Updated to support SVGs) */}
       {right && (
-        <img 
-          src={right} 
-          alt="" 
-          className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 ml-3 object-contain transition-transform duration-300 group-hover:translate-x-1" 
-        />
+        <span className="relative z-10 ml-2.5 transition-transform duration-300 group-hover:translate-x-1 flex items-center">
+           {typeof right === 'string' ? <img src={right} alt="" className="w-5 h-5 object-contain" /> : right}
+        </span>
       )}
     </button>
   );
