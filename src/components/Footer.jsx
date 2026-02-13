@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from "../assets/logo.svg";
 import { Linkedin, Instagram, Mail, Phone, Cpu, Twitter } from 'lucide-react';
+import { BrandWhatsapp } from 'tabler-icons-react';
 
 const Footer = () => {
   return (
@@ -39,11 +40,11 @@ const Footer = () => {
               <a href="https://www.linkedin.com/company/1techub/" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
                 <Linkedin size={20} />
               </a>
-              <a href="#" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
+              {/* <a href="#" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
                 <Instagram size={20} />
-              </a>
+              </a> */}
               <a href="https://wa.me/971585369749" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
-                <Linkedin size={20} />
+                <BrandWhatsapp size={20} />
               </a>
             </div>
 
