@@ -405,7 +405,7 @@ export const allServicesData = [
   hero: {
     title: "Intelligent & Agentic AI & Analytics.",
     description: "Smarter Decisions. Autonomous Actions. Enterprise Intelligence Reinvented. We go beyond traditional automation to create autonomous digital agents that think, reason, and execute. Combined with advanced machine learning, we help organizations unlock unprecedented operational efficiency.",
-    backgroundImage: "https://images.unsplash.com/photo-1676299000036-96f63069cb6b?q=80&w=2000&auto=format&fit=crop" // Abstract Generative AI / Particles
+    backgroundImage: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2000&auto=format&fit=crop/" // Abstract Generative AI / Particles
   },
   
   sections: [
