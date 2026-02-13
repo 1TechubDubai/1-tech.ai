@@ -4,7 +4,8 @@ import {
   ChevronDown, 
   Menu, 
   X, 
-  ArrowLeft 
+  ArrowLeft,
+  CalendarCheck
 } from "lucide-react";
 import { allServicesData } from "../data/ServicesData"; 
 import logo from "../assets/logo.svg";
@@ -168,7 +169,7 @@ const Navbar = () => {
             <Link
               to="https://calendly.com/"
               className="
-                hidden sm:flex
+                hidden sm:flex items-center gap-2 /* Added alignment and spacing */
                 px-5 py-2 rounded-full text-sm font-semibold
                 bg-cyan-500 text-black
                 transition-all duration-300
@@ -176,7 +177,8 @@ const Navbar = () => {
                 hover:-translate-y-0.5
               "
             >
-              Book a Meeting
+              <span>Book a Meeting</span>
+              <CalendarCheck className="w-4 h-4" />
             </Link>
 
             {/* Hamburger Button */}

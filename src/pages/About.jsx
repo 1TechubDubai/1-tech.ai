@@ -314,7 +314,7 @@ const CoreSpecializations = ({ image }) => {
               className="group relative inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 bg-transparent overflow-hidden rounded-full transition-all hover:bg-cyan-500/10"
             >
               {/* Border Gradient */}
-              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-cyan-500/75 group-hover:border-cyan-400 transition-colors"></div>
               
               <span className="text-sm sm:text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
                 Explore Analytics
