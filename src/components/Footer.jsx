@@ -50,9 +50,9 @@ const Footer = () => {
 
             {/* Contact Info */}
             <div className="flex flex-col md:items-end space-y-3 pt-2">
-              <a href="tel:+971529998266" className="group flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base font-medium">
+              <a href="tel:+971568001040" className="group flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base font-medium">
                 <Phone size={16} className="text-slate-500 group-hover:text-cyan-500 transition-colors" />
-                +971 52 9998266
+                +971 56 800 1040
               </a>
               <a href="mailto:contactus@1techub.ai" className="group flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base font-medium">
                 <Mail size={16} className="text-slate-500 group-hover:text-cyan-500 transition-colors" />

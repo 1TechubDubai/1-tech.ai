@@ -23,7 +23,8 @@ import {
   Zap, 
   Users, 
   TrendingUp,
-  Quote
+  Quote,
+  Link
 } from 'lucide-react';
 
 import seamless from "../assets/seamlessInt.svg";
@@ -696,6 +697,7 @@ const AdvantageSection = () => {
 
 // --- SECTION: FEATURE CARDS (Integration & Analytics) ---
 const FeatureCardsSection = () => {
+  const navigate = useNavigate();
 
   return (
     <section className="relative w-full pb-24 pt-10 bg-transparent overflow-hidden">
@@ -749,7 +751,7 @@ const FeatureCardsSection = () => {
 
             {/* Button */}
             <div className="mt-16 pt-4 sm:pt-6">
-              <a href="/services/" className="
+              <div onClick={() => navigate("/services/custom-ai-solutions")} className="
                 inline-flex items-center justify-center w-full sm:w-auto
                 px-8 py-3 rounded-full text-sm font-bold tracking-wide
                 bg-cyan-500 text-black
@@ -758,7 +760,7 @@ const FeatureCardsSection = () => {
                 active:scale-95
               ">
                 View Integrations <ArrowRight className="ml-2 w-4 h-4" />
-              </a>
+              </div>
             </div>
           </div>
         </div>
@@ -811,7 +813,7 @@ const FeatureCardsSection = () => {
 
             {/* Button */}
             <div className="mt-8 pt-4 sm:pt-6">
-              <a href="/services/data-science-analytics-big-data" className="
+              <div onClick={() => navigate("/services/data-science-analytics-big-data")} className="
                 inline-flex items-center justify-center w-full sm:w-auto
                 px-8 py-3 rounded-full text-sm font-bold tracking-wide
                 bg-blue-600 text-white
@@ -820,7 +822,7 @@ const FeatureCardsSection = () => {
                 active:scale-95
               ">
                 Explore Analytics <ArrowRight className="ml-2 w-4 h-4" />
-              </a>
+              </div>
             </div>
           </div>
         </div>

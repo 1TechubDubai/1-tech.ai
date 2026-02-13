@@ -159,7 +159,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <NavLink to="/partners" label="Partners" location={location} />
+            <NavLink to="/partners" label="AI Partners" location={location} />
             <NavLink to="/contact" label="Contact" location={location} />
           </div>
 
@@ -176,7 +176,7 @@ const Navbar = () => {
                 hover:-translate-y-0.5
               "
             >
-              Book Strategy
+              Book a Meeting
             </Link>
 
             {/* Hamburger Button */}

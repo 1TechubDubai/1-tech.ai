@@ -23,6 +23,9 @@ function App() {
         <Route path="/services" element={<Navigate to="/services/custom-ai-solutions" replace />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/partners' element={<Partners/>} />
+        
+        {/* Catch-all route: redirect any invalid route to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter> 
   );
