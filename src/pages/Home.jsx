@@ -1022,7 +1022,6 @@ const Home = () => {
         bg-[#020617]
         fixed top-0 left-0 w-full h-full
         overflow-y-scroll overflow-x-hidden
-        font-[Arial]
       "
     >
       {/* UNIFIED GRADIENT BACKGROUND SYSTEM - Spans all sections */}
@@ -1066,7 +1065,7 @@ const Home = () => {
           }}
         />
       </div>
-
+      <Navbar />
       <style>{`
         @keyframes flowGradient1 {
           0% { transform: translate(0, 0); }
@@ -1091,7 +1090,7 @@ const Home = () => {
         }
       `}</style>
 
-      <Navbar />
+      
 
       {/* Intro Section */}
       <IntroSection />
