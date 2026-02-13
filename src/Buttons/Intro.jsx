@@ -7,7 +7,7 @@ const Intro = ({ text, onClick, left, right, className = "", variant = 0 }) => {
         group relative z-10 flex items-center justify-center
         overflow-hidden whitespace-nowrap
         px-6 py-2 sm:px-8 sm:py-2.5 rounded-lg
-        border border-cyan-500 font-semibold tracking-wide
+        border-2 border-cyan-500 font-semibold tracking-wide
         transition-all duration-300 ease-out
         hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:-translate-y-0.5
         active:scale-[0.98] active:translate-y-0

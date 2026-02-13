@@ -220,8 +220,9 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom */}
               <div className="w-full pt-4 flex-shrink-0">
-                <Link to="/book" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg shadow-cyan-900/20 active:scale-[0.98] transition-transform">
-                  Book Strategy
+                <Link to="/book" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg shadow-cyan-900/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+                  <span>Book a Meeting</span>
+                  <CalendarCheck className="w-4 h-4 ml-2" />
                 </Link>
               </div>
             </div>
@@ -236,13 +237,13 @@ const Navbar = () => {
                   className="flex items-center text-slate-400 hover:text-white transition-colors py-1"
                 >
                   <ArrowLeft size={18} className="mr-1" />
-                  <span className="text-sm font-medium">Back</span>
+                  <span className="text-md font-medium">Back</span>
                 </button>
                 <h2 className="text-base font-bold text-white">Our Services</h2>
                 <div className="w-12"></div>
               </div>
 
-              {/* Services Grid - 3 columns for better space usage, no scrolling needed */}
+              {/* Services Grid - 2 columns for better space usage, no scrolling needed */}
               <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                 {allServicesData.map((service) => {
                    const Icon = service.sections?.[0]?.icon;
