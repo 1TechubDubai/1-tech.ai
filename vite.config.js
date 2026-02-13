@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/1-tech.ai/', // Set the base path for GitHub Pages deployment
+  // This uses the repo name ONLY if we are deploying to GitHub Pages
+  base: '/',
 })
