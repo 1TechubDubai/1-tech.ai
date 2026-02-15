@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Stat from "../components/Stat";
 import Footer from "../components/Footer";
 import { useState, useRef } from "react";
+import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +25,6 @@ import {
   Users, 
   TrendingUp,
   Quote,
-  Link,
   Rocket, ChevronRight, Sparkles, ArrowDown
 } from 'lucide-react';
 
@@ -548,8 +548,8 @@ const CapabilitiesSection = () => {
 
 const CapabilityCard = ({ title, description, accent, slug, icon: Icon }) => {
   return (
-    <a 
-      href={`/services/${slug}`}
+    <Link
+      to={`/services/${slug}`}
       className="group relative block h-full w-full outline-none"
     >
       <div 
@@ -616,7 +616,7 @@ const CapabilityCard = ({ title, description, accent, slug, icon: Icon }) => {
 
         </div>
       </div>
-    </a>
+    </Link>
   );
 };
 
