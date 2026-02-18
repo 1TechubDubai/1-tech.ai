@@ -490,7 +490,7 @@ const capabilities = [
     icon: MessageSquareText
   },
   {
-    title: "Software Engineering",
+    title: "Software Development",
     slug: "software-development",
     description: "End-to-end full-stack development of scalable, AI-native applications built for the modern cloud era.",
     accent: "#6366f1", // Indigo

@@ -61,11 +61,11 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 text-left">Email</h4>
-                  <a href="mailto:contactus@1techub.ai"                 
+                  <a href="mailto:contactus@1techub.com"                 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-lg font-medium text-white hover:text-cyan-400 transition-colors">
-                    contactus@1techub.ai
+                    contactus@1techub.com
                   </a>
                 </div>
               </div>

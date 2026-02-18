@@ -66,9 +66,9 @@ const Footer = () => {
                 <Phone size={16} className="text-slate-500 group-hover:text-cyan-500 transition-colors" />
                 +971 56 800 1040
               </a>
-              <a href="mailto:contactus@1techub.ai" className="group flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base font-medium">
+              <a href="mailto:contactus@1techub.com" className="group flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base font-medium">
                 <Mail size={16} className="text-slate-500 group-hover:text-cyan-500 transition-colors" />
-                contactus@1techub.ai
+                contactus@1techub.com
               </a>
             </div>
           </div>
