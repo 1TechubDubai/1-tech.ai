@@ -174,7 +174,7 @@ const GlobalScale = ({ earth, points = [] }) => {
           {/* CTA Button */}
           <div className="pt-4 sm:pt-6 flex justify-center lg:justify-start">
             <Link 
-              to="/book" 
+              to="/partners" 
               className="
                 group relative inline-flex items-center justify-center gap-2.5 
                 px-8 py-3.5 sm:py-4 
@@ -186,7 +186,7 @@ const GlobalScale = ({ earth, points = [] }) => {
               "
             >
               <span className="relative z-10 text-white font-bold tracking-wide text-sm sm:text-base">
-                Expand Your Reach
+                View Global Network
               </span>
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 group-hover:translate-x-1 transition-transform" />
               
@@ -308,18 +308,21 @@ const CoreSpecializations = ({ image }) => {
           </ul>
 
           {/* CTA Button */}
-          <div>
+          <div className="pt-2">
             <Link 
               to="/services" 
-              className="group relative inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 bg-transparent overflow-hidden rounded-full transition-all hover:bg-cyan-500/10"
+              className="group relative inline-flex items-center gap-2.5 px-8 py-4 bg-transparent overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)]"
             >
-              {/* Border Gradient */}
-              <div className="absolute inset-0 rounded-full border-4 border-cyan-500/75 group-hover:border-cyan-400 transition-colors"></div>
+              {/* High-Tech Border Gradient */}
+              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors pointer-events-none"></div>
               
-              <span className="text-sm sm:text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
-                Explore Analytics
+              {/* Subtle Inner Glow on Hover */}
+              <div className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/5 transition-colors duration-300"></div>
+              
+              <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide text-white group-hover:text-cyan-300 transition-colors">
+                Discover All Solutions
               </span>
-              <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="relative z-10 w-4 h-4 text-cyan-400 group-hover:translate-x-1.5 transition-transform duration-300" />
             </Link>
           </div>
 

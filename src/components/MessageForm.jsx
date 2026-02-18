@@ -3,6 +3,7 @@ import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle } from 
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
 import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
+import { useLocation } from 'react-router-dom';
 
 // --- INTERNAL TOAST COMPONENT ---
 const Toast = ({ type, message, onClose }) => {
@@ -38,6 +39,7 @@ const Toast = ({ type, message, onClose }) => {
 const MessageForm = ({ showTitle = true, className = "" }) => {
   const formRef = useRef(); // Ref for EmailJS
   const dropdownRef = useRef(null);
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -47,6 +49,19 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     service: [],
     message: ''
   });
+
+  useEffect(() => {
+    // Check if we arrived here with a service in the state
+    if (location.state?.selectedService) {
+      const passedService = location.state.selectedService;
+      
+      setFormData(prev => ({
+        ...prev,
+        // Wrap in array because your form now supports multiple selections
+        service: [passedService] 
+      }));
+    }
+  }, [location.state]);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
