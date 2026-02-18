@@ -37,13 +37,25 @@ const Footer = () => {
             
             {/* Social Icons */}
             <div className="flex gap-5 text-slate-400">
-              <a href="https://www.linkedin.com/company/1techub/" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
+              <a 
+                href="https://www.linkedin.com/company/1techub/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800"
+              >
                 <Linkedin size={20} />
               </a>
-              {/* <a href="#" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
+              
+              {/* <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
                 <Instagram size={20} />
               </a> */}
-              <a href="https://wa.me/971585369749" className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800">
+              
+              <a 
+                href="https://wa.me/971585369749" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-cyan-400 hover:-translate-y-1 transition-all duration-300 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-800"
+              >
                 <BrandWhatsapp size={20} />
               </a>
             </div>
