@@ -341,11 +341,11 @@ const Partners = () => {
                   </h2>
                 </div>
                 
-                <h3 className="text-lg text-slate-300 font-medium mb-6 pl-1 border-l-2 border-slate-700">
+                <h3 className="text-lg text-slate-300 font-medium mb-6 pl-4 border-l-2 border-slate-700 text-left">
                   {partner.sub}
                 </h3>
 
-                <p className="text-slate-400 mb-8 leading-relaxed">
+                <p className="text-slate-400 mb-8 leading-relaxed text-left">
                   {partner.desc}
                 </p>
 
