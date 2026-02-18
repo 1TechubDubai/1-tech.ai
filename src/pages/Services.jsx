@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams } from 'react-router-dom'; 
+import { useNavigate, useParams } from 'react-router-dom'; 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { allServicesData } from "../data/ServicesData"; 
@@ -193,6 +193,7 @@ const Services = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const containerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const navigate = useNavigate()
 
   const currentService = useMemo(() => {
     if (!slug) return allServicesData[0];
@@ -395,7 +396,8 @@ const Services = () => {
                 <p className="text-base sm:text-lg text-cyan-50 max-w-3xl mx-auto mb-8 sm:mb-10 leading-relaxed">
                   {currentService.cta.text}
                 </p>
-                <button className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 rounded-full font-bold text-sm sm:text-lg transition-all hover:bg-cyan-50 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95">
+                <button className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 rounded-full font-bold text-sm sm:text-lg transition-all hover:bg-cyan-50 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95"
+                 onClick={() => navigate('/contact')}>
                    {currentService.cta.buttonText}
                    <ArrowRight size={20} />
                 </button>

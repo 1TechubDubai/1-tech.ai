@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebaseConfig.js";
 import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
 
 // --- INTERNAL TOAST COMPONENT ---
@@ -42,7 +44,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     email: '',
     phone: '',
     company: '',
-    service: '',
+    service: [],
     message: ''
   });
 
@@ -78,109 +80,79 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   };
 
   const handleServiceSelect = (serviceTitle) => {
-    setFormData(prev => ({ ...prev, service: serviceTitle }));
-    setIsDropdownOpen(false);
+    setFormData(prev => {
+      const currentServices = prev.service;
+      // Check if service is already selected
+      const isSelected = currentServices.includes(serviceTitle);
+      
+      const updatedServices = isSelected
+        ? currentServices.filter(s => s !== serviceTitle) // Remove if already there
+        : [...currentServices, serviceTitle];            // Add if new
+        
+      return { ...prev, service: updatedServices };
+    });
+    // Note: Removed setIsDropdownOpen(false) so they can pick many at once
   };
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
 
-      // 1. Basic Validation
-      if (!formData.fullName || !formData.email || !formData.message) {
-        setToast({ type: 'error', message: 'Please fill in all required fields.' });
-        return;
-      }
+    // 1. Basic Validation
+    if (!formData.fullName || !formData.email || !formData.message) {
+      setToast({ type: 'error', message: 'Please fill in all required fields.' });
+      return;
+    }
 
-      setStatus('loading');
+    setStatus('loading');
 
-      // 2. Load Environment Variables
-      const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-      const backendApiUrl = import.meta.env.VITE_API_BASE_URL || '';
+    try {
+      // --- FIREBASE STRATEGY ---
+      // We create a reference to the 'messages' collection
+      const messagesRef = collection(db, "messages");
 
-      // Check configuration status
-      const isEmailJsConfigured = emailJsServiceId && emailJsTemplateId && emailJsPublicKey;
-      const isBackendApiConfigured = !!backendApiUrl;
+      // Add the new document with a server-side timestamp for accurate sorting
+      await addDoc(messagesRef, {
+        name: formData.fullName,
+        email: formData.email,
+        phone_number: formData.phone,
+        company: formData.company,
+        service_interest: formData.service,
+        message: formData.message,
+        timestamp: serverTimestamp(), // Critical for the "Newest First" sort
+        status: "unread" // Optional: helps you track new vs seen messages
+      });
 
-      try {
-        // --- STRATEGY 1: EmailJS (Primary) ---
-        if (isEmailJsConfigured) {
-          try {
-            await emailjs.send(
-              emailJsServiceId,
-              emailJsTemplateId,
-              {
-                // Map your formData to the EmailJS template variables
-                name: formData.fullName, 
-                email: formData.email,
-                phone_number: formData.phone,
-                company: formData.company,
-                service_interest: formData.service,
-                message: formData.message,
-              },
-              {
-                publicKey: emailJsPublicKey,
-              }
-            );
+      // Success Logic
+      setStatus('success');
+      setToast({ 
+        type: 'success', 
+        message: 'Message sent successfully! Our team will contact you soon.' 
+      });
 
-            // Success via EmailJS
-            setStatus('success');
-            setToast({ type: 'success', message: 'Message sent successfully via email!' });
-            setFormData({ fullName: '', email: '', phone: '', company: '', service: '', message: '' });
-            return; // Exit function
+      // Reset Form
+      setFormData({ 
+        fullName: '', 
+        email: '', 
+        phone: '', 
+        company: '', 
+        service: '', 
+        message: '' 
+      });
 
-          } catch (emailError) {
-            console.error("EmailJS failed, attempting fallback...", emailError);
-            
-            // If EmailJS fails, checks if we can fallback to Backend API
-            if (!isBackendApiConfigured) {
-              throw new Error("EmailJS failed and no backend configured.");
-            }
-            // If backend IS configured, proceed to fallback logic below...
-          }
-        }
-
-        // --- STRATEGY 2: Backend API (Fallback or Primary if EmailJS missing) ---
-        if (isBackendApiConfigured) {
-          try {
-            // Replace this fetch with your specific API logic
-            const response = await fetch(`${backendApiUrl}/api/contact`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) throw new Error('Backend API response not ok');
-
-            // Success via Backend
-            setStatus('success');
-            setToast({ type: 'success', message: 'Message sent successfully via server!' });
-            setFormData({ fullName: '', email: '', phone: '', company: '', service: '', message: '' });
-
-          } catch (backendError) {
-            console.error("Backend API failed", backendError);
-            throw new Error("All sending methods failed.");
-          }
-        } else if (!isEmailJsConfigured) {
-          // Neither configured
-          console.warn("No email service configured.");
-          setToast({ type: 'error', message: 'System configuration error: No email service set.' });
-          setStatus('idle'); // Reset to allow retry if config changes
-          return;
-        }
-
-      } catch (error) {
-        console.error('Submission Error:', error);
-        setStatus('error');
-        setToast({ type: 'error', message: 'Failed to send message. Please try again later.' });
-      } finally {
-        // Optional: Reset status to idle after a delay if you want the button to reset
-        if (status !== 'success') {
-          setStatus('idle');
-        }
-      }
-    };
+    } catch (error) {
+      console.error('Firebase Submission Error:', error);
+      setStatus('error');
+      setToast({ 
+        type: 'error', 
+        message: 'Failed to send message. Please check your connection and try again.' 
+      });
+    } finally {
+      // Reset status to idle after a delay if it wasn't a success
+      setTimeout(() => {
+        setStatus('idle');
+      }, 3000);
+    }
+  };
 
   return (
     <div className={`w-full font-sans relative ${className}`}>
@@ -291,13 +263,22 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
               disabled={status === 'loading'}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className={`w-full bg-[#0d1425] border text-left px-4 py-3.5 rounded-xl flex items-center justify-between 
-                         focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                         ${isDropdownOpen ? 'border-cyan-500/50 ring-1 ring-cyan-500/50' : 'border-slate-800/60'}`}
+                        focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all 
+                        ${isDropdownOpen ? 'border-cyan-500/50 ring-1 ring-cyan-500/50' : 'border-slate-800/60'}`}
             >
-              <span className={`text-sm ${formData.service ? "text-slate-100 font-medium" : "text-slate-600"}`}>
-                {formData.service || "Select a service..."}
+              <span className={`text-sm truncate pr-4 ${formData.service.length > 0 ? "text-slate-100 font-medium" : "text-slate-600"}`}>
+                {formData.service.length > 0 
+                  ? formData.service.join(", ") 
+                  : "Select services..."}
               </span>
-              <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+              <div className="flex items-center gap-2">
+                {formData.service.length > 0 && (
+                  <span className="bg-cyan-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                    {formData.service.length}
+                  </span>
+                )}
+                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+              </div>
             </button>
 
             {/* Dropdown Menu */}

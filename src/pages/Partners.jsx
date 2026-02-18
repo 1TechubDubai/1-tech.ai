@@ -9,11 +9,28 @@ import {
   Box, 
   Activity,
 } from 'lucide-react';
+
+import { 
+  // Original Icons
+  Lock, Video, Cloud, Search, Filter, Layers,
+  // Navigation & UI
+  Home, Settings, Menu, Bell, ChevronRight, ChevronLeft, MoreVertical, ExternalLink, RefreshCw, PlusCircle,
+  // User & Security
+  User, UserPlus, UserCheck, UserX, Fingerprint, Key, Eye, EyeOff, ShieldAlert,
+  // Actions & Business
+  Briefcase, CreditCard, DollarSign, PieChart, TrendingUp, Zap, HardDrive, Cpu, 
+  // Status & Feedback
+  CheckCircle2, AlertTriangle, Info, HelpCircle, Trash, Edit, Save, Send
+} from 'lucide-react';
+
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 import Omnivio from '../assets/omnivio.svg';
 import RC from '../assets/rc.svg';
+import { useEffect, useState } from 'react';
+import { collection, query, orderBy, onSnapshot, documentId} from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 // --- DATA: SUITE GRID (Top Section) ---
 const suiteItems = [
@@ -56,7 +73,7 @@ const suiteItems = [
 ];
 
 // --- DATA: PARTNERS LIST (Bottom Section) ---
-const partners = [
+const partnersStatic = [
   {
     id: "01",
     name: "ROADCAST",
@@ -103,9 +120,82 @@ const partners = [
   // }
 ];
 
+const iconMap = {
+  // --- Original Set ---
+  'MapPin' : MapPin, 'Activity' : Activity, 'Truck' : Truck, 'BarChart3' : BarChart3, 'Box' : Box, 'Globe' : Globe, 'Shield' : Shield, 'Lock' : Lock, 'MessageSquare' : MessageSquare, 'Video' : Video, 'Cloud' : Cloud, 'Search' : Search, 'Filter' : Filter, 'Layers' : Layers,
 
+  // --- Navigation & Core UI ---
+  'Home' : Home,             // Dashboard home
+  'Settings' : Settings,         // Configuration
+  'Menu' : Menu,             // Sidebar toggle
+  'Bell' : Bell,             // Notifications
+  'ChevronRight' : ChevronRight,     // List indicators
+  'ChevronLeft' : ChevronLeft,      // Back buttons
+  'MoreVertical' : MoreVertical,     // Action menus
+  'ExternalLink' : ExternalLink,     // Partner website links
+  'RefreshCw' : RefreshCw,        // Sync/Reload data
+  'PlusCircle' : PlusCircle,       // Alternative Add button
+
+  // --- User & Identity Management (IAM) ---
+  'User' : User,             // Profile
+  'UserPlus' : UserPlus,         // Registration requests
+  'UserCheck' : UserCheck,        // Approved users
+  'UserX' : UserX,            // Rejected users
+  'Fingerprint' : Fingerprint,      // Biometric/Security
+  'Key' : Key,              // Access control
+  'Eye' : Eye,              // View details
+  'EyeOff' : EyeOff,           // Hide details
+  'ShieldAlert' : ShieldAlert,      // High-priority alerts
+
+  // --- Business & Performance ---
+  'Briefcase' : Briefcase,        // Partners/Corporate
+  'CreditCard' : CreditCard,       // Billing/Subscriptions
+  'DollarSign' : DollarSign,       // Revenue
+  'PieChart' : PieChart,         // Analytics
+  'TrendingUp' : TrendingUp,       // Growth metrics
+  'Zap' : Zap,              // Automation/Features
+  'HardDrive' : HardDrive,        // Storage/Database
+  'Cpu' : Cpu,              // Processing/AI
+
+  // --- Status & CRUD Actions ---
+  'CheckCircle2' : CheckCircle2,     // Success states
+  'AlertTriangle' : AlertTriangle,    // Warnings
+  'Info' : Info,             // Information tooltips
+  'HelpCircle' : HelpCircle,       // Support/FAQ
+  'Trash' : Trash,            // Delete actions
+  'Edit' : Edit,             // Modify existing entries
+  'Save' : Save,             // Commit changes
+  'Send' : Send              // Message/Reply actions
+};
 
 const Partners = () => {
+  const [partners, setPartners] = useState([]);
+  // 1. Fetch from Firebase
+  useEffect(() => {
+    // Use documentId() to sort by the actual Firestore Document ID
+    const q = query(collection(db, "partners"), orderBy(documentId(), "asc"));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      // Check snapshot.empty rather than just snapshot
+      if (!snapshot.empty) {
+        const firebaseData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        console.log("Firestore Partners Data:", firebaseData);
+        setPartners(firebaseData);
+      } else {
+        console.log("No data found in Firestore, using static fallback.");
+        setPartners(partnersStatic);
+      }
+    }, (error) => {
+      // Always add an error listener to see if permission is denied
+      console.error("Firestore Subscription Error:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="fixed w-full h-full top-0 left-0 bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden overflow-y-scroll">
       
@@ -200,13 +290,13 @@ const Partners = () => {
 
         {/* --- PARTNERS LIST (Detailed Cards) --- */}
         <section className="space-y-12">
-          {partners.map((partner) => {
+          {partners.map((partner, index) => {
             const themeColors = {
               cyan: '#06b6d4',
               purple: '#a855f7',
               emerald: '#10b981'
             };
-            const themeColor = themeColors[partner.theme];
+            const themeColor = partner.theme;
 
             return (
             <div
@@ -233,7 +323,7 @@ const Partners = () => {
                 data-glow
                 className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] -z-10 transition-opacity duration-500"
                 style={{
-                  backgroundColor: `${themeColor}08`,
+                  backgroundColor: `${themeColor}`,
                   opacity: 0.3
                 }}
               ></div>
@@ -241,10 +331,12 @@ const Partners = () => {
               {/* Text Content */}
               <div className="p-8 lg:p-12 flex flex-col justify-center">
                 <div className="flex items-baseline gap-4 mb-2">
-                  <span className={`text-4xl font-bold text-${partner.theme}-500 opacity-50 font-mono`}>
-                    {partner.id}.
+                  <span className={`text-4xl font-bold opacity-50 font-mono`}
+                    style={{ color: themeColor }}
+                  >
+                    {index + 1}.
                   </span>
-                  <h2 className={`text-3xl font-bold text-${partner.theme}-400 tracking-wide uppercase`}>
+                  <h2 className={`text-3xl font-bold tracking-wide uppercase`} style={{ color: themeColor }}>
                     {partner.name}
                   </h2>
                 </div>
@@ -259,12 +351,14 @@ const Partners = () => {
 
                 {/* Features Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                  {partner.features.map((feat, i) => (
+                  {partner.features.map((feat, i) => {
+                    const Icon = iconMap[feat.icon] || Box; // Fallback to Box if icon not found
+                    return(
                     <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors">
-                      <feat.icon size={16} style={{ color: themeColor }} />
+                      <Icon size={16} style={{ color: themeColor }} />
                       <span className="text-xs font-medium text-slate-300">{feat.label}</span>
-                    </div>
-                  ))}
+                    </div>)
+                  })}
                 </div>
 
                 {/* CTA Button */}
@@ -317,23 +411,43 @@ const Partners = () => {
                   <div className="absolute inset-0 bg-black z-0" />
 
                   {/* 2. The Image (Centered on top of the white background) */}
-                  <img 
-                    src={partner.image} 
-                    alt={partner.name} 
-                    className="relative z-10 object-contain max-w-full max-h-full transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
-                  />
+                  {partner.image ? (
+                        <img 
+                          src={partner.image} 
+                          alt={partner.name} 
+                          className="relative z-10 object-contain max-w-full max-h-full transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
+                        />
+                      ) : (
+                        /* --- TEXT FALLBACK THEME --- */
+                        <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 select-none">
+                          <h2 
+                            className="text-4xl md:text-5xl font-black italic tracking-tighter transition-all duration-700 group-hover:scale-110"
+                            style={{ 
+                              color: 'transparent',
+                              WebkitTextStroke: `1px ${themeColor}80`,
+                              textShadow: `0 0 20px ${themeColor}40`
+                            }}
+                          >
+                            {partner.name}
+                          </h2>
+                          <div 
+                            className="mt-4 w-12 h-1 rounded-full opacity-20 group-hover:w-24 group-hover:opacity-100 transition-all duration-700"
+                            style={{ backgroundColor: themeColor }}
+                          />
+                        </div>
+                      )}
 
                 </div>
 
                 {/* Stats Overlay (Decorative) */}
-                <div className="absolute top-6 right-6 z-30 flex gap-2">
+                {/* <div className="absolute top-6 right-6 z-30 flex gap-2">
                   <div className="px-2 py-1 bg-black/60 backdrop-blur-md border border-slate-700 rounded text-[10px] text-cyan-400 font-mono">
                     PWR: 98%
                   </div>
                   <div className="px-2 py-1 bg-black/60 backdrop-blur-md border border-slate-700 rounded text-[10px] text-purple-400 font-mono">
                     LAT: 12ms
                   </div>
-                </div>
+                </div> */}
               </div>
 
             </div>
