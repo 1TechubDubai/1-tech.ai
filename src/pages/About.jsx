@@ -8,6 +8,7 @@ import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import { ArrowRight, Check, Globe, Linkedin, Mail, Zap } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 
 const Card = ({ title, description, image, index = 0 }) => (
@@ -212,6 +213,7 @@ const GlobalScale = ({ earth, points = [] }) => {
 };
 
 const CoreSpecializations = ({ image }) => {
+  const navigate = useNavigate();
   const items = [
     "Enterprise IT Managed Services",
     "Strategic Technology Talent Solutions",
@@ -309,8 +311,8 @@ const CoreSpecializations = ({ image }) => {
 
           {/* CTA Button */}
           <div className="pt-2">
-            <Link 
-              to="/services" 
+            <button 
+              onClick={() => navigate("/", { state: { scrollTo: 'capabilities' } })}
               className="group relative inline-flex items-center gap-2.5 px-8 py-4 bg-transparent overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)]"
             >
               {/* High-Tech Border Gradient */}
@@ -323,7 +325,7 @@ const CoreSpecializations = ({ image }) => {
                 Discover All Solutions
               </span>
               <ArrowRight className="relative z-10 w-4 h-4 text-cyan-400 group-hover:translate-x-1.5 transition-transform duration-300" />
-            </Link>
+            </button>
           </div>
 
         </div>

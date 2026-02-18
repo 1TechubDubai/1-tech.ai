@@ -81,11 +81,11 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
           <p>© 2025 1TecHub Company. All rights reserved.</p>
           
-          <div className="flex items-center gap-6">
+          {/* <div className="flex items-center gap-6">
             <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-cyan-400 transition-colors">Cookies</a>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

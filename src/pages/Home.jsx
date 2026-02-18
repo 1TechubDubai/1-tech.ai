@@ -28,9 +28,7 @@ import {
   Rocket, ChevronRight, Sparkles, ArrowDown
 } from 'lucide-react';
 
-import seamless from "../assets/seamlessInt.svg";
-import analytics from "../assets/analytics.svg";
-
+import {useLocation} from 'react-router-dom';
 import MessageForm from "../components/MessageForm";
 
 // Intro Section
@@ -620,261 +618,460 @@ const CapabilityCard = ({ title, description, accent, slug, icon: Icon }) => {
   );
 };
 
-// Advantage Section
-const Advantages = [
-  {
-    icon: Zap,
-    title: 'Speed to Market',
-    description: 'Launch AI solutions 3x faster with our proven frameworks and pre-built components. Reduce time from concept to production deployment.'
-  },
-  {
-    icon: Users,
-    title: 'Expert Partnership',
-    description: 'Access a dedicated team of AI specialists, data scientists, and engineers who become an extension of your organization.'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Proven Results',
-    description: 'Join 300+ enterprises achieving measurable ROI. Average efficiency gains of 40% within the first 6 months.'
-  }
-];
+// // Advantage Section
+// const Advantages = [
+//   {
+//     icon: Zap,
+//     title: 'Speed to Market',
+//     description: 'Launch AI solutions 3x faster with our proven frameworks and pre-built components. Reduce time from concept to production deployment.'
+//   },
+//   {
+//     icon: Users,
+//     title: 'Expert Partnership',
+//     description: 'Access a dedicated team of AI specialists, data scientists, and engineers who become an extension of your organization.'
+//   },
+//   {
+//     icon: TrendingUp,
+//     title: 'Proven Results',
+//     description: 'Join 300+ enterprises achieving measurable ROI. Average efficiency gains of 40% within the first 6 months.'
+//   }
+// ];
 
-// --- COMPONENT: ADVANTAGE CARD ---
-const AdvantageCard = ({ icon: Icon, title, description, index = 0 }) => {
-  return (
-    <div 
-      className="group relative h-full w-full opacity-0 animate-slideUp"
-      style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
-    >
-      <div className="
-        relative h-full
-        flex flex-col items-center text-center
-        p-6 sm:p-8 md:p-10
-        rounded-3xl
-        bg-[#0a0f1d] border border-slate-800
-        transition-all duration-500 ease-out
-        hover:-translate-y-2
-        hover:border-blue-500/30
-        hover:shadow-[0_10px_40px_-10px_rgba(59,130,246,0.15)]
-        overflow-hidden
-      ">
-        {/* Gradient Hover Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+// // --- COMPONENT: ADVANTAGE CARD ---
+// const AdvantageCard = ({ icon: Icon, title, description, index = 0 }) => {
+//   return (
+//     <div 
+//       className="group relative h-full w-full opacity-0 animate-slideUp"
+//       style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
+//     >
+//       <div className="
+//         relative h-full
+//         flex flex-col items-center text-center
+//         p-6 sm:p-8 md:p-10
+//         rounded-3xl
+//         bg-[#0a0f1d] border border-slate-800
+//         transition-all duration-500 ease-out
+//         hover:-translate-y-2
+//         hover:border-blue-500/30
+//         hover:shadow-[0_10px_40px_-10px_rgba(59,130,246,0.15)]
+//         overflow-hidden
+//       ">
+//         {/* Gradient Hover Overlay */}
+//         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-        {/* Icon Container */}
-        <div className="
-          relative z-10 
-          w-16 h-16 sm:w-20 sm:h-20 
-          rounded-2xl
-          bg-blue-500/10
-          border border-blue-500/20
-          flex items-center justify-center 
-          mb-6 
-          transition-transform duration-500 
-          group-hover:scale-110 group-hover:rotate-3
-          group-hover:bg-blue-500/20
-          group-hover:border-blue-500/30
-        ">
-          <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400 group-hover:text-blue-300 transition-colors" strokeWidth={1.5} />
-        </div>
+//         {/* Icon Container */}
+//         <div className="
+//           relative z-10 
+//           w-16 h-16 sm:w-20 sm:h-20 
+//           rounded-2xl
+//           bg-blue-500/10
+//           border border-blue-500/20
+//           flex items-center justify-center 
+//           mb-6 
+//           transition-transform duration-500 
+//           group-hover:scale-110 group-hover:rotate-3
+//           group-hover:bg-blue-500/20
+//           group-hover:border-blue-500/30
+//         ">
+//           <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400 group-hover:text-blue-300 transition-colors" strokeWidth={1.5} />
+//         </div>
 
-        <h3 className="relative z-10 text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 group-hover:text-blue-400 transition-colors duration-300">
-          {title}
-        </h3>
+//         <h3 className="relative z-10 text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 group-hover:text-blue-400 transition-colors duration-300">
+//           {title}
+//         </h3>
         
-        <p className="relative z-10 text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-          {description}
-        </p>
+//         <p className="relative z-10 text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+//           {description}
+//         </p>
 
-        {/* Bottom Accent Line */}
-        <div className="relative z-10 h-1 w-12 bg-slate-700 rounded-full group-hover:w-24 group-hover:bg-blue-500 transition-all duration-500" />
-      </div>
-    </div>
-  );
-};
+//         {/* Bottom Accent Line */}
+//         <div className="relative z-10 h-1 w-12 bg-slate-700 rounded-full group-hover:w-24 group-hover:bg-blue-500 transition-all duration-500" />
+//       </div>
+//     </div>
+//   );
+// };
 
-// --- SECTION: ADVANTAGES ---
-const AdvantageSection = () => {
+// // --- SECTION: ADVANTAGES ---
+// const AdvantageSection = () => {
+//   return (
+//     <section className="relative w-full py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-transparent overflow-hidden">
+      
+//       {/* Header */}
+//       <div className="text-center max-w-4xl mx-auto mb-12 md:mb-16 space-y-4">
+//         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700/50 backdrop-blur-md">
+//           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+//           <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Why Choose Us</span>
+//         </div>
+        
+//         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
+//           Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">1TecHub?</span>
+//         </h2>
+        
+//         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
+//           We deliver exceptional value through our unique approach to AI, 
+//           blending speed, expertise, and measurable outcomes.
+//         </p>
+//       </div>
+
+//       {/* Cards Grid */}
+//       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+//         {Advantages.map((advantage, index) => (
+//           <AdvantageCard key={index} {...advantage} index={index} />
+//         ))}
+//       </div>
+//     </section>
+//   );
+// };
+
+// // --- SECTION: THE DUAL ENGINE (Infrastructure & Intelligence) ---
+// const FeatureCardsSection = () => {
+//   const navigate = useNavigate();
+
+//   return (
+//     <section className="relative w-full pb-12 pt-1bg-transparent overflow-hidden">
+//       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch justify-center">
+        
+//         {/* --- CARD 1: INFRASTRUCTURE & MODERNIZATION --- */}
+//         <div className="
+//           group relative flex flex-col
+//           p-6 sm:p-8 md:p-10 rounded-[2.5rem]
+//           bg-[#0a0f1d] border border-slate-800
+//           transition-all duration-500 ease-out
+//           hover:-translate-y-2 hover:border-cyan-500/50
+//           hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.2)]
+//           w-full lg:w-1/2 mx-auto
+//           overflow-hidden
+//         ">
+//           {/* <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" /> */}
+
+//           <div className="relative z-10 flex flex-col h-full">
+//             <div className="mb-6 flex items-center gap-3">
+//               <div className="p-3 bg-cyan-500/10 rounded-2xl text-cyan-400">
+//                 <Layers size={24} />
+//               </div>
+//               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 01</span>
+//             </div>
+
+//             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
+//               Infrastructure Evolution
+//             </h2>
+
+//             <p className="text-slate-400 text-sm leading-relaxed mb-8">
+//               From legacy modernization to cloud-native scaling. We engineer the robust digital foundations 
+//               required to support the next generation of enterprise AI and autonomous workflows.
+//             </p>
+
+//             <ul className="space-y-3 mb-8">
+//               {[
+//                 "Next-Gen App Modernization",
+//                 "Scalable API & Custom Integrations",
+//                 "Cyber Security & Resilience",
+//                 "Hybrid Cloud & Data Warehousing"
+//               ].map((item, i) => (
+//                 <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
+//                   <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0" />
+//                   {item}
+//                 </li>
+//               ))}
+//             </ul>
+
+//             {/* Visual Context */}
+//             [Image of a modern enterprise cloud infrastructure architecture diagram]
+//             <div className="mt-auto pt-10">
+//               <button 
+//                 onClick={() => navigate("/services")} 
+//                 className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+//               >
+//                 EXPLORE ECOSYSTEM <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* --- CARD 2: AUTONOMOUS INTELLIGENCE --- */}
+//         <div className="
+//           group relative flex flex-col
+//           p-6 sm:p-8 md:p-10 rounded-[2.5rem]
+//           bg-[#0a0f1d] border border-slate-800
+//           transition-all duration-500 ease-out
+//           hover:-translate-y-2 hover:border-purple-500/50
+//           hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.2)]
+//           w-full lg:w-1/2 mx-auto
+//           overflow-hidden
+//         ">
+//           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+//           <div className="relative z-10 flex flex-col h-full">
+//             <div className="mb-6 flex items-center gap-3">
+//               <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400">
+//                 <Zap size={24} />
+//               </div>
+//               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 02</span>
+//             </div>
+
+//             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+//               Intelligent Automation
+//             </h2>
+
+//             <p className="text-slate-400 text-sm leading-relaxed mb-8">
+//               Beyond simple analytics. We deploy Gen-AI agents and predictive models that actively 
+//               solve problems, automate decision-making, and unlock non-linear business growth.
+//             </p>
+
+//             <ul className="space-y-3 mb-8">
+//               {[
+//                 "Generative AI & RAG Engines",
+//                 "Autonomous AI Agent Workforces",
+//                 "Predictive ML & Big Data Analytics",
+//                 "Voice & Conversational Intelligence"
+//               ].map((item, i) => (
+//                 <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
+//                   <CheckCircle2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
+//                   {item}
+//                 </li>
+//               ))}
+//             </ul>
+
+//             {/* Visual Context */}
+//             [Image of an autonomous AI agent workflow process diagram]
+//             <div className="mt-auto pt-10">
+//               <button 
+//                 onClick={() => navigate("/services")} 
+//                 className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+//               >
+//                 DISCOVER SOLUTIONS <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//       </div>
+//     </section>
+//   );
+// };
+
+const CombinedWhyChooseUs = () => {
+  const navigate = useNavigate();
+
+  // Advantage Data for the Top Row
+  const advantages = [
+    {
+      icon: Zap,
+      title: 'Speed to Market',
+      description: 'Launch AI solutions 3x faster with our proven frameworks and pre-built components. Reduce time from concept to production deployment.'
+    },
+    {
+      icon: Users,
+      title: 'Expert Partnership',
+      description: 'Access a dedicated team of AI specialists, data scientists, and engineers who become an extension of your organization.'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Proven Results',
+      description: 'Join 300+ enterprises achieving measurable ROI. Average efficiency gains of 40% within the first 6 months.'
+    }
+  ];
+
   return (
     <section className="relative w-full py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-transparent overflow-hidden">
       
-      {/* Header */}
-      <div className="text-center max-w-4xl mx-auto mb-12 md:mb-16 space-y-4">
+      {/* --- HEADER --- */}
+      <div className="text-center max-w-4xl mx-auto mb-16 md:mb-20 space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700/50 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-          <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Why Choose Us</span>
+          <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Strategic Edge</span>
         </div>
         
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
           Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">1TecHub?</span>
         </h2>
         
         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
-          We deliver exceptional value through our unique approach to AI, 
+          We deliver exceptional value through our unique approach to technology, 
           blending speed, expertise, and measurable outcomes.
         </p>
       </div>
 
-      {/* Cards Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        {Advantages.map((advantage, index) => (
-          <AdvantageCard key={index} {...advantage} index={index} />
+      {/* --- UPPER GRID: ADVANTAGE CARDS (Row 1) --- */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-20">
+        {advantages.map((advantage, index) => (
+          <div 
+            key={index}
+            className="group relative h-full w-full opacity-0 animate-slideUp"
+            style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
+          >
+            <div className="relative h-full flex flex-col items-center text-center p-6 sm:p-8 rounded-3xl bg-[#0a0f1d] border border-slate-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:border-blue-500/30 hover:shadow-[0_10px_40px_-10px_rgba(59,130,246,0.15)] overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="relative z-10 w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                <advantage.icon className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="relative z-10 text-lg font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{advantage.title}</h3>
+              <p className="relative z-10 text-slate-400 text-sm leading-relaxed mb-6">{advantage.description}</p>
+              <div className="relative z-10 h-1 w-12 bg-slate-700 rounded-full group-hover:w-24 group-hover:bg-blue-500 transition-all duration-500" />
+            </div>
+          </div>
         ))}
       </div>
-    </section>
-  );
-};
 
-// --- SECTION: FEATURE CARDS (Integration & Analytics) ---
-const FeatureCardsSection = () => {
-  const navigate = useNavigate();
+      {/* --- LOWER GRID: DUAL ENGINE PILLARS (Row 2) --- */}
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-10 items-stretch justify-center">
 
-  return (
-    <section className="relative w-full pb-24 pt-10 bg-transparent overflow-hidden">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch justify-center">
-        
-        {/* --- CARD 1: Seamless Integration --- */}
-        <div className="
-          group relative flex flex-col
-          p-6 sm:p-8 md:p-10 rounded-3xl
-          bg-[#0a0f1d] border border-slate-800
-          transition-all duration-500 ease-out
-          hover:-translate-y-2 hover:border-cyan-500/50
-          hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.2)]
-          w-full lg:w-1/2 mx-auto
-          overflow-hidden
-        ">
-          {/* Hover Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        {/* CARD 1: INFRASTRUCTURE */}
+        <div className="group relative flex flex-col p-8 sm:p-10 rounded-[2.5rem] bg-[#0a0f1d] border border-slate-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:border-cyan-500/50 hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.2)] w-full lg:w-1/2 overflow-hidden">
+          
+          {/* 1. ANIMATED GRID BACKGROUND (Visible on hover) */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
+            style={{
+              backgroundImage: `linear-gradient(to right, #06b6d4 1px, transparent 1px), linear-gradient(to bottom, #06b6d4 1px, transparent 1px)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
+
+          {/* 2. FLOATING AMBIENT GLOW */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-[80px] group-hover:bg-cyan-500/20 transition-all duration-700" />
+
+          {/* 3. TECH CORNER ACCENTS */}
+          <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none">
+            <div className="absolute top-8 right-8 w-full h-[1px] bg-cyan-500/0 group-hover:bg-cyan-500/40 transition-all duration-700" />
+            <div className="absolute top-8 right-8 h-full w-[1px] bg-cyan-500/0 group-hover:bg-cyan-500/40 transition-all duration-700" />
+          </div>
 
           <div className="relative z-10 flex flex-col h-full">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
-              Seamless Integration
-            </h2>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="p-3 bg-cyan-500/10 rounded-2xl text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] group-hover:scale-110 transition-transform duration-500">
+                <Layers size={24} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 01</span>
+            </div>
 
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 sm:mb-8">
-              Deploy AI agents that integrate effortlessly with your existing
-              infrastructure. No complex migrations, no downtime—just powerful AI
-              capabilities added to your current workflows.
-            </p>
-
-            <ul className="space-y-3 mb-8">
-              {[
-                "Connect to 50+ enterprise platforms",
-                "Zero-code integration options",
-                "API-first architecture",
-                "Real-time synchronization"
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Infrastructure Evolution</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-8">From legacy modernization to cloud-native scaling. We engineer robust digital foundations required for next-generation enterprise performance.</p>
+            
+            <ul className="space-y-3 mb-10">
+              {["Next-Gen App Modernization", "Scalable API & Custom Integrations", "Cyber Security & Resilience", "Hybrid Cloud & Data Warehousing"].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-slate-300 group/item">
+                  <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 group-hover/item:scale-125 transition-transform" />
                   {item}
                 </li>
               ))}
             </ul>
 
-            {/* Image Area */}
-               <img
-                src={seamless} 
-                alt="Integration Dashboard"
-                className="mt-12 relative rounded-lg w-full h-auto object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-              />
+            {/* DECORATIVE DATA STREAM (CSS Animation) */}
+            <div className="mt-auto flex gap-1 mb-8">
+                {[...Array(12)].map((_, i) => (
+                    <div 
+                        key={i} 
+                        className="h-1 w-full bg-slate-800 rounded-full overflow-hidden"
+                    >
+                        <div 
+                            className="h-full bg-cyan-500 animate-data-stream" 
+                            style={{ animationDelay: `${i * 0.2}s` }}
+                        />
+                    </div>
+                ))}
+            </div>
 
-            {/* Button */}
-            <div className="mt-16 pt-4 sm:pt-6">
-              <div onClick={() => navigate("/services/custom-ai-solutions")} className="
-                inline-flex items-center justify-center w-full sm:w-auto
-                px-8 py-3 rounded-full text-sm font-bold tracking-wide
-                bg-cyan-500 text-black
-                transition-all duration-300
-                hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:-translate-y-0.5
-                active:scale-95
-              ">
-                View Integrations <ArrowRight className="ml-2 w-4 h-4" />
-              </div>
+            <div className="mt-auto pt-8">
+              <button onClick={() => navigate("/services/software-development")} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                EXPLORE ECOSYSTEM <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* --- CARD 2: Real-Time Insights --- */}
-        <div className="
-          group relative flex flex-col
-          p-6 sm:p-8 md:p-10 rounded-3xl
-          bg-[#0a0f1d] border border-slate-800
-          transition-all duration-500 ease-out
-          hover:-translate-y-2 hover:border-blue-500/50
-          hover:shadow-[0_10px_40px_-10px_rgba(59,130,246,0.2)]
-          w-full lg:w-1/2 mx-auto
-          overflow-hidden
-        ">
-          {/* Hover Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        {/* CARD 2: INTELLIGENCE */}
+        <div className="group relative flex flex-col p-8 sm:p-10 rounded-[2.5rem] bg-[#0a0f1d] border border-slate-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:border-purple-500/50 hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.2)] w-full lg:w-1/2 overflow-hidden">
+          
+          {/* 1. RADIAL BEAM EFFECT (Visible on hover) */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
+            style={{
+              background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(168, 85, 247, 0.06), transparent 40%)`
+            }}
+          />
+
+          {/* 2. FLOATING AMBIENT GLOW */}
+          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-[80px] group-hover:bg-purple-500/20 transition-all duration-700" />
+
+          {/* 3. INTELLIGENCE "NODES" BACKGROUND */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-10 left-10 w-1 h-1 bg-purple-500 rounded-full animate-ping opacity-0 group-hover:opacity-40" />
+            <div className="absolute top-40 right-20 w-1 h-1 bg-purple-500 rounded-full animate-ping delay-500 opacity-0 group-hover:opacity-40" />
+            <div className="absolute bottom-20 right-10 w-1 h-1 bg-purple-500 rounded-full animate-ping delay-1000 opacity-0 group-hover:opacity-40" />
+          </div>
 
           <div className="relative z-10 flex flex-col h-full">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
-              Real-Time Insights
-            </h2>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)] group-hover:scale-110 transition-transform duration-500">
+                <Zap size={24} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 02</span>
+            </div>
 
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 sm:mb-8">
-              Monitor all your AI processes with enterprise-grade analytics and
-              insights. Track data flow and agent performance in real time with
-              a clean, readable interface.
-            </p>
-
-            <ul className="space-y-3 mb-8">
-              {[
-                "Live performance monitoring",
-                "Custom KPI tracking",
-                "Automated reporting",
-                "Predictive analytics"
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">Intelligent Automation</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-8">Moving beyond simple analytics. We deploy Gen-AI agents and predictive models that actively automate decision-making and unlock non-linear growth.</p>
+            
+            <ul className="space-y-3 mb-10">
+              {["Generative AI & RAG Engines", "Autonomous AI Agent Workforces", "Predictive ML & Analytics", "Voice & Conversational Intelligence"].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-slate-300 group/item">
+                  <CheckCircle2 className="w-4 h-4 text-purple-500 flex-shrink-0 group-hover/item:scale-125 transition-transform" />
                   {item}
                 </li>
               ))}
             </ul>
 
-            {/* Image Area */}
-               <img
-                src={analytics}
-                alt="Analytics Dashboard"
-                className="mt-4 relative rounded-lg w-full h-auto object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-              />
+            {/* PULSING BRAIN-WAVE VISUAL (CSS Only) */}
+            <div className="mt-auto h-12 flex items-center justify-center gap-1 mb-6 opacity-40 group-hover:opacity-100 transition-opacity">
+                {[...Array(20)].map((_, i) => (
+                    <div 
+                        key={i} 
+                        className="w-1 bg-purple-500/50 rounded-full animate-wave" 
+                        style={{ 
+                            height: `${Math.random() * 100}%`,
+                            animationDelay: `${i * 0.1}s` 
+                        }}
+                    />
+                ))}
+            </div>
 
-            {/* Button */}
-            <div className="mt-8 pt-4 sm:pt-6">
-              <div onClick={() => navigate("/services/data-science-analytics-big-data")} className="
-                inline-flex items-center justify-center w-full sm:w-auto
-                px-8 py-3 rounded-full text-sm font-bold tracking-wide
-                bg-blue-600 text-white
-                transition-all duration-300
-                hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:-translate-y-0.5
-                active:scale-95
-              ">
-                Explore Analytics <ArrowRight className="ml-2 w-4 h-4" />
-              </div>
+            <div className="mt-auto pt-8">
+              <button onClick={() => navigate("/services/autonomous-ai-agents")} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                DISCOVER SOLUTIONS <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         </div>
+
+        <style>{`
+          @keyframes data-stream {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          @keyframes wave {
+            0%, 100% { height: 20%; }
+            50% { height: 100%; }
+          }
+          .animate-data-stream {
+            animation: data-stream 2s infinite linear;
+          }
+          .animate-wave {
+            animation: wave 1.5s infinite ease-in-out;
+          }
+        `}</style>
 
       </div>
 
-      {/* Styles for Animations */}
       <style>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-slideUp {
-          animation-name: slideUp;
-          animation-duration: 0.6s;
-          animation-timing-function: ease-out;
+          animation: slideUp 0.8s ease-out;
         }
       `}</style>
     </section>
   );
 };
-
 
 // Testimonials Section
 
@@ -1016,6 +1213,27 @@ const TestimonialCard = ({ quote, author, role, initials, gradient, index }) => 
 
 const Home = () => {
 
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if we arrived here with the scroll flag
+    if (location.state?.scrollTo) {
+      const element = document.getElementById(location.state.scrollTo);
+      if (element) {
+        // We add a slight delay to ensure the page has fully rendered 
+        // especially if you have images loading or animations
+        const timeout = setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+          
+          // Clear the state so it doesn't scroll again on refresh
+          window.history.replaceState({}, document.title);
+        }, 100); 
+        
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [location]);
+
   return (
     <div
       className="
@@ -1099,9 +1317,7 @@ const Home = () => {
 
       <CapabilitiesSection />
 
-      <AdvantageSection />
-      
-      <FeatureCardsSection />
+      <CombinedWhyChooseUs />
 
       <TestimonialsSection />
 
