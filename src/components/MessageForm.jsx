@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle, CheckSquare2, Square } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
 import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
@@ -59,6 +59,15 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
         ...prev,
         // Wrap in array because your form now supports multiple selections
         service: [passedService] 
+      }));
+    }
+    
+    // Check if we arrived with pre-filled message and services
+    if (location.state?.prefilledMessage && location.state?.selectedServices) {
+      setFormData(prev => ({
+        ...prev,
+        message: location.state.prefilledMessage,
+        service: location.state.selectedServices
       }));
     }
   }, [location.state]);
@@ -150,7 +159,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
         email: '', 
         phone: '', 
         company: '', 
-        service: '', 
+        service: [], 
         message: '' 
       });
 
@@ -273,6 +282,25 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
           {/* Row 3: Custom Services Select */}
           <div className="space-y-1.5 relative" ref={dropdownRef}>
             <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">AI Solution Needed</label>
+            
+            {/* Selected Services Tags */}
+            {formData.service.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.service.map((service, idx) => (
+                  <div key={idx} className="inline-flex items-center gap-2 bg-cyan-600/20 border border-cyan-500/50 rounded-full px-3 py-1.5 text-xs font-medium text-cyan-300">
+                    <span>{service}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleServiceSelect(service)}
+                      className="hover:text-cyan-200 transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <button
               type="button"
               disabled={status === 'loading'}
@@ -283,7 +311,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             >
               <span className={`text-sm truncate pr-4 ${formData.service.length > 0 ? "text-slate-100 font-medium" : "text-slate-600"}`}>
                 {formData.service.length > 0 
-                  ? formData.service.join(", ") 
+                  ? `${formData.service.length} service${formData.service.length !== 1 ? 's' : ''} selected` 
                   : "Select services..."}
               </span>
               <div className="flex items-center gap-2">
@@ -313,7 +341,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                     onClick={() => handleServiceSelect(service.title)}
                     className="w-full px-4 py-3 text-left hover:bg-slate-800/50 transition-colors border-b border-slate-800/50 last:border-0 flex items-center justify-between group"
                   >
-                    <div>
+                    <div className="flex-1">
                       <div className="text-sm text-slate-100 font-medium group-hover:text-cyan-400 transition-colors">
                         {service.title}
                       </div>
@@ -321,9 +349,13 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                         {service.sub}
                       </div>
                     </div>
-                    {formData.service === service.title && (
-                      <Check className="w-4 h-4 text-cyan-500" />
-                    )}
+                    <div className="ml-3 text-cyan-500 shrink-0">
+                      {formData.service.includes(service.title) ? (
+                        <CheckSquare2 className="w-5 h-5" />
+                      ) : (
+                        <Square className="w-5 h-5 text-slate-600 group-hover:text-slate-500" />
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>

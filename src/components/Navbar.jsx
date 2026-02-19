@@ -89,7 +89,7 @@ const Navbar = () => {
                   ${serviceOpen || location.pathname.startsWith('/services') ? "text-cyan-400" : "text-slate-300 hover:text-cyan-400"}
                 `}
               >
-                Services
+                AI Solutions
                 <ChevronDown
                   size={14}
                   className={`transition-transform duration-200 ${serviceOpen ? "rotate-180" : ""}`}

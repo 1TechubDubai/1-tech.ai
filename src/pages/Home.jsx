@@ -25,7 +25,8 @@ import {
   Users, 
   TrendingUp,
   Quote,
-  Rocket, ChevronRight, Sparkles, ArrowDown
+  Rocket, ChevronRight, Sparkles, ArrowDown, ArrowUpRight,
+  BarChart3
 } from 'lucide-react';
 
 import {useLocation} from 'react-router-dom';
@@ -292,44 +293,63 @@ const IntroSection = () => {
 const slides = [
   {
     id: 1,
+    label: "Global Expansion",
     text: "Expanding Businesses Across GCC & Africa",
+    desc: "Seamlessly scaling operations through localized technical expertise and strategic market entry.",
     icon: Globe2,
     color: "from-cyan-400 to-blue-600",
-    shadow: "cyan"
+    accent: "text-cyan-400",
+    glow: "rgba(6, 182, 212, 0.2)",
+    colorStart: "#22d3ee",
+    colorEnd: "#2563eb"
   },
   {
     id: 2,
+    label: "Intelligence",
     text: "AI That Drives Real Business Impact",
+    desc: "Moving beyond chatbots to autonomous agents that optimize workflows and decision-making.",
     icon: Cpu,
     color: "from-purple-400 to-pink-600",
-    shadow: "purple"
+    accent: "text-purple-400",
+    glow: "rgba(168, 85, 247, 0.2)",
+    colorStart: "#a78bfa",
+    colorEnd: "#ec4899"
   },
   {
     id: 3,
+    label: "Security",
     text: "Cloud, Cybersecurity, and Infrastructure Excellence",
+    desc: "Zero-trust architectures and cloud-native scaling designed for the modern threat landscape.",
     icon: ShieldCheck,
     color: "from-emerald-400 to-green-600",
-    shadow: "emerald"
+    accent: "text-emerald-400",
+    glow: "rgba(16, 185, 129, 0.2)",
+    colorStart: "#34d399",
+    colorEnd: "#16a34a"
   },
   {
     id: 4,
+    label: "Enterprise",
     text: "End-to-End ERP Expertise, Delivered Globally",
+    desc: "Modernizing core systems with integrated data flows and real-time enterprise visibility.",
     icon: Layers,
     color: "from-orange-400 to-red-600",
-    shadow: "orange"
+    accent: "text-orange-400",
+    glow: "rgba(249, 115, 22, 0.2)",
+    colorStart: "#fb923c",
+    colorEnd: "#dc2626"
   }
 ];
+
 const ImpactShowcase = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
 
-  // Auto-rotate logic
   useEffect(() => {
     const timer = setInterval(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 5000); // 5 seconds per slide
-
+    }, 6000);
     return () => clearInterval(timer);
   }, [currentIndex]);
 
@@ -341,28 +361,40 @@ const ImpactShowcase = () => {
   const currentSlide = slides[currentIndex];
 
   return (
-    <section className="relative w-full py-20 overflow-hidden bg-transparent">
+    <section className="relative w-full py-24 overflow-hidden bg-[#02061755]">
+      
+      {/* 1. TECH BACKGROUND ELEMENTS */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute inset-0" style={{ 
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
+          backgroundSize: '40px 40px' 
+        }} />
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
-        
-        <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
           
           {/* LEFT SIDE: TEXT CONTENT */}
-          <div className="w-full md:w-2/3 relative h-40 md:h-32 flex items-center">
+          <div className="w-full lg:w-3/5 text-left order-2 lg:order-1">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentIndex}
-                custom={direction}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="absolute w-full"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-6"
               >
-                <h2 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight text-white">
+                {/* Badge Label */}
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 ${currentSlide.accent}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">{currentSlide.label}</span>
+                </div>
+
+                {/* Main Heading */}
+                <h2 className="text-4xl md:text-6xl font-black leading-[1.1] tracking-tighter text-white">
                   {currentSlide.text.split(" ").map((word, i) => (
-                    <span key={i} className="inline-block mr-2">
-                      {/* Highlight specific words based on the slide color theme */}
+                    <span key={i} className="inline-block mr-3">
                       {['AI', 'GCC', 'Africa', 'Cloud', 'Cybersecurity', 'ERP', 'Globally'].includes(word.replace(/[^a-zA-Z]/g, '')) ? (
                         <span className={`text-transparent bg-clip-text bg-gradient-to-r ${currentSlide.color}`}>
                           {word}
@@ -373,72 +405,101 @@ const ImpactShowcase = () => {
                     </span>
                   ))}
                 </h2>
+
+                {/* Sub-description */}
+                <p className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-xl">
+                  {currentSlide.desc}
+                </p>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* RIGHT SIDE: ANIMATED ICON */}
-          <div className="w-full md:w-1/3 flex justify-center md:justify-end">
+          {/* RIGHT SIDE: ANIMATED DASHBOARD ICON */}
+          <div className="w-full lg:w-2/5 flex justify-center order-1 lg:order-2">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
-                initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 0.8, opacity: 0, rotate: 10 }}
-                transition={{ duration: 0.5 }}
-                className="relative"
+                initial={{ scale: 0.9, opacity: 0, rotateY: 30 }}
+                animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                exit={{ scale: 0.9, opacity: 0, rotateY: -30 }}
+                transition={{ duration: 0.8 }}
+                className="relative perspective-1000"
               >
-                {/* Glow Behind */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${currentSlide.color} blur-[60px] opacity-40 rounded-full`}></div>
+                {/* Visual Ambient Glow */}
+                <div 
+                  className="absolute inset-0 blur-[100px] opacity-30 rounded-full transition-all duration-1000"
+                  style={{ backgroundColor: currentSlide.glow }}
+                />
                 
-                {/* Icon Container */}
-                <div className="relative w-24 h-24 md:w-32 md:h-32 bg-[#0a0f1d] border border-slate-700 rounded-3xl flex items-center justify-center shadow-2xl">
+                {/* Main Icon Card */}
+                <div className="relative w-48 h-48 md:w-64 md:h-64 bg-slate-950/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] flex items-center justify-center shadow-3xl">
+                  {/* Decorative corner lines */}
+                  <div className={`absolute top-8 left-8 w-8 h-8 border-l-2 border-t-2 rounded-tl-xl opacity-40 ${currentSlide.accent}`} />
+                  <div className={`absolute bottom-8 right-8 w-8 h-8 border-r-2 border-b-2 rounded-br-xl opacity-40 ${currentSlide.accent}`} />
+                  
                   <currentSlide.icon 
-                    size={48} 
-                    className={`text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-br ${currentSlide.color}`} 
-                    style={{ stroke: 'url(#gradient)' }} // Just a fallback for visual style
+                    size={80} 
+                    strokeWidth={1.5}
+                    fill="none"
+                    style={{ 
+                      stroke: `url(#iconGradient)`,
+                      filter: `drop-shadow(0 0 20px ${currentSlide.glow})`
+                    }}
                   />
-                  {/* Internal Icon SVG Gradient workaround */}
+                  
+                  {/* SVG Gradient Definition */}
                   <svg width="0" height="0">
-                    <linearGradient id="gradient" x1="100%" y1="100%" x2="0%" y2="0%">
-                      <stop stopColor="white" offset="0%" />
-                      <stop stopColor="gray" offset="100%" />
-                    </linearGradient>
+                    <defs>
+                      <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor={currentSlide.colorStart} />
+                        <stop offset="100%" stopColor={currentSlide.colorEnd} />
+                      </linearGradient>
+                    </defs>
                   </svg>
+
+                  {/* Tech Floating Dots */}
+                  <div className="absolute top-1/4 right-1/4 w-2 h-2 rounded-full bg-white/20 animate-ping" />
+                  <div className="absolute bottom-1/4 left-1/4 w-1.5 h-1.5 rounded-full bg-white/20 animate-ping delay-700" />
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
-
         </div>
 
-        {/* BOTTOM: PROGRESS BARS */}
-        <div className="mt-16 grid grid-cols-4 gap-4">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              onClick={() => handleDotClick(index)}
-              className="group relative h-1 bg-slate-500 rounded-full overflow-hidden transition-all duration-300 hover:h-2 focus:outline-none"
-            >
-              {/* Active Progress Fill */}
-              {index === currentIndex && (
-                <motion.div
-                  layoutId="progress"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 5, ease: "linear" }}
-                  className={`absolute top-0 left-0 h-full w-full bg-gradient-to-r ${slide.color}`}
-                />
-              )}
-              
-              {/* Completed Slides (Static Fill) */}
-              {index < currentIndex && (
-                <div className={`absolute top-0 left-0 h-full w-full bg-slate-300`}></div>
-              )}
-            </button>
-          ))}
+        {/* BOTTOM NAVIGATION / PROGRESS AREA */}
+        <div className="mt-20 md:mt-32 max-w-4xl mx-auto">
+          <div className="grid grid-cols-4 gap-4 md:gap-8">
+            {slides.map((slide, index) => {
+              const isActive = index === currentIndex;
+              return (
+                <button
+                  key={slide.id}
+                  onClick={() => handleDotClick(index)}
+                  className="group flex flex-col gap-4 text-left focus:outline-none"
+                >
+                  <div className="relative h-[2px] w-full bg-white/10 rounded-full overflow-hidden">
+                    {isActive ? (
+                      <motion.div
+                        layoutId="activeProgress"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "0%" }}
+                        transition={{ duration: 6, ease: "linear" }}
+                        className={`absolute inset-0 w-full bg-gradient-to-r ${slide.color} shadow-[0_0_10px_white]`}
+                      />
+                    ) : (
+                      index < currentIndex && (
+                        <div className="absolute inset-0 w-full bg-white/30" />
+                      )
+                    )}
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-500'}`}>
+                    0{slide.id}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-
       </div>
     </section>
   );
@@ -618,257 +679,24 @@ const CapabilityCard = ({ title, description, accent, slug, icon: Icon }) => {
   );
 };
 
-// // Advantage Section
-// const Advantages = [
-//   {
-//     icon: Zap,
-//     title: 'Speed to Market',
-//     description: 'Launch AI solutions 3x faster with our proven frameworks and pre-built components. Reduce time from concept to production deployment.'
-//   },
-//   {
-//     icon: Users,
-//     title: 'Expert Partnership',
-//     description: 'Access a dedicated team of AI specialists, data scientists, and engineers who become an extension of your organization.'
-//   },
-//   {
-//     icon: TrendingUp,
-//     title: 'Proven Results',
-//     description: 'Join 300+ enterprises achieving measurable ROI. Average efficiency gains of 40% within the first 6 months.'
-//   }
-// ];
-
-// // --- COMPONENT: ADVANTAGE CARD ---
-// const AdvantageCard = ({ icon: Icon, title, description, index = 0 }) => {
-//   return (
-//     <div 
-//       className="group relative h-full w-full opacity-0 animate-slideUp"
-//       style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
-//     >
-//       <div className="
-//         relative h-full
-//         flex flex-col items-center text-center
-//         p-6 sm:p-8 md:p-10
-//         rounded-3xl
-//         bg-[#0a0f1d] border border-slate-800
-//         transition-all duration-500 ease-out
-//         hover:-translate-y-2
-//         hover:border-blue-500/30
-//         hover:shadow-[0_10px_40px_-10px_rgba(59,130,246,0.15)]
-//         overflow-hidden
-//       ">
-//         {/* Gradient Hover Overlay */}
-//         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-//         {/* Icon Container */}
-//         <div className="
-//           relative z-10 
-//           w-16 h-16 sm:w-20 sm:h-20 
-//           rounded-2xl
-//           bg-blue-500/10
-//           border border-blue-500/20
-//           flex items-center justify-center 
-//           mb-6 
-//           transition-transform duration-500 
-//           group-hover:scale-110 group-hover:rotate-3
-//           group-hover:bg-blue-500/20
-//           group-hover:border-blue-500/30
-//         ">
-//           <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400 group-hover:text-blue-300 transition-colors" strokeWidth={1.5} />
-//         </div>
-
-//         <h3 className="relative z-10 text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 group-hover:text-blue-400 transition-colors duration-300">
-//           {title}
-//         </h3>
-        
-//         <p className="relative z-10 text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-//           {description}
-//         </p>
-
-//         {/* Bottom Accent Line */}
-//         <div className="relative z-10 h-1 w-12 bg-slate-700 rounded-full group-hover:w-24 group-hover:bg-blue-500 transition-all duration-500" />
-//       </div>
-//     </div>
-//   );
-// };
-
-// // --- SECTION: ADVANTAGES ---
-// const AdvantageSection = () => {
-//   return (
-//     <section className="relative w-full py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-transparent overflow-hidden">
-      
-//       {/* Header */}
-//       <div className="text-center max-w-4xl mx-auto mb-12 md:mb-16 space-y-4">
-//         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700/50 backdrop-blur-md">
-//           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-//           <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Why Choose Us</span>
-//         </div>
-        
-//         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
-//           Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">1TecHub?</span>
-//         </h2>
-        
-//         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
-//           We deliver exceptional value through our unique approach to AI, 
-//           blending speed, expertise, and measurable outcomes.
-//         </p>
-//       </div>
-
-//       {/* Cards Grid */}
-//       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-//         {Advantages.map((advantage, index) => (
-//           <AdvantageCard key={index} {...advantage} index={index} />
-//         ))}
-//       </div>
-//     </section>
-//   );
-// };
-
-// // --- SECTION: THE DUAL ENGINE (Infrastructure & Intelligence) ---
-// const FeatureCardsSection = () => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <section className="relative w-full pb-12 pt-1bg-transparent overflow-hidden">
-//       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch justify-center">
-        
-//         {/* --- CARD 1: INFRASTRUCTURE & MODERNIZATION --- */}
-//         <div className="
-//           group relative flex flex-col
-//           p-6 sm:p-8 md:p-10 rounded-[2.5rem]
-//           bg-[#0a0f1d] border border-slate-800
-//           transition-all duration-500 ease-out
-//           hover:-translate-y-2 hover:border-cyan-500/50
-//           hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.2)]
-//           w-full lg:w-1/2 mx-auto
-//           overflow-hidden
-//         ">
-//           {/* <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" /> */}
-
-//           <div className="relative z-10 flex flex-col h-full">
-//             <div className="mb-6 flex items-center gap-3">
-//               <div className="p-3 bg-cyan-500/10 rounded-2xl text-cyan-400">
-//                 <Layers size={24} />
-//               </div>
-//               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 01</span>
-//             </div>
-
-//             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
-//               Infrastructure Evolution
-//             </h2>
-
-//             <p className="text-slate-400 text-sm leading-relaxed mb-8">
-//               From legacy modernization to cloud-native scaling. We engineer the robust digital foundations 
-//               required to support the next generation of enterprise AI and autonomous workflows.
-//             </p>
-
-//             <ul className="space-y-3 mb-8">
-//               {[
-//                 "Next-Gen App Modernization",
-//                 "Scalable API & Custom Integrations",
-//                 "Cyber Security & Resilience",
-//                 "Hybrid Cloud & Data Warehousing"
-//               ].map((item, i) => (
-//                 <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
-//                   <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0" />
-//                   {item}
-//                 </li>
-//               ))}
-//             </ul>
-
-//             {/* Visual Context */}
-//             [Image of a modern enterprise cloud infrastructure architecture diagram]
-//             <div className="mt-auto pt-10">
-//               <button 
-//                 onClick={() => navigate("/services")} 
-//                 className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-//               >
-//                 EXPLORE ECOSYSTEM <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* --- CARD 2: AUTONOMOUS INTELLIGENCE --- */}
-//         <div className="
-//           group relative flex flex-col
-//           p-6 sm:p-8 md:p-10 rounded-[2.5rem]
-//           bg-[#0a0f1d] border border-slate-800
-//           transition-all duration-500 ease-out
-//           hover:-translate-y-2 hover:border-purple-500/50
-//           hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.2)]
-//           w-full lg:w-1/2 mx-auto
-//           overflow-hidden
-//         ">
-//           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-//           <div className="relative z-10 flex flex-col h-full">
-//             <div className="mb-6 flex items-center gap-3">
-//               <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400">
-//                 <Zap size={24} />
-//               </div>
-//               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 02</span>
-//             </div>
-
-//             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
-//               Intelligent Automation
-//             </h2>
-
-//             <p className="text-slate-400 text-sm leading-relaxed mb-8">
-//               Beyond simple analytics. We deploy Gen-AI agents and predictive models that actively 
-//               solve problems, automate decision-making, and unlock non-linear business growth.
-//             </p>
-
-//             <ul className="space-y-3 mb-8">
-//               {[
-//                 "Generative AI & RAG Engines",
-//                 "Autonomous AI Agent Workforces",
-//                 "Predictive ML & Big Data Analytics",
-//                 "Voice & Conversational Intelligence"
-//               ].map((item, i) => (
-//                 <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
-//                   <CheckCircle2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
-//                   {item}
-//                 </li>
-//               ))}
-//             </ul>
-
-//             {/* Visual Context */}
-//             [Image of an autonomous AI agent workflow process diagram]
-//             <div className="mt-auto pt-10">
-//               <button 
-//                 onClick={() => navigate("/services")} 
-//                 className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-//               >
-//                 DISCOVER SOLUTIONS <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-
-//       </div>
-//     </section>
-//   );
-// };
-
 const CombinedWhyChooseUs = () => {
   const navigate = useNavigate();
 
-  // Advantage Data for the Top Row
   const advantages = [
     {
       icon: Zap,
-      title: 'Speed to Market',
-      description: 'Launch AI solutions 3x faster with our proven frameworks and pre-built components. Reduce time from concept to production deployment.'
+      title: 'Autonomous AI Agents',
+      description: 'Deploy self-learning agents that operate 24/7 without supervision, executing complex workflows and adapting to your business needs in real-time.'
     },
     {
-      icon: Users,
-      title: 'Expert Partnership',
-      description: 'Access a dedicated team of AI specialists, data scientists, and engineers who become an extension of your organization.'
+      icon: BrainCircuit,
+      title: 'Custom AI Solutions',
+      description: 'Fully tailored intelligence architectures designed specifically for your enterprise challenges—not one-size-fits-all templates.'
     },
     {
-      icon: TrendingUp,
-      title: 'Proven Results',
-      description: 'Join 300+ enterprises achieving measurable ROI. Average efficiency gains of 40% within the first 6 months.'
+      icon: BarChart3,
+      title: 'Real-Time Intelligence',
+      description: 'Transform petabyte-scale data into actionable insights with advanced analytics pipelines and predictive modeling that drive decisions.'
     }
   ];
 
@@ -887,12 +715,11 @@ const CombinedWhyChooseUs = () => {
         </h2>
         
         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
-          We deliver exceptional value through our unique approach to technology, 
-          blending speed, expertise, and measurable outcomes.
+          We bridge the gap between complex engineering and intelligent automation to deliver measurable business impact.
         </p>
       </div>
 
-      {/* --- UPPER GRID: ADVANTAGE CARDS (Row 1) --- */}
+      {/* --- UPPER ROW: STRATEGIC ADVANTAGES --- */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-20">
         {advantages.map((advantage, index) => (
           <div 
@@ -913,13 +740,12 @@ const CombinedWhyChooseUs = () => {
         ))}
       </div>
 
-      {/* --- LOWER GRID: DUAL ENGINE PILLARS (Row 2) --- */}
+      {/* --- LOWER ROW: CORE PILLARS --- */}
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-10 items-stretch justify-center">
 
-        {/* CARD 1: INFRASTRUCTURE */}
+        {/* PILLAR 01: SOFTWARE & DATA FOUNDATION */}
         <div className="group relative flex flex-col p-8 sm:p-10 rounded-[2.5rem] bg-[#0a0f1d] border border-slate-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:border-cyan-500/50 hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.2)] w-full lg:w-1/2 overflow-hidden">
           
-          {/* 1. ANIMATED GRID BACKGROUND (Visible on hover) */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
             style={{
               backgroundImage: `linear-gradient(to right, #06b6d4 1px, transparent 1px), linear-gradient(to bottom, #06b6d4 1px, transparent 1px)`,
@@ -927,147 +753,119 @@ const CombinedWhyChooseUs = () => {
             }}
           />
 
-          {/* 2. FLOATING AMBIENT GLOW */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-[80px] group-hover:bg-cyan-500/20 transition-all duration-700" />
-
-          {/* 3. TECH CORNER ACCENTS */}
-          <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none">
-            <div className="absolute top-8 right-8 w-full h-[1px] bg-cyan-500/0 group-hover:bg-cyan-500/40 transition-all duration-700" />
-            <div className="absolute top-8 right-8 h-full w-[1px] bg-cyan-500/0 group-hover:bg-cyan-500/40 transition-all duration-700" />
-          </div>
-
           <div className="relative z-10 flex flex-col h-full">
             <div className="mb-6 flex items-center gap-3">
               <div className="p-3 bg-cyan-500/10 rounded-2xl text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] group-hover:scale-110 transition-transform duration-500">
                 <Layers size={24} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 01</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Foundation</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Infrastructure Evolution</h2>
-            <p className="text-slate-400 text-sm leading-relaxed mb-8">From legacy modernization to cloud-native scaling. We engineer robust digital foundations required for next-generation enterprise performance.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Enterprise Infrastructure</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-8">
+              The backbone of modern AI. We architect scalable, AI-native systems that integrate LLMs, process massive data streams, and power intelligent applications from day one.
+            </p>
             
             <ul className="space-y-3 mb-10">
-              {["Next-Gen App Modernization", "Scalable API & Custom Integrations", "Cyber Security & Resilience", "Hybrid Cloud & Data Warehousing"].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-slate-300 group/item">
-                  <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 group-hover/item:scale-125 transition-transform" />
-                  {item}
+              {[
+                { label: "Full-Stack Development", sub: "AI-native apps & cloud architectures" },
+                { label: "LLM Integration", sub: "Embed GPT-4, Claude, & open-source models" },
+                { label: "Big Data Pipelines", sub: "Processing & warehousing at scale" },
+                { label: "Cloud Infrastructure", sub: "Secure, managed Azure & multi-cloud" }
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-slate-300 group/item">
+                  <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5 group-hover/item:scale-125 transition-transform" />
+                  <div>
+                    <span className="font-bold text-white block text-left">{item.label}</span>
+                    <span className="text-[11px] text-slate-500 text-left">{item.sub}</span>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            {/* DECORATIVE DATA STREAM (CSS Animation) */}
             <div className="mt-auto flex gap-1 mb-8">
                 {[...Array(12)].map((_, i) => (
-                    <div 
-                        key={i} 
-                        className="h-1 w-full bg-slate-800 rounded-full overflow-hidden"
-                    >
-                        <div 
-                            className="h-full bg-cyan-500 animate-data-stream" 
-                            style={{ animationDelay: `${i * 0.2}s` }}
-                        />
+                    <div key={i} className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-cyan-500 animate-data-stream" style={{ animationDelay: `${i * 0.2}s` }} />
                     </div>
                 ))}
             </div>
 
-            <div className="mt-auto pt-8">
-              <button onClick={() => navigate("/services/software-development")} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                EXPLORE ECOSYSTEM <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            <div className="mt-auto pt-8 flex flex-col gap-3">
+              <button onClick={() => navigate("/contact", { state: { 
+                prefilledMessage: "I'm interested in learning more about your enterprise infrastructure solutions, including full-stack development, LLM integration, and big data pipelines. I'd like to schedule a consultation to discuss how these can be tailored to our needs.",
+                selectedServices: ["Generative AI", "Data Engineering", "Machine Learning"]
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                SCHEDULE CONSULTATION <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* CARD 2: INTELLIGENCE */}
+        {/* PILLAR 02: AI & COGNITIVE AUTOMATION */}
         <div className="group relative flex flex-col p-8 sm:p-10 rounded-[2.5rem] bg-[#0a0f1d] border border-slate-800 transition-all duration-500 ease-out hover:-translate-y-2 hover:border-purple-500/50 hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.2)] w-full lg:w-1/2 overflow-hidden">
           
-          {/* 1. RADIAL BEAM EFFECT (Visible on hover) */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
-            style={{
-              background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(168, 85, 247, 0.06), transparent 40%)`
-            }}
+            style={{ background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(168, 85, 247, 0.06), transparent 40%)` }}
           />
-
-          {/* 2. FLOATING AMBIENT GLOW */}
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-[80px] group-hover:bg-purple-500/20 transition-all duration-700" />
-
-          {/* 3. INTELLIGENCE "NODES" BACKGROUND */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-10 left-10 w-1 h-1 bg-purple-500 rounded-full animate-ping opacity-0 group-hover:opacity-40" />
-            <div className="absolute top-40 right-20 w-1 h-1 bg-purple-500 rounded-full animate-ping delay-500 opacity-0 group-hover:opacity-40" />
-            <div className="absolute bottom-20 right-10 w-1 h-1 bg-purple-500 rounded-full animate-ping delay-1000 opacity-0 group-hover:opacity-40" />
-          </div>
 
           <div className="relative z-10 flex flex-col h-full">
             <div className="mb-6 flex items-center gap-3">
               <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)] group-hover:scale-110 transition-transform duration-500">
                 <Zap size={24} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pillar 02</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Intelligence</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">Intelligent Automation</h2>
-            <p className="text-slate-400 text-sm leading-relaxed mb-8">Moving beyond simple analytics. We deploy Gen-AI agents and predictive models that actively automate decision-making and unlock non-linear growth.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">Autonomous Workforces</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-8">
+              Deploy intelligent agents that think, learn, and act independently. Voice AI, conversational interfaces, and predictive systems that work around the clock without human intervention.
+            </p>
             
             <ul className="space-y-3 mb-10">
-              {["Generative AI & RAG Engines", "Autonomous AI Agent Workforces", "Predictive ML & Analytics", "Voice & Conversational Intelligence"].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-slate-300 group/item">
-                  <CheckCircle2 className="w-4 h-4 text-purple-500 flex-shrink-0 group-hover/item:scale-125 transition-transform" />
-                  {item}
+              {[
+                { label: "Autonomous AI Agents", sub: "Self-executing 24/7 workflows" },
+                { label: "Voice AI & Conversational", sub: "Human-like customer interactions" },
+                { label: "Advanced ML & NLP", sub: "Predictive insights & text intelligence" },
+                { label: "Adaptive Learning", sub: "Systems that improve over time" }
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-slate-300 group/item">
+                  <CheckCircle2 className="w-4 h-4 text-purple-500 flex-shrink-0 mt-0.5 group-hover/item:scale-125 transition-transform" />
+                  <div>
+                    <span className="font-bold text-white block text-left">{item.label}</span>
+                    <span className="text-[11px] text-slate-500 text-left">{item.sub}</span>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            {/* PULSING BRAIN-WAVE VISUAL (CSS Only) */}
             <div className="mt-auto h-12 flex items-center justify-center gap-1 mb-6 opacity-40 group-hover:opacity-100 transition-opacity">
                 {[...Array(20)].map((_, i) => (
-                    <div 
-                        key={i} 
-                        className="w-1 bg-purple-500/50 rounded-full animate-wave" 
-                        style={{ 
-                            height: `${Math.random() * 100}%`,
-                            animationDelay: `${i * 0.1}s` 
-                        }}
+                    <div key={i} className="w-1 bg-purple-500/50 rounded-full animate-wave" 
+                        style={{ height: `${20 + Math.random() * 80}%`, animationDelay: `${i * 0.1}s` }}
                     />
                 ))}
             </div>
 
-            <div className="mt-auto pt-8">
-              <button onClick={() => navigate("/services/autonomous-ai-agents")} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                DISCOVER SOLUTIONS <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            <div className="mt-auto pt-8 flex flex-col gap-3">
+              <button onClick={() => navigate("/contact", { state: { 
+                prefilledMessage: "I'd like to request a demo of your autonomous AI agents and conversational voice AI solutions. We're interested in deploying intelligent systems that can operate 24/7 without supervision. Please let me know the next steps for a personalized demonstration.",
+                selectedServices: ["Intelligent Systems", "Voice AI", "Machine Learning", "NLP Solutions"]
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                REQUEST A DEMO <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
         </div>
-
-        <style>{`
-          @keyframes data-stream {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
-          @keyframes wave {
-            0%, 100% { height: 20%; }
-            50% { height: 100%; }
-          }
-          .animate-data-stream {
-            animation: data-stream 2s infinite linear;
-          }
-          .animate-wave {
-            animation: wave 1.5s infinite ease-in-out;
-          }
-        `}</style>
-
       </div>
 
       <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideUp {
-          animation: slideUp 0.8s ease-out;
-        }
+        @keyframes data-stream { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes wave { 0%, 100% { height: 20%; } 50% { height: 100%; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-data-stream { animation: data-stream 2s infinite linear; }
+        .animate-wave { animation: wave 1.5s infinite ease-in-out; }
+        .animate-slideUp { animation: slideUp 0.8s ease-out; }
       `}</style>
     </section>
   );
