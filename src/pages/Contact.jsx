@@ -12,7 +12,11 @@ import {
 
 const Contact = () => {
   return (
-    <div className="fixed w-full h-full top-0 left-0 overflow-y-scroll bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
+    <div className="fixed w-full h-full top-0 left-0 overflow-y-scroll bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden"
+    style={{ fontFamily: "'Syne', sans-serif" }}>
+        <style dangerouslySetInnerHTML={{ __html: `
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+  ` }} />
       
       {/* Navbar (Fixed z-index handled inside component) */}
       <Navbar />
@@ -64,7 +68,7 @@ const Contact = () => {
                   <a href="mailto:contactus@1techub.com"                 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-lg font-medium text-white hover:text-cyan-400 transition-colors">
+                    className="text-lg font-medium text-white hover:text-cyan-400 transition-colors text-left">
                     contactus@1techub.com
                   </a>
                 </div>
@@ -72,12 +76,12 @@ const Contact = () => {
 
               {/* Headquarters */}
               <div className="flex items-start gap-5 group">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.3)] transition-all">
+                <div className="p-3 w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.3)] transition-all">
                   <MapPin size={24} />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 text-left">Headquarters</h4>
-                  <p className="text-lg font-medium text-white leading-snug">
+                  <p className="text-lg font-medium text-white leading-snug text-left">
                     Meydan Grand Stand, 6th Floor,
                     Meydan Road, Dubai, UAE
                   </p>

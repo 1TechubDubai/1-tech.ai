@@ -159,7 +159,7 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-
+            <NavLink to="/ai-advisory" label="AI Advisory" location={location} />
             <NavLink to="/partners" label="AI Partners" location={location} />
             <NavLink to="/contact" label="Contact" location={location} />
           </div>
@@ -211,11 +211,13 @@ const Navbar = () => {
                   onClick={() => setMobileView('services')}
                   className={`text-lg font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
                 >
-                  Services  →
+                  AI Solutions  →
                 </button>
 
-                <Link to="/partners" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/partners' ? 'text-cyan-400' : 'text-white'}`}>Partner Platforms</Link>
+                <Link to="/partners" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/partners' ? 'text-cyan-400' : 'text-white'}`}>AI Partners</Link>                
+                <Link to="/ai-advisory" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/ai-advisory' ? 'text-cyan-400' : 'text-white'}`}>AI Advisory</Link>
                 <Link to="/contact" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/contact' ? 'text-cyan-400' : 'text-white'}`}>Contact</Link>
+
               </div>
 
               {/* Bottom CTA - Fixed at bottom */}

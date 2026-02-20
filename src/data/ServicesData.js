@@ -252,7 +252,7 @@ export const allServicesData = [
     sections: [
       {
         id: "orchestration",
-        title: "Autonomous Agent Orchestration",
+        title: "Autonomous Orchestration",
         icon: Network,
         cards: [
           { 
@@ -411,7 +411,7 @@ export const allServicesData = [
   sections: [
     {
       id: "llm-integration",
-      title: "LLM Integration & Orchestration",
+      title: "LLM Integration",
       icon: BrainCircuit,
       cards: [
         { 

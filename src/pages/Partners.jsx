@@ -10,6 +10,8 @@ import {
   Activity,
 } from 'lucide-react';
 
+import { motion } from 'framer-motion';
+
 import { 
   // Original Icons
   Lock, Video, Cloud, Search, Filter, Layers,
@@ -168,6 +170,74 @@ const iconMap = {
   'Send' : Send              // Message/Reply actions
 };
 
+const SuiteSection = ({ item, index = 0 }) => {
+  // Enhanced color map using Tailwind-compatible HSL or Hex for complex shadows
+  const colorMap = {
+    cyan: "group-hover:shadow-cyan-500/20 border-cyan-500/50 text-cyan-400 bg-cyan-500/10",
+    purple: "group-hover:shadow-purple-500/20 border-purple-500/50 text-purple-400 bg-purple-500/10",
+    emerald: "group-hover:shadow-emerald-500/20 border-emerald-500/50 text-emerald-400 bg-emerald-500/10",
+    blue: "group-hover:shadow-blue-500/20 border-blue-500/50 text-blue-400 bg-blue-500/10"
+  };
+
+  const glowMap = {
+    cyan: "from-cyan-500/20",
+    purple: "from-purple-500/20",
+    emerald: "from-emerald-500/20",
+    blue: "from-blue-500/20"
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.5 }}
+      className="group relative"
+    >
+      {/* Animated Glow Background on Hover */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${glowMap[item.color]} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] blur-xl -z-10`} />
+
+      <div className={`h-full relative p-8 rounded-[2rem] border bg-[#0a0f1d]/80 backdrop-blur-xl transition-all duration-500 group-hover:-translate-y-2 ${colorMap[item.color].split(' ').find(c => c.startsWith('border-'))} hover:border-opacity-100 border-opacity-20 shadow-2xl group-hover:shadow-2xl`}>
+        
+        {/* Decorative corner accent */}
+        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${glowMap[item.color]} to-transparent opacity-10 group-hover:opacity-30 rounded-tr-[2rem] transition-opacity`} />
+
+        <div className="relative z-10">
+          {/* Icon Box */}
+          <div 
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${colorMap[item.color]}`}
+          >
+            <item.icon size={32} strokeWidth={1.5} />
+          </div>
+
+          {/* Tag */}
+          <div className="flex items-center gap-3 mb-6">
+            <span 
+              className={`px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase border ${colorMap[item.color]}`}
+            >
+              {item.tag}
+            </span>
+            <div className={`h-[1px] flex-grow bg-gradient-to-r from-slate-800 to-transparent opacity-50`} />
+          </div>
+
+          <h3 className="text-3xl font-bold text-white mb-4 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
+            {item.title}
+          </h3>
+          
+          <p className="text-slate-400 text-base leading-relaxed group-hover:text-slate-200 transition-colors duration-300">
+            {item.desc}
+          </p>
+
+          {/* Visual Footer Arrow */}
+          <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors duration-300">
+            <div className="w-0 group-hover:w-24 h-[1px] bg-white transition-all duration-300" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const Partners = () => {
   const [partners, setPartners] = useState([]);
   // 1. Fetch from Firebase
@@ -197,7 +267,11 @@ const Partners = () => {
   }, []);
 
   return (
-    <div className="fixed w-full h-full top-0 left-0 bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden overflow-y-scroll">
+    <div className="fixed w-full h-full top-0 left-0 bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden overflow-y-scroll"
+    style={{ fontFamily: "'Syne', sans-serif" }}>
+        <style dangerouslySetInnerHTML={{ __html: `
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+  ` }} />
       
       {/* 1. Navbar (Fixed) */}
       <div className="fixed top-0 w-full z-50">
@@ -226,65 +300,10 @@ const Partners = () => {
 
         {/* --- SUITE GRID (Top 4 Cards) --- */}
         <section>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {suiteItems.map((item) => {
-              const colorMap = {
-                cyan: { border: '#06b6d4', bg: '#06b6d430', text: '#22d3ee', icon: '#06b6d420' },
-                purple: { border: '#a855f7', bg: '#a855f730', text: '#d8b4fe', icon: '#a855f720' },
-                emerald: { border: '#10b981', bg: '#10b98130', text: '#6ee7b7', icon: '#10b98120' },
-                blue: { border: '#3b82f6', bg: '#3b82f630', text: '#60a5fa', icon: '#3b82f620' }
-              };
-              const colors = colorMap[item.color];
-
-              return (
-              <div
-                key={item.id}
-                className="group relative p-8 rounded-3xl border bg-[#0a0f1d] transition-all duration-300 hover:shadow-lg cursor-pointer"
-                style={{
-                  borderColor: colors.border,
-                  boxShadow: 'none',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = colors.text;
-                  e.currentTarget.style.boxShadow = `0 0 30px ${colors.border}40`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = colors.border;
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {/* Icon Box */}
-                <div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-300 group-hover:scale-110"
-                  style={{
-                    backgroundColor: colors.icon,
-                    borderColor: colors.icon,
-                    color: colors.text
-                  }}
-                >
-                  <item.icon size={28} />
-                </div>
-
-                {/* Tag */}
-                <span 
-                  className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4 border"
-                  style={{
-                    backgroundColor: colors.icon,
-                    color: colors.text,
-                    borderColor: colors.border
-                  }}
-                >
-                  {item.tag}
-                </span>
-
-                <h3 className="text-2xl font-bold text-white mb-2 group-hover:opacity-80 transition-opacity">
-                  {item.title}
-                </h3>
-                <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors">{item.desc}</p>
-              </div>
-            );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {suiteItems.map((item, index) => (
+              <SuiteSection key={item.id} item={item} index={index} />
+            ))}
           </div>
         </section>
 

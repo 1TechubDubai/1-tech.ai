@@ -6,6 +6,9 @@ import About from './pages/About.jsx';
 import Services from './pages/Services.jsx'; // Ensure this points to your Services.jsx file
 import Contact from './pages/Contact.jsx';
 import Partners from './pages/Partners.jsx';
+import AIAdvisoryPage from './pages/Advisory.jsx'; // Ensure this points to your AIAdvisoryPage.jsx file
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsOfService from './pages/TermsOfService.jsx';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
         <Route path="/services" element={<Navigate to="/services/custom-ai-solutions" replace />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/partners' element={<Partners/>} />
+        <Route path='/ai-advisory' element={<AIAdvisoryPage/>} />
+        <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
+        <Route path='/terms-of-service' element={<TermsOfService/>} />
         
         {/* Catch-all route: redirect any invalid route to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

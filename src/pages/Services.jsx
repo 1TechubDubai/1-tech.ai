@@ -265,7 +265,7 @@ const Services = () => {
 
   if (!currentService) {
     return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
         <Navbar />
         <h1 className="text-4xl font-bold mb-4">Service Not Found</h1>
         <p className="text-slate-400 mb-8">We couldn't find the service you're looking for.</p>
@@ -278,7 +278,11 @@ const Services = () => {
     <div 
       ref={containerRef}
       className="fixed left-0 top-0 w-full h-full bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-y-scroll scroll-smooth"
+      style={{ fontFamily: "'Syne', sans-serif" }}
     >
+        <style dangerouslySetInnerHTML={{ __html: `
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+  ` }} />
       <div className="fixed top-0 w-full z-50">
           <Navbar />
       </div>

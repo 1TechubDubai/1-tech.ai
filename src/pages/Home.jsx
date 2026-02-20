@@ -33,7 +33,6 @@ import {useLocation} from 'react-router-dom';
 import MessageForm from "../components/MessageForm";
 
 // Intro Section
-
 const IntroSection = () => {
   const canvasRef = useRef(null);
   const navigate = useNavigate();
@@ -169,28 +168,17 @@ const IntroSection = () => {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center h-full">
         
         {/* Text Section */}
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="flex flex-col items-center justify-center font-bold tracking-tight leading-none">
-            {/* Reduced text sizes to fit above fold */}
-            <span className="text-6xl sm:text-5xl md:text-7xl text-white mb-2">
-              Technology
-            </span>
-            
-            <span className="
-              text-6xl sm:text-6xl md:text-7xl 
-              bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 
-              bg-[length:200%_auto] bg-clip-text text-transparent 
-              animate-gradient
-              typing-cursor
-              pb-1
-            ">
-              Simplified.
-            </span>
-          </h1>
+        <div className="text-center max-w-4xl mx-auto px-4">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight uppercase mb-6">
+              Technology <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                Simplified.
+              </span>
+            </h1>
 
           {/* Compact margins */}
           <p 
-            className="mt-16 sm:mt-6 text-md sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]"
+            className="mt-6 sm:mt-6 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]"
           >
             Orchestrating intelligence for the autonomous age. We transform
             complex business challenges into streamlined digital solutions.
@@ -294,7 +282,7 @@ const slides = [
   {
     id: 1,
     label: "Global Expansion",
-    text: "Expanding Businesses Across GCC & Africa",
+    text: "Building Tomorrow's Enterprises Across GCC & Africa",
     desc: "Seamlessly scaling operations through localized technical expertise and strategic market entry.",
     icon: Globe2,
     color: "from-cyan-400 to-blue-600",
@@ -306,7 +294,7 @@ const slides = [
   {
     id: 2,
     label: "Intelligence",
-    text: "AI That Drives Real Business Impact",
+    text: "AI That Drives Real Business Impact and Competitive Advantage",
     desc: "Moving beyond chatbots to autonomous agents that optimize workflows and decision-making.",
     icon: Cpu,
     color: "from-purple-400 to-pink-600",
@@ -375,7 +363,7 @@ const ImpactShowcase = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
           
           {/* LEFT SIDE: TEXT CONTENT */}
-          <div className="w-full lg:w-3/5 text-left order-2 lg:order-1">
+          <div className="w-full lg:w-3/5 text-left order-2 lg:order-1 pl-10">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentIndex}
@@ -392,7 +380,7 @@ const ImpactShowcase = () => {
                 </div>
 
                 {/* Main Heading */}
-                <h2 className="text-4xl md:text-6xl font-black leading-[1.1] tracking-tighter text-white">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
                   {currentSlide.text.split(" ").map((word, i) => (
                     <span key={i} className="inline-block mr-3">
                       {['AI', 'GCC', 'Africa', 'Cloud', 'Cybersecurity', 'ERP', 'Globally'].includes(word.replace(/[^a-zA-Z]/g, '')) ? (
@@ -1039,7 +1027,12 @@ const Home = () => {
         fixed top-0 left-0 w-full h-full
         overflow-y-scroll overflow-x-hidden
       "
+      style={{ fontFamily: "'Syne', sans-serif" }}
     >
+    <style dangerouslySetInnerHTML={{ __html: `
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+  ` }} />
+
       {/* UNIFIED GRADIENT BACKGROUND SYSTEM - Spans all sections */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Large flowing cyan blob - moves from top-left to bottom-right */}

@@ -7,7 +7,7 @@ import coreSp from "../assets/coreSp.svg";
 import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import { ArrowRight, Check, Globe, Linkedin, Mail, Zap } from 'lucide-react';
+import { Globe, ArrowRight, Zap, Check, ShieldAlert, Linkedin, Mail } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 
@@ -67,146 +67,183 @@ const Card = ({ title, description, image, index = 0 }) => (
   </div>
 );
 
-const GlobalScale = ({ earth, points = [] }) => {
-  const displayPoints = points.length > 0 ? points : [
-    "Regional HQs in London & Singapore",
-    "24/7 Global Support Centers",
-    "Tier-4 Data Centers Worldwide",
-    "Multi-lingual AI Capabilities"
+const GlobalBridge = ({ earth }) => {
+  const objectives = [
+    "Closing the regional AI adoption gap",
+    "Tailored solutions for MEA infrastructure",
+    "Localization of world-class LLM models",
+    "Empowering industries with global-tier tech"
   ];
 
   return (
-    <section className="relative sm:py-18 lg:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
+    <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
       
       {/* --- BACKGROUND EFFECTS --- */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E1F] via-[#020617] to-[#020617] pointer-events-none -z-20" />
-      
-      {/* Mobile-Optimized Glows */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10 animate-pulse-slow" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] -z-10" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,182,212,0.05),transparent_50%)]" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] -z-10 animate-pulse-slow" />
 
-      {/* Main Container: Flex Col on Mobile (Stack), Grid on Desktop */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center relative z-10">
-        
-        {/* --- RIGHT COLUMN --- */}
-        {/* ORDERING: Top on Mobile (order-1), Right on Desktop (lg:order-2) */}
-        <div className="w-full relative order-1 lg:order-2 perspective-1000">
-          
-          {/* Mobile Image Container with Gradient Fade at bottom */}
-          <div className="relative z-10 w-full max-w-[320px] sm:max-w-[400px] lg:max-w-none mx-auto lg:mx-0">
-            
-            {/* Glow Behind Image */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-cyan-500/20 rounded-full blur-[50px] animate-pulse-slow" />
-            
-            <div className="relative transition-transform duration-500 hover:scale-[1.02]">
+      <div className="max-w-7xl mx-auto relative z-10">
+
+        {/* ── MOBILE LAYOUT: stacked, badge → heading → globe (small) → objectives → CTA ── */}
+        {/* ── DESKTOP LAYOUT: 2-col grid ── */}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
+
+          {/* ─── LEFT / MAIN TEXT COLUMN ─── */}
+          <div className="w-full space-y-6 lg:space-y-8 order-1 text-center lg:text-left">
+
+            {/* Status Badge */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="relative inline-flex items-center justify-center px-4 py-2 rounded-full bg-cyan-950/30 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-md hover:border-cyan-400/50 hover:bg-cyan-900/40 transition-all duration-300">
+                <ShieldAlert className="w-3.5 h-3.5 text-cyan-400 animate-pulse mr-2" />
+                Bridging the Tech Divide
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div className="space-y-3">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight text-left">
+                World-Class AI. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500">
+                  Localized for Impact.
+                </span>
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0 text-left">
+                While tech leaders in developed markets race ahead with AI adoption, emerging economies struggle with access and expertise gaps.{' '}
+                <span className="text-white font-medium">1TecHub bridges that divide.</span>{' '}
+                We democratize enterprise-grade AI, bringing sophisticated intelligence to innovators in overlooked markets—ensuring no region is left behind.
+              </p>
+            </div>
+
+            {/* ── Globe visual — MOBILE ONLY (shown between heading and objectives) ── */}
+            <div className="block lg:hidden w-full">
+              <div className="relative w-full max-w-[260px] mx-auto">
+                {/* Spinning rings */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-[110%] h-[110%] border border-cyan-500/10 rounded-full animate-[spin_20s_linear_infinite]" />
+                  <div className="absolute w-[100%] h-[100%] border-t border-b border-blue-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                </div>
+                {earth ? (
+                  <div className="relative">
+                    <img
+                      src={earth}
+                      alt="Global Adoption Bridge"
+                      className="w-full h-auto object-contain drop-shadow-[0_0_40px_rgba(6,182,212,0.25)] opacity-85"
+                    />
+                    <div className="absolute inset-0 overflow-hidden rounded-full">
+                      <div className="comet comet-1" />
+                      <div className="comet comet-2" />
+                      <div className="comet comet-3" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full aspect-square rounded-full bg-slate-900/50 border border-slate-700/50 flex items-center justify-center backdrop-blur-md">
+                    <Globe className="w-16 h-16 text-cyan-900 animate-pulse" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mission Objectives */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto lg:mx-0">
+              {objectives.map((point, index) => (
+                <div
+                  key={index}
+                  className="group flex items-start gap-3 p-3 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:border-cyan-500/30 transition-all duration-300"
+                >
+                  <div className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-cyan-400" strokeWidth={3} />
+                  </div>
+                  <span className="text-xs sm:text-sm text-slate-300 font-bold leading-tight group-hover:text-white transition-colors">
+                    {point}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="pt-2 flex justify-center lg:justify-start">
+              <Link
+                to="/contact"
+                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#020617] rounded-full overflow-hidden font-black uppercase text-xs transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+              >
+                <Zap className="w-4 h-4 fill-current" />
+                <span>Get Your AI Roadmap</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* ─── RIGHT / GLOBE COLUMN — DESKTOP ONLY ─── */}
+          <div className="hidden lg:flex w-full relative order-2 items-center justify-center perspective-1000">
+            <div className="relative z-10 w-full max-w-none">
+              {/* HUD Rings */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-[120%] h-[120%] border border-cyan-500/10 rounded-full animate-[spin_20s_linear_infinite]" />
+                <div className="absolute w-[105%] h-[105%] border-t border-b border-blue-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+              </div>
               {earth ? (
-                <>
+                <div className="relative group">
                   <img
                     src={earth}
-                    alt="Global Network"
-                    className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-none object-contain drop-shadow-2xl mx-auto"
-                    loading="lazy"
+                    alt="Global Adoption Bridge"
+                    className="w-full h-auto object-contain drop-shadow-[0_0_50px_rgba(6,182,212,0.2)] opacity-80 group-hover:opacity-100 transition-opacity duration-700"
                   />
-                  {/* Mobile Only: Gradient Mask to blend image bottom into text */}
-                  <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#020617] to-transparent lg:hidden" />
-                </>
+                  <div className="absolute inset-0 overflow-hidden rounded-full">
+                    <div className="comet comet-1" />
+                    <div className="comet comet-2" />
+                    <div className="comet comet-3" />
+                  </div>
+                </div>
               ) : (
-                /* Fallback Placeholder */
-                <div className="w-full aspect-square max-w-[300px] mx-auto rounded-full bg-slate-900/50 border border-slate-700/50 flex flex-col items-center justify-center backdrop-blur-md">
-                   <Globe className="w-16 h-16 text-slate-600 mb-2" />
-                   <span className="text-slate-500 text-xs uppercase tracking-widest">Earth Visual</span>
+                <div className="w-full aspect-square rounded-full bg-slate-900/50 border border-slate-700/50 flex flex-col items-center justify-center backdrop-blur-md">
+                  <Globe className="w-20 h-20 text-cyan-900 animate-pulse" />
                 </div>
               )}
             </div>
-
-            {/* Floating Tech Dots */}
-            <div className="absolute top-4 right-10 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
-            <div className="absolute bottom-10 left-4 w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping delay-1000" />
-          </div>
-        </div>
-
-        {/* --- LEFT COLUMN --- */}
-        {/* ORDERING: Bottom on Mobile (order-2), Left on Desktop (lg:order-1) */}
-        <div className="w-full space-y-6 sm:space-y-8 order-2 lg:order-1 text-center lg:text-left">
-          
-          {/* Badge (Centered on mobile, Left on desktop) */}
-          <div className="flex justify-center lg:justify-start">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/30 border border-blue-500/20 backdrop-blur-sm shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)]">
-              <Globe className="w-3.5 h-3.5 text-blue-400" />
-              <span className="text-[10px] sm:text-xs font-bold tracking-widest text-blue-300 uppercase">
-                Global Presence
-              </span>
-            </div>
-          </div>
-
-          {/* Heading */}
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Anchored in Dubai. <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                Scaling Globally.
-              </span>
-            </h2>
-
-            <p className="text-sm sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              We believe innovation should have no boundaries. We support global
-              growth with solutions that are scalable, secure, and engineered for
-              long-term impact.
-            </p>
-          </div>
-
-          {/* Points Grid - Compact 2-col on mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left max-w-lg mx-auto lg:mx-0">
-            {displayPoints.map((point, index) => (
-              <div 
-                key={index} 
-                className="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/50 hover:bg-slate-800/60 transition-colors"
-              >
-                <div className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-cyan-500/10">
-                  <Check className="w-3.5 h-3.5 text-cyan-400" strokeWidth={3} />
-                </div>
-                <span className="text-sm text-slate-300 font-medium leading-snug">
-                  {point}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Button */}
-          <div className="pt-4 sm:pt-6 flex justify-center lg:justify-start">
-            <Link 
-              to="/partners" 
-              className="
-                group relative inline-flex items-center justify-center gap-2.5 
-                px-8 py-3.5 sm:py-4 
-                bg-gradient-to-r from-cyan-500 to-blue-600 
-                rounded-full overflow-hidden 
-                transition-all duration-300 
-                hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:-translate-y-0.5
-                w-full sm:w-auto
-              "
-            >
-              <span className="relative z-10 text-white font-bold tracking-wide text-sm sm:text-base">
-                View Global Network
-              </span>
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 group-hover:translate-x-1 transition-transform" />
-              
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-in-out" />
-            </Link>
           </div>
 
         </div>
-
       </div>
 
       <style>{`
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
+        .comet {
+          position: absolute;
+          width: 3px;
+          height: 3px;
+          background: radial-gradient(circle, #06b6d4, transparent);
+          opacity: 0;
+          border-radius: 50%;
+          box-shadow: 0 0 8px #06b6d4;
         }
-        .animate-pulse-slow {
-          animation: pulse-slow 6s ease-in-out infinite;
+        .comet-1 { animation: orbit-1 6s linear infinite; }
+        .comet-2 { animation: orbit-2 8s linear infinite 1s; }
+        .comet-3 { animation: orbit-3 7s linear infinite 2s; }
+
+        @keyframes orbit-1 {
+          0%   { top: 20%; left: 50%; transform: translate(-50%, -50%); opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { top: 80%; left: 20%; transform: translate(-50%, -50%); opacity: 0; }
         }
+        @keyframes orbit-2 {
+          0%   { top: 80%; left: 30%; transform: translate(-50%, -50%); opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { top: 20%; left: 70%; transform: translate(-50%, -50%); opacity: 0; }
+        }
+        @keyframes orbit-3 {
+          0%   { top: 50%; left: 80%; transform: translate(-50%, -50%); opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { top: 50%; left: 20%; transform: translate(-50%, -50%); opacity: 0; }
+        }
+
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-10px); }
+        }
+        .animate-bounce-slow { animation: bounce-slow 4s ease-in-out infinite; }
       `}</style>
     </section>
   );
@@ -226,49 +263,19 @@ const CoreSpecializations = ({ image }) => {
   ];
 
   return (
-    <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 px-10 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
+    <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
       
       {/* --- BACKGROUND EFFECTS --- */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#0A0E1F] to-[#020617] pointer-events-none -z-20" />
-      
-      {/* Animated Glows */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] -z-10 animate-pulse-slow" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-[100px] -z-10" />
 
-      {/* Main Container: Flex Col (Mobile) -> Grid (Desktop) */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center relative z-10">
-        
-        {/* --- RIGHT COLUMN --- */}
-        {/* ORDERING: Top on Mobile (order-1), Right on Desktop (lg:order-2) */}
-        <div className="w-full relative order-1 lg:order-2 perspective-1000 group">
-          
-          {/* Decorative Glow Behind Image */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur opacity-40 group-hover:opacity-60 transition duration-1000 animate-pulse-slow" />
-          
-          <div className="relative rounded-2xl bg-[#0a0f1d] border border-slate-800/80 p-1 sm:p-2 shadow-2xl overflow-hidden">
-            {coreSp ? (
-              <>
-                <img
-                  src={coreSp}
-                  alt="Core Specializations"
-                  className="w-full h-auto max-h-[300px] sm:max-h-[400px] lg:max-h-none object-cover sm:object-contain rounded-xl transform transition-transform duration-700 group-hover:scale-[1.02]"
-                />
-                {/* Mobile Gradient Mask to blend image bottom */}
-                <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#0a0f1d] via-[#0a0f1d]/80 to-transparent lg:hidden" />
-              </>
-            ) : (
-              <div className="w-full aspect-[4/3] bg-slate-900 rounded-xl flex flex-col items-center justify-center text-slate-500 border border-slate-800">
-                <Zap className="w-12 h-12 mb-3 text-slate-600" />
-                <span className="text-xs uppercase tracking-widest">Image Placeholder</span>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center relative z-10">
 
-        {/* --- LEFT COLUMN --- */}
-        {/* ORDERING: Bottom on Mobile (order-2), Left on Desktop (lg:order-1) */}
-        <div className="w-full relative order-2 lg:order-1 text-left">
-          
+        {/* --- LEFT COLUMN: TEXT --- */}
+        {/* Mobile: order-1 (top). Desktop: order-1 (left) */}
+        <div className="w-full relative order-1 text-left">
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 mb-5 sm:mb-6 hover:border-cyan-400/50 transition-colors backdrop-blur-md">
             <span className="relative flex h-2 w-2">
@@ -288,15 +295,37 @@ const CoreSpecializations = ({ image }) => {
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-400 mb-8 sm:mb-10 max-w-lg leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-400 mb-6 sm:mb-8 max-w-lg leading-relaxed">
             We merge autonomous intelligence with robust infrastructure to help enterprises scale efficiently and securely.
           </p>
 
-          {/* Feature List - Grid 1 col on mobile, 2 col on tablet+ */}
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-8 sm:mb-10">
+          {/* ── Image — MOBILE ONLY (between description and list) ── */}
+          <div className="block lg:hidden w-full mb-6">
+            <div className="relative rounded-2xl bg-[#0a0f1d] border border-slate-800/80 p-1 shadow-2xl overflow-hidden group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur opacity-40 group-hover:opacity-60 transition duration-1000 animate-pulse-slow" />
+              {coreSp ? (
+                <>
+                  <img
+                    src={coreSp}
+                    alt="Core Specializations"
+                    className="relative w-full h-auto max-h-[220px] object-cover rounded-xl"
+                  />
+                  <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#0a0f1d] via-[#0a0f1d]/70 to-transparent" />
+                </>
+              ) : (
+                <div className="w-full aspect-[4/3] bg-slate-900 rounded-xl flex flex-col items-center justify-center text-slate-500 border border-slate-800">
+                  <Zap className="w-10 h-10 mb-3 text-slate-600" />
+                  <span className="text-xs uppercase tracking-widest">Image Placeholder</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Feature List */}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 mb-8 sm:mb-10">
             {items.map((item, index) => (
-              <li 
-                key={index} 
+              <li
+                key={index}
                 className="flex items-start gap-3 group p-2 rounded-lg hover:bg-white/5 transition-colors"
               >
                 <div className="mt-0.5 min-w-[18px]">
@@ -311,23 +340,37 @@ const CoreSpecializations = ({ image }) => {
 
           {/* CTA Button */}
           <div className="pt-2">
-            <button 
+            <button
               onClick={() => navigate("/", { state: { scrollTo: 'capabilities' } })}
               className="group relative inline-flex items-center gap-2.5 px-8 py-4 bg-transparent overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)]"
             >
-              {/* High-Tech Border Gradient */}
-              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors pointer-events-none"></div>
-              
-              {/* Subtle Inner Glow on Hover */}
-              <div className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/5 transition-colors duration-300"></div>
-              
+              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors pointer-events-none" />
+              <div className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/5 transition-colors duration-300" />
               <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide text-white group-hover:text-cyan-300 transition-colors">
                 Discover All Solutions
               </span>
               <ArrowRight className="relative z-10 w-4 h-4 text-cyan-400 group-hover:translate-x-1.5 transition-transform duration-300" />
             </button>
           </div>
+        </div>
 
+        {/* --- RIGHT COLUMN: IMAGE — DESKTOP ONLY --- */}
+        <div className="hidden lg:block w-full relative order-2 perspective-1000 group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur opacity-40 group-hover:opacity-60 transition duration-1000 animate-pulse-slow" />
+          <div className="relative rounded-2xl bg-[#0a0f1d] border border-slate-800/80 p-2 shadow-2xl overflow-hidden">
+            {coreSp ? (
+              <img
+                src={coreSp}
+                alt="Core Specializations"
+                className="w-full h-auto object-contain rounded-xl transform transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div className="w-full aspect-[4/3] bg-slate-900 rounded-xl flex flex-col items-center justify-center text-slate-500 border border-slate-800">
+                <Zap className="w-12 h-12 mb-3 text-slate-600" />
+                <span className="text-xs uppercase tracking-widest">Image Placeholder</span>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>
@@ -638,7 +681,7 @@ const About = () => {
     },
     {
       title: "PARTNER ECOSYSTEM",
-      description: "We collaborate with global AI platforms and cloud hyperscalers to bring international innovation to regional markets.",
+      description: "We enable global AI and cloud hyperscalers to successfully enter, localize, and scale within regional enterprise markets through proven GTM execution.",
       image: two
     },
     {
@@ -655,7 +698,7 @@ const About = () => {
   ] 
 
   return (
-    <div className="h-full w-full fixed top-0 left-0 text-white overflow-y-scroll bg-[#020617]">
+    <div className="h-full w-full fixed top-0 left-0 text-white overflow-y-scroll bg-[#020617]" style={{ fontFamily: "'Syne', sans-serif" }}>
       <style>{`
         @keyframes slideUp {
           from { transform: translateY(30px); opacity: 0; }
@@ -692,6 +735,9 @@ const About = () => {
           }
         }
       `}</style>
+              <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+      ` }} />
 
       <Navbar />
 
@@ -736,24 +782,17 @@ const About = () => {
             </div>
 
             {/* Main Heading */}
-            <h1 className="
-                max-w-6xl mx-auto
-                text-3xl sm:text-4xl md:text-5xl lg:text-7xl
-                font-extrabold tracking-tight
-                leading-[1.2] sm:leading-[1.15] md:leading-[1.1]
-                text-white
-                mb-6 sm:mb-8 md:mb-10 lg:mb-12
-                animate-slide-up
-            ">
-                Your Partner for <br className="hidden sm:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500">
+
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight uppercase mb-6">
+              Your Partner for  <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                 Global AI Solutions
-                </span>
+              </span>
             </h1>
 
             {/* Subtext */}
             <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 md:space-y-6 animate-fade-in px-1 sm:px-2">
-                <p className="text-slate-300 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed">
+                <p className="text-slate-300 text-xs sm:text-sm md:text-base lg:text-md leading-relaxed">
                 1TecHub is a premium AI consulting and Go-to-Market company. We act as
                 your strategic partner in the autonomous revolution, delivering
                 deep technical expertise, strong governance frameworks, and
@@ -795,7 +834,7 @@ const About = () => {
           </div>
       </div>
 
-      <GlobalScale earth={earth} points={points} />
+      <GlobalBridge earth={earth} points={points} />
       
       <CoreSpecializations />
 
