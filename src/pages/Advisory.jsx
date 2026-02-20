@@ -14,7 +14,7 @@ const GlobalStyles = () => (
 
     *, *::before, *::after { box-sizing: border-box; }
 
-    body { margin: 0; }
+    body { font-family: 'Syne', sans-serif; margin: 0; }
 
     /* ── Animated gradient text ── */
     @keyframes grad-shift {
@@ -585,7 +585,7 @@ const AIAdvisoryPage = () => {
                     </div>
                     <div>
                       <p style={{ fontFamily:"'Space Mono',monospace" }} className="text-xs text-cyan-500 tracking-widest uppercase mb-2">Phase {step.n}</p>
-                      <h3 className="text-lg md:text-xl font-black text-white mb-3 md:mb-4">{step.t}</h3>
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">{step.t}</h3>
                       <p className="text-xs md:text-sm text-slate-400 leading-relaxed">{step.d}</p>
                     </div>
                   </div>
@@ -636,7 +636,7 @@ const AIAdvisoryPage = () => {
                   style={{ background:`${node.accent}12`, border:`1px solid ${node.accent}25`, color:node.accent }}>
                   {node.icon}
                 </div>
-                <h4 className="text-white font-black text-sm md:text-base uppercase tracking-widest mb-2 md:mb-3">{node.t}</h4>
+                <h4 className="text-white font-bold text-sm md:text-base uppercase tracking-widest mb-2 md:mb-3">{node.t}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed">{node.d}</p>
               </motion.div>
             ))}
@@ -695,7 +695,7 @@ const AIAdvisoryPage = () => {
                   style={{ color:'rgba(34,211,238,0.05)', fontFamily:"'Syne',sans-serif", display:'block' }}>
                   0{i+1}
                 </span>
-                <h3 className="text-base md:text-lg font-black text-white mb-2">{step.s}</h3>
+                <h3 className="text-base md:text-lg font-bold text-white mb-2">{step.s}</h3>
                 <p className="text-slate-500 text-xs leading-relaxed">{step.d}</p>
                 <div style={{ fontFamily:"'Space Mono',monospace" }}
                   className="mt-3 md:mt-4 flex items-center gap-2 text-cyan-500/60 text-xs font-bold uppercase tracking-widest">
@@ -747,7 +747,7 @@ const AIAdvisoryPage = () => {
 
             <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} style={{ fontFamily:"'Space Mono',monospace" }}
               className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">Ready to Begin</motion.p>
-            <h2 className="text-2xl md:text-3xl lg:text-5xl font-black text-white mb-4 md:mb-6 tracking-tight leading-tight">
+            <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-4 md:mb-6 tracking-tight leading-tight">
               The Future Is <br />
               <span className="grad-text">Wait-less.</span>
             </h2>
@@ -756,7 +756,7 @@ const AIAdvisoryPage = () => {
             </p>
             <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
               <Link to="/contact"
-                className="inline-block w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-black text-base md:text-lg text-black"
+                className="inline-block w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-black"
                 style={{
                   background:'linear-gradient(135deg, #e0f7ff, #ffffff)',
                   boxShadow:'0 10px 30px rgba(34,211,238,0.12)',

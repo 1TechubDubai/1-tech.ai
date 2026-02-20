@@ -113,7 +113,7 @@ const TermsOfService = () => {
 
       {/* Content Section */}
       <main className="container mx-auto px-6 pb-32 max-w-5xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-20">
           
           {/* Navigation Sidebar */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-32 h-fit">
