@@ -783,7 +783,7 @@ const CombinedWhyChooseUs = () => {
               <button onClick={() => navigate("/contact", { state: { 
                 prefilledMessage: "I'm interested in learning more about your enterprise infrastructure solutions, including full-stack development, LLM integration, and big data pipelines. I'd like to schedule a consultation to discuss how these can be tailored to our needs.",
                 selectedServices: ["Generative AI", "Data Engineering", "Machine Learning"]
-              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] leading-normal">
                 SCHEDULE CONSULTATION <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -839,7 +839,7 @@ const CombinedWhyChooseUs = () => {
               <button onClick={() => navigate("/contact", { state: { 
                 prefilledMessage: "I'd like to request a demo of your autonomous AI agents and conversational voice AI solutions. We're interested in deploying intelligent systems that can operate 24/7 without supervision. Please let me know the next steps for a personalized demonstration.",
                 selectedServices: ["Intelligent Systems", "Voice AI", "Machine Learning", "NLP Solutions"]
-              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-black tracking-[0.15em] bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] leading-normal">
                 REQUEST A DEMO <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>

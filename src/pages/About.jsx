@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import { Globe, ArrowRight, Zap, Check, ShieldAlert, Linkedin, Mail } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 
 const Card = ({ title, description, image, index = 0 }) => (
@@ -162,16 +163,18 @@ const GlobalBridge = ({ earth }) => {
             </div>
 
             {/* CTA */}
-            <div className="pt-2 flex justify-center lg:justify-start">
-              <Link
-                to="/contact"
-                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#020617] rounded-full overflow-hidden font-black uppercase text-xs transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-              >
-                <Zap className="w-4 h-4 fill-current" />
+            <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
+              <Link to="/contact"
+                className="w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-black flex items-center justify-center gap-2"
+                style={{
+                  background:'linear-gradient(135deg, #e0f7ff, #ffffff)',
+                  boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
+                }}>
+                <Zap className="w-4 h-4" />
                 <span>Get Your AI Roadmap</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
+            </motion.div>
           </div>
 
           {/* ─── RIGHT / GLOBE COLUMN — DESKTOP ONLY ─── */}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { BarChart3, Database, Cpu, Settings, Globe, ShieldCheck, ArrowRight, Target, Layers, Sparkles, ChevronRight, TrendingUp, Brain, Share2 } from 'lucide-react';
+import { BarChart3, Database, Cpu, Settings, Globe, ShieldCheck, ArrowRight, Target, Layers, Sparkles, ChevronRight, TrendingUp, Brain, Share2, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -324,7 +324,7 @@ const StrategySection = () => {
                     {item.icon}
                   </div> */}
                   <h4 className="text-white font-bold mb-2 text-sm md:text-base">{item.t}</h4>
-                  <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-400 transition-colors">
+                  <p className="text-base text-slate-300 leading-relaxed group-hover:text-slate-200 transition-colors">
                     {item.d}
                   </p>
                 </motion.div>
@@ -586,7 +586,7 @@ const AIAdvisoryPage = () => {
                     <div>
                       <p style={{ fontFamily:"'Space Mono',monospace" }} className="text-xs text-cyan-500 tracking-widest uppercase mb-2">Phase {step.n}</p>
                       <h3 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">{step.t}</h3>
-                      <p className="text-xs md:text-sm text-slate-400 leading-relaxed">{step.d}</p>
+                      <p className="text-base md:text-lg text-slate-300 leading-relaxed">{step.d}</p>
                     </div>
                   </div>
                 </div>
@@ -637,7 +637,7 @@ const AIAdvisoryPage = () => {
                   {node.icon}
                 </div>
                 <h4 className="text-white font-bold text-sm md:text-base uppercase tracking-widest mb-2 md:mb-3">{node.t}</h4>
-                <p className="text-slate-500 text-xs leading-relaxed">{node.d}</p>
+                <p className="text-slate-300 text-base leading-relaxed">{node.d}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -696,7 +696,7 @@ const AIAdvisoryPage = () => {
                   0{i+1}
                 </span>
                 <h3 className="text-base md:text-lg font-bold text-white mb-2">{step.s}</h3>
-                <p className="text-slate-500 text-xs leading-relaxed">{step.d}</p>
+                <p className="text-slate-300 text-base leading-relaxed">{step.d}</p>
                 <div style={{ fontFamily:"'Space Mono',monospace" }}
                   className="mt-3 md:mt-4 flex items-center gap-2 text-cyan-500/60 text-xs font-bold uppercase tracking-widest">
                   Deploy phase {i+1} <ChevronRight size={10} md:size={12} />
@@ -762,6 +762,7 @@ const AIAdvisoryPage = () => {
                   boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
                 }}>
                 Book a Strategy Call
+                <ArrowRight size={16} md:size={20} className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </motion.div>
           </motion.div>
