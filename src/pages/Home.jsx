@@ -178,7 +178,7 @@ const IntroSection = () => {
 
           {/* Compact margins */}
           <p 
-            className="mt-6 sm:mt-6 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]"
+            className="mt-10 mb-4 sm:mt-6 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]"
           >
             Orchestrating intelligence for the autonomous age. We transform
             complex business challenges into streamlined digital solutions.
@@ -465,24 +465,39 @@ const ImpactShowcase = () => {
                   onClick={() => handleDotClick(index)}
                   className="group flex flex-col gap-4 text-left focus:outline-none"
                 >
+                  {/* Progress Bar Container */}
                   <div className="relative h-[2px] w-full bg-white/10 rounded-full overflow-hidden">
                     {isActive ? (
+                      /* ACTIVE INDICATOR: Animated from -100% to 0% over 6 seconds */
                       <motion.div
-                        layoutId="activeProgress"
+                        key={currentIndex} // Crucial: Restarts animation on slide change
                         initial={{ x: "-100%" }}
                         animate={{ x: "0%" }}
-                        transition={{ duration: 6, ease: "linear" }}
-                        className={`absolute inset-0 w-full bg-gradient-to-r ${slide.color} shadow-[0_0_10px_white]`}
+                        transition={{ 
+                          duration: 6, // Matches your 6000ms interval
+                          ease: "linear" 
+                        }}
+                        className={`absolute inset-0 w-full bg-gradient-to-r ${slide.color} shadow-[0_0_10px_rgba(255,255,255,0.3)]`}
                       />
                     ) : (
-                      index < currentIndex && (
-                        <div className="absolute inset-0 w-full bg-white/30" />
-                      )
+                      /* INACTIVE STATES */
+                      <div 
+                        className={`absolute inset-0 w-full transition-colors duration-500 ${
+                          index < currentIndex ? 'bg-white/40' : 'bg-transparent'
+                        }`} 
+                      />
                     )}
                   </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-500'}`}>
-                    0{slide.id}
-                  </span>
+
+                  {/* Label */}
+                  <div className="flex flex-col">
+                    <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-500'}`}>
+                      0{slide.id}
+                    </span>
+                    <span className={`hidden md:block text-[9px] font-bold uppercase mt-1 tracking-wider transition-colors duration-500 ${isActive ? slide.accent : 'text-transparent'}`}>
+                      {slide.label}
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -783,7 +798,7 @@ const CombinedWhyChooseUs = () => {
               <button onClick={() => navigate("/contact", { state: { 
                 prefilledMessage: "I'm interested in learning more about your enterprise infrastructure solutions, including full-stack development, LLM integration, and big data pipelines. I'd like to schedule a consultation to discuss how these can be tailored to our needs.",
                 selectedServices: ["Generative AI", "Data Engineering", "Machine Learning"]
-              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide bg-white text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] leading-normal">
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide border-cyan-400 border-2 text-white transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:text-black leading-normal">
                 SCHEDULE CONSULTATION <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -839,7 +854,7 @@ const CombinedWhyChooseUs = () => {
               <button onClick={() => navigate("/contact", { state: { 
                 prefilledMessage: "I'd like to request a demo of your autonomous AI agents and conversational voice AI solutions. We're interested in deploying intelligent systems that can operate 24/7 without supervision. Please let me know the next steps for a personalized demonstration.",
                 selectedServices: ["Intelligent Systems", "Voice AI", "Machine Learning", "NLP Solutions"]
-              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide bg-white text-black transition-all hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] leading-normal">
+              }})} className="group/btn relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-xs font-bold tracking-wide text-white transition-all border-purple-400 border-2 hover:text-black hover:bg-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] leading-normal">
                 REQUEST A DEMO <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -886,14 +901,35 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => {
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Function to handle scroll and update the active indicator
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, offsetWidth } = scrollRef.current;
+      // Calculate index based on how much has been scrolled
+      const index = Math.round(scrollLeft / offsetWidth);
+      setActiveIndex(index);
+    }
+  };
+
+  // Function to scroll to a specific card when an indicator is clicked
+  const scrollToCard = (index) => {
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.offsetWidth;
+      scrollRef.current.scrollTo({
+        left: cardWidth * index,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <section className="relative w-full py-16 md:py-24 overflow-hidden">
+    <section className="relative w-full py-16 md:py-24 overflow-hidden bg-[#020617]">
       
       {/* --- BACKGROUND DECORATION --- */}
-      {/* Top Divider Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50" />
-      
-      {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-900/10 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -905,7 +941,7 @@ const TestimonialsSection = () => {
             <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Success Stories</span>
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight">
             Trusted by <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Industry Leaders</span>
           </h2>
           
@@ -915,87 +951,67 @@ const TestimonialsSection = () => {
           </p>
         </div>
 
-        {/* --- CARDS GRID --- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {/* --- CARDS WRAPPER --- */}
+        <div 
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="
+            flex overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-8 -mx-4 px-4 gap-6
+            md:grid md:grid-cols-3 md:overflow-visible md:snap-none md:mx-0 md:px-0 lg:gap-8
+          "
+        >
           {testimonials.map((item, index) => (
-            <TestimonialCard key={index} {...item} index={index} />
+            <div 
+              key={index} 
+              className="min-w-[85vw] sm:min-w-[60vw] md:min-w-0 snap-center"
+            >
+              {/* Assuming TestimonialCard is a separate component */}
+              <TestimonialCard {...item} index={index} />
+            </div>
           ))}
         </div>
 
-      </div>
-    </section>
-  );
-};
-
-const TestimonialCard = ({ quote, author, role, initials, gradient, index }) => {
-  return (
-    <div 
-      className="group relative h-full animate-fadeIn"
-      style={{ animationDelay: `${index * 0.15}s` }}
-    >
-      <div className="
-        relative h-full flex flex-col
-        p-6 sm:p-8 rounded-2xl
-        bg-[#0a0f1d]/80 backdrop-blur-sm 
-        border border-slate-800/60
-        transition-all duration-300 ease-out
-        
-        hover:-translate-y-1 
-        hover:border-cyan-500/30
-        hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.15)]
-      ">
-        
-        {/* Large Background Quote Icon */}
-        <div className="absolute top-6 right-6 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-          <Quote size={64} className="text-slate-400 fill-slate-400" />
-        </div>
-
-        {/* Quote Content */}
-        <div className="relative z-10 flex-grow">
-          <Quote size={24} className="text-cyan-500 mb-4 opacity-80" />
-          
-          <p className="text-slate-300 text-sm sm:text-base italic leading-relaxed mb-8">
-            "{quote}"
-          </p>
-        </div>
-
-        {/* Author Footer */}
-        <div className="relative z-10 flex items-center gap-4 pt-6 border-t border-slate-800/50 group-hover:border-slate-700/50 transition-colors">
-          
-          {/* Avatar Placeholder */}
-          <div className={`
-            w-10 h-10 rounded-full flex items-center justify-center 
-            text-sm font-bold text-white shadow-lg
-            bg-gradient-to-br ${gradient}
-          `}>
-            {initials}
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">
-              {author}
-            </span>
-            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-              {role}
-            </span>
-          </div>
+        {/* --- FUNCTIONAL INDICATORS --- */}
+        <div className="flex md:hidden justify-center gap-3 mt-4">
+          {testimonials.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToCard(i)}
+              className={`transition-all duration-300 rounded-full ${
+                activeIndex === i 
+                ? "w-6 h-1.5 bg-cyan-500" 
+                : "w-1.5 h-1.5 bg-slate-700 hover:bg-slate-600"
+              }`}
+              aria-label={`Go to testimonial ${i + 1}`}
+            />
+          ))}
         </div>
 
       </div>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out forwards;
-        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-    </div>
+    </section>
   );
 };
 
+// Simple Mockup of TestimonialCard for context
+const TestimonialCard = ({ quote, author, role, initials, gradient }) => (
+  <div className="h-full p-8 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm flex flex-col justify-between">
+    <p className="text-slate-300 italic mb-8 italic">"{quote}"</p>
+    <div className="flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold`}>
+        {initials}
+      </div>
+      <div>
+        <h4 className="text-white font-bold text-sm">{author}</h4>
+        <p className="text-slate-500 text-xs">{role}</p>
+      </div>
+    </div>
+  </div>
+);
 
 const Home = () => {
 

@@ -165,9 +165,8 @@ const GlobalBridge = ({ earth }) => {
             {/* CTA */}
             <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
               <Link to="/contact"
-                className="w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-black flex items-center justify-center gap-2"
+                className="w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-white hover:text-black bg-transparent border-cyan-400 border-2 hover:bg-cyan-400 flex items-center justify-center gap-2"
                 style={{
-                  background:'linear-gradient(135deg, #e0f7ff, #ffffff)',
                   boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
                 }}>
                 <Zap className="w-4 h-4" />
@@ -342,19 +341,17 @@ const CoreSpecializations = ({ image }) => {
           </ul>
 
           {/* CTA Button */}
-          <div className="pt-2">
-            <button
+          <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }} className="w-full">
+            <button 
               onClick={() => navigate("/", { state: { scrollTo: 'capabilities' } })}
-              className="group relative inline-flex items-center gap-2.5 px-8 py-4 bg-transparent overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)]"
-            >
-              <div className="absolute inset-0 rounded-full border border-cyan-500/50 group-hover:border-cyan-400 transition-colors pointer-events-none" />
-              <div className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/5 transition-colors duration-300" />
-              <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide text-white group-hover:text-cyan-300 transition-colors">
-                Discover All Solutions
-              </span>
-              <ArrowRight className="relative z-10 w-4 h-4 text-cyan-400 group-hover:translate-x-1.5 transition-transform duration-300" />
+              className="w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-white hover:text-black bg-transparent border-cyan-400 border-2 hover:bg-cyan-400 flex items-center justify-center gap-2"
+              style={{
+                boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
+              }}>
+              <span>Discover All Solutions</span>
+              <ArrowRight className="relative z-10 w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* --- RIGHT COLUMN: IMAGE — DESKTOP ONLY --- */}

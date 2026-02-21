@@ -699,7 +699,7 @@ const AIAdvisoryPage = () => {
                 <p className="text-slate-300 text-base leading-relaxed">{step.d}</p>
                 <div style={{ fontFamily:"'Space Mono',monospace" }}
                   className="mt-3 md:mt-4 flex items-center gap-2 text-cyan-500/60 text-xs font-bold uppercase tracking-widest">
-                  Deploy phase {i+1} <ChevronRight size={10} md:size={12} />
+                  Phase {i+1} <ChevronRight size={10} md:size={12} />
                 </div>
               </motion.div>
             ))}
@@ -753,18 +753,25 @@ const AIAdvisoryPage = () => {
             </h2>
             <p className="text-sm md:text-base text-slate-400 mb-6 md:mb-8 max-w-xl mx-auto leading-relaxed font-light">
               Don't let your competition define your AI strategy. Partner with 1TecHub to architect a future that belongs to you alone.
-            </p>
-            <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
-              <Link to="/contact"
-                className="inline-block w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-black"
+            </p>           
+            <motion.div 
+              whileHover={{ scale: 1.03 }} 
+              whileTap={{ scale: 0.97 }}
+              className="w-[85%] sm:w-auto mx-auto mb-8" // Centers the container and sets mobile width to 85%
+            >
+              <Link 
+                to="/contact"
+                className="w-full text-center px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full font-bold text-sm md:text-lg text-white bg-transparent border-cyan-300 border-2 hover:bg-cyan-300 flex items-center justify-center gap-2 group transition-colors"
                 style={{
-                  background:'linear-gradient(135deg, #e0f7ff, #ffffff)',
-                  boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
-                }}>
-                Book a Strategy Call
-                <ArrowRight size={16} md:size={20} className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
+                  boxShadow: '0 10px 30px rgba(34,211,238,0.12)',
+                  background: 'radial-gradient(ellipse at top, rgba(34,211,238,0.2) 0%, transparent 70%)'
+                }}
+              >
+                <span className="whitespace-nowrap">Book a Strategy Call</span>
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1 " />
               </Link>
             </motion.div>
+            
           </motion.div>
         </div>
       </section>

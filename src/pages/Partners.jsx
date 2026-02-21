@@ -348,7 +348,7 @@ const Partners = () => {
               ></div>
 
               {/* Text Content */}
-              <div className="p-8 lg:p-12 flex flex-col justify-center">
+              <div className="p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1">
                 <div className="flex items-baseline gap-4 mb-2">
                   <span className={`text-4xl font-bold opacity-50 font-mono`}
                     style={{ color: themeColor }}
@@ -407,7 +407,7 @@ const Partners = () => {
               </div>
 
               {/* Visual/Image Side */}
-              <div className="relative h-64 lg:h-auto min-h-[300px] overflow-hidden rounded-[1.5rem] lg:rounded-r-[1.5rem] lg:rounded-l-none m-1 lg:m-0 border border-slate-800/50 group-hover:border-slate-700 transition-colors">
+              <div className="relative h-64 lg:h-auto min-h-[300px] overflow-hidden rounded-[1.5rem] lg:rounded-r-[1.5rem] lg:rounded-l-none m-1 lg:m-0 border border-slate-800/50 group-hover:border-slate-700 transition-colors order-1 lg:order-2">
                 <div className="absolute inset-0 bg-slate-900/20 z-10"></div>
                 
                 {/* Tech Overlay Lines */}
