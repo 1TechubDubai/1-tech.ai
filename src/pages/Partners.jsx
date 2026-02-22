@@ -268,7 +268,7 @@ const Partners = () => {
                     <span className={`text-4xl font-bold opacity-50 font-mono`} style={{ color: themeColor }}>
                       {(index + 1).toString().padStart(2, '0')}.
                     </span>
-                    <h2 className={`text-3xl font-bold tracking-wide uppercase break-words`} style={{ color: themeColor }}>
+                    <h2 className={`text-3xl font-bold tracking-wide uppercase break-words text-left`} style={{ color: themeColor }}>
                       {node.name}
                     </h2>
                   </div>
