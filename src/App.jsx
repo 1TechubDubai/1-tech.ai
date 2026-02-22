@@ -25,7 +25,7 @@ function App() {
         {/* Redirect base /services to a specific one (e.g., custom-ai-solutions) */}
         <Route path="/services" element={<Navigate to="/services/custom-ai-solutions" replace />} />
         <Route path='/contact' element={<Contact />} />
-        <Route path='/partners' element={<Partners/>} />
+        <Route path='/solutions' element={<Partners/>} />
         <Route path='/ai-advisory' element={<AIAdvisoryPage/>} />
         <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
         <Route path='/terms-of-service' element={<TermsOfService/>} />
