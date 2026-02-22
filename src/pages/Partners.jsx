@@ -282,14 +282,27 @@ const Partners = () => {
                   </p>
 
                   {/* Features Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                  <div className="flex flex-wrap gap-3 mb-8">
                     {node.features?.map((feat, i) => {
                       const Icon = iconMap[feat.icon] || Box; 
-                      return(
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors">
-                        <Icon size={16} style={{ color: themeColor }} />
-                        <span className="text-xs font-medium text-slate-300 truncate">{feat.label}</span>
-                      </div>)
+                      return (
+                        <div 
+                          key={i} 
+                          // flex-1: allows the item to grow
+                          // min-w-[calc(50%-12px)]: ensures 2 columns on small screens, adjusts on tiny ones
+                          // sm:min-w-[200px]: gives a stable base width for larger screens
+                          className="flex flex-1 min-w-[calc(50%-12px)] sm:min-w-[200px] items-center gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors"
+                        >
+                          {/* flex-shrink-0: keeps the icon from squishing if text is long */}
+                          <Icon size={16} className="flex-shrink-0" style={{ color: themeColor }} />
+                          
+                          {/* Removed 'truncate' to allow text to wrap if it's long, 
+                              which will trigger the 'same-height' behavior you want */}
+                          <span className="text-xs font-medium text-slate-300 leading-tight">
+                            {feat.label}
+                          </span>
+                        </div>
+                      );
                     })}
                   </div>
 

@@ -754,7 +754,7 @@ const AIAdvisoryPage = () => {
               <span className="grad-text">Wait-less.</span>
             </h2>
             <p className="text-sm md:text-base text-slate-400 mb-6 md:mb-8 max-w-xl mx-auto leading-relaxed font-light">
-              Don't let your competition define your AI strategy. Partner with 1TecHub to architect a future that belongs to you alone.
+              Don't let your competition define your AI strategy. Partner with <span className="font-mono">1</span>TecHub to architect a future that belongs to you alone.
             </p>           
             <motion.div 
               whileHover={{ scale: 1.03 }} 

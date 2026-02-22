@@ -162,7 +162,7 @@ const GlobalBridge = ({ earth }) => {
 
               <p className="text-xs sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0 text-left">
                 While tech leaders in developed markets race ahead with AI adoption, emerging economies struggle with access and expertise gaps.{' '}
-                <span className="text-cyan-50 font-medium drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">1TecHub bridges that divide.</span>{' '}
+                <span className="text-cyan-50 font-medium drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"><span className="font-mono">1</span>TecHub bridges that divide.</span>{' '}
                 We democratize enterprise-grade AI, bringing sophisticated intelligence to innovators in overlooked markets—ensuring no region is left behind.
               </p>
             </div>
@@ -886,7 +886,7 @@ const About = () => {
             {/* Subtext */}
             <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 md:space-y-6 animate-fade-in px-1 sm:px-2">
                 <p className="text-slate-300 text-xs sm:text-sm md:text-base lg:text-md leading-relaxed">
-                1TecHub is a premium AI consulting and Go-to-Market company. We act as
+                <span className="font-mono">1</span>TecHub is a premium AI consulting and Go-to-Market company. We act as
                 your strategic partner in the autonomous revolution, delivering
                 deep technical expertise, strong governance frameworks, and
                 long-term market resilience.

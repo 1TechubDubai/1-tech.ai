@@ -714,7 +714,7 @@ const CombinedWhyChooseUs = () => {
         </div>
         
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-          Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">1TecHub?</span>
+          Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-mono stretch-125">1</span><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">TecHub?</span>
         </h2>
         
         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">

@@ -141,7 +141,7 @@ const PrivacyPolicy = () => {
           <div className="lg:col-span-9 space-y-12">
             <section className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 backdrop-blur-sm">
               <p className="text-lg leading-relaxed text-slate-300">
-                At 1TecHub (“we,” “our,” or “us”), your privacy is important to us. This Privacy Policy document explains what information we collect, how we use it, and your rights regarding that information.
+                At <span className="font-mono">1</span>TecHub (“we,” “our,” or “us”), your privacy is important to us. This Privacy Policy document explains what information we collect, how we use it, and your rights regarding that information.
               </p>
             </section>
 

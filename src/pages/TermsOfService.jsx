@@ -30,7 +30,7 @@ const TermsOfService = () => {
       title: "2. Intellectual Property",
       content: (
         <p className="text-slate-400 text-sm leading-relaxed">
-          All content on 1techub.ai, including Text, Graphics, Logos, and Software, is the property of 1TecHub. You may not reproduce or republish content without prior written permission.
+          All content on 1techub.ai, including Text, Graphics, Logos, and Software, is the property of <span className="font-mono">1</span>TecHub. You may not reproduce or republish content without prior written permission.
         </p>
       )
     },
@@ -60,7 +60,7 @@ const TermsOfService = () => {
       title: "6. Limitation of Liability",
       content: (
         <p className="text-slate-400 text-sm leading-relaxed">
-          To the fullest extent permitted by law, 1TecHub shall not be liable for any damages arising from the use or inability to use the Website, including data errors or interruptions.
+          To the fullest extent permitted by law, <span className="font-mono">1</span>TecHub shall not be liable for any damages arising from the use or inability to use the Website, including data errors or interruptions.
         </p>
       )
     },
@@ -135,7 +135,7 @@ const TermsOfService = () => {
           <div className="lg:col-span-9 space-y-12">
             <section className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 backdrop-blur-sm">
               <p className="text-lg leading-relaxed text-slate-300">
-                Welcome to 1TecHub. By accessing or using <span className="text-white">https://1techub.ai</span>, you agree to be bound by these Terms of Service. If you do not agree with any part of these Terms, please do not use our Website.
+                Welcome to <span className="font-mono">1</span>TecHub. By accessing or using <span className="text-white">https://1techub.ai</span>, you agree to be bound by these Terms of Service. If you do not agree with any part of these Terms, please do not use our Website.
               </p>
             </section>
 
