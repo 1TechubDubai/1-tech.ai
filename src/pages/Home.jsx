@@ -764,7 +764,7 @@ const CombinedWhyChooseUs = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Foundation</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Enterprise Infrastructure</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">AI Platform Engineering</h2>
             <p className="text-slate-400 text-sm leading-relaxed mb-8">
               The backbone of modern AI. We architect scalable, AI-native systems that integrate LLMs, process massive data streams, and power intelligent applications from day one.
             </p>
