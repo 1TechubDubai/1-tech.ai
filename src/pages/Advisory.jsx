@@ -291,7 +291,7 @@ const StrategySection = () => {
             className="order-2 lg:order-1"
           >
             <motion.div variants={fadeUp} className="flex items-center gap-3 mb-6 justify-center">
-              <p className="text-xs tracking-[0.4em] text-cyan-500 uppercase font-mono text-center">01 — Foundation</p>
+              <p className="text-xs tracking-[0.4em] text-cyan-500 uppercase font-mono text-center">Foundation</p>
             </motion.div>
 
             <motion.h2 variants={fadeUp} className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-8 tracking-tight">
@@ -537,7 +537,7 @@ const AIAdvisoryPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-end mb-12 md:mb-16">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once:true }} variants={stagger}>
               <motion.p variants={fadeLeft} style={{ fontFamily:"'Space Mono',monospace" }}
-                className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">02 — Methodology</motion.p>
+                className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">Methodology</motion.p>
               <motion.h2 variants={fadeLeft} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 The Advisory <br /><em className="grad-text not-italic">Blueprint</em>
               </motion.h2>
@@ -608,7 +608,7 @@ const AIAdvisoryPage = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl relative z-10">
           <div className="text-center mb-12 md:mb-16">
             <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} style={{ fontFamily:"'Space Mono',monospace" }}
-              className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">03 — Impact Surface</motion.p>
+              className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">Impact Surface</motion.p>
             <motion.h2 initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">Enterprise-Wide Impact</motion.h2>
           </div>
@@ -656,7 +656,7 @@ const AIAdvisoryPage = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl relative z-10">
           <div className="text-center mb-12 md:mb-16">
             <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} style={{ fontFamily:"'Space Mono',monospace" }}
-              className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">04 — Engagement</motion.p>
+              className="text-xs tracking-[0.3em] text-cyan-500 uppercase mb-4">Engagement</motion.p>
             <motion.h2 initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">How We Work</motion.h2>
           </div>
