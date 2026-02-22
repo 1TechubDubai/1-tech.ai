@@ -84,14 +84,18 @@ const Navbar = () => {
             >
               <button
                 className={`
-                  flex items-center gap-1 text-sm font-medium
+                  flex items-center gap-1 text-md font-medium
                   transition-all duration-200
-                  ${serviceOpen || location.pathname.startsWith('/services') ? "text-cyan-400" : "text-slate-300 hover:text-cyan-400"}
+                  ${
+                    serviceOpen || location.pathname.startsWith('/services') 
+                      ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" 
+                      : "text-slate-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  }
                 `}
               >
                 AI Services
                 <ChevronDown
-                  size={14}
+                  size={16} // Slightly increased to match the text-md size
                   className={`transition-transform duration-200 ${serviceOpen ? "rotate-180" : ""}`}
                 />
               </button>
@@ -209,7 +213,7 @@ const Navbar = () => {
                 {/* Services Trigger */}
                 <button 
                   onClick={() => setMobileView('services')}
-                  className={`text-lg font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
+                  className={`text-md font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
                 >
                   AI Solutions  →
                 </button>
@@ -299,7 +303,7 @@ const NavLink = ({ to, label, location }) => {
   return (
     <Link
       to={to}
-      className={`text-sm font-medium transition-all ${
+      className={`text-md font-medium transition-all ${
         isActive
           ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"
           : "text-slate-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"

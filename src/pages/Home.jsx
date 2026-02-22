@@ -1126,7 +1126,9 @@ const Home = () => {
 
       <CombinedWhyChooseUs />
 
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
+
+      
 
       <section className="relative w-full py-5 bg-transparent overflow-hidden border-t border-slate-800/50">
         <div className="w-full md:w-3/4 lg:w-1/2 py-12 md:py-24 px-4 md:px-6 flex flex-col justify-center items-center mx-auto relative z-10">

@@ -71,89 +71,116 @@ const Card = ({ title, description, image, index = 0 }) => (
 const GlobalBridge = ({ earth }) => {
   const objectives = [
     "Closing the regional AI adoption gap",
-    "Tailored solutions for MEA infrastructure",
+    "Tailored solutions for Global Innovators",
     "Localization of world-class LLM models",
     "Empowering industries with global-tier tech"
   ];
+
+  // Reusable component for the highly animated globe to keep code DRY for mobile/desktop
+  const AnimatedGlobe = () => (
+    <div className="relative w-full max-w-[280px] lg:max-w-none mx-auto globe-container">
+      
+      {/* --- 3D ORBITAL RINGS & DATA NODES --- */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="orbital-ring ring-1">
+          <div className="orbit-node node-cyan" />
+        </div>
+        <div className="orbital-ring ring-2">
+          <div className="orbit-node node-blue" />
+        </div>
+        <div className="orbital-ring ring-3" />
+      </div>
+
+      {/* --- SHOOTING STARS / COMETS --- */}
+      <div className="star-container">
+        <div className="shooting-star ss-1" />
+        <div className="shooting-star ss-2" />
+        <div className="shooting-star ss-3" />
+        <div className="shooting-star ss-4" />
+        <div className="shooting-star ss-5" />
+      </div>
+
+      {/* --- GLOBE ITSELF --- */}
+      <div className="relative z-10 animate-float">
+        {earth ? (
+          <div className="relative group">
+            {/* Ambient core glow behind the globe */}
+            <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-[40px] group-hover:bg-cyan-400/30 group-hover:blur-[60px] transition-all duration-700" />
+            
+            <img
+              src={earth}
+              alt="Global Adoption Bridge"
+              className="relative w-full h-auto object-contain drop-shadow-[0_0_40px_rgba(6,182,212,0.4)] opacity-90 group-hover:opacity-100 group-hover:drop-shadow-[0_0_60px_rgba(59,130,246,0.6)] transition-all duration-700 z-10"
+            />
+            
+            {/* Surface Data Pulses (clipping to globe area) */}
+            <div className="absolute inset-2 overflow-hidden rounded-full z-20">
+              <div className="surface-pulse sp-1" />
+              <div className="surface-pulse sp-2" />
+              <div className="surface-pulse sp-3" />
+            </div>
+          </div>
+        ) : (
+          <div className="w-full aspect-square rounded-full bg-slate-900/50 border border-slate-700/50 flex flex-col items-center justify-center backdrop-blur-md shadow-[0_0_50px_rgba(6,182,212,0.2)]">
+            <Globe className="w-16 h-16 lg:w-20 lg:h-20 text-cyan-500 animate-pulse" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#020617]">
       
       {/* --- BACKGROUND EFFECTS --- */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,182,212,0.05),transparent_50%)]" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] -z-10 animate-pulse-slow" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,182,212,0.08),transparent_50%)]" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] -z-10 animate-pulse-slow" />
+      <div className="absolute bottom-0 left-[-10%] w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[150px] -z-10" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-
-        {/* ── MOBILE LAYOUT: stacked, badge → heading → globe (small) → objectives → CTA ── */}
-        {/* ── DESKTOP LAYOUT: 2-col grid ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           {/* ─── LEFT / MAIN TEXT COLUMN ─── */}
           <div className="w-full space-y-6 lg:space-y-8 order-1 text-center lg:text-left">
 
             {/* Status Badge */}
             <div className="flex justify-center lg:justify-start">
-              <div className="relative inline-flex items-center justify-center px-4 py-2 rounded-full bg-cyan-950/30 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-md hover:border-cyan-400/50 hover:bg-cyan-900/40 transition-all duration-300">
+              <div className="relative inline-flex items-center justify-center px-4 py-2 rounded-full bg-cyan-950/40 border border-cyan-500/40 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all duration-300">
                 <ShieldAlert className="w-3.5 h-3.5 text-cyan-400 animate-pulse mr-2" />
                 Bridging the Tech Divide
               </div>
             </div>
 
             {/* Heading */}
-            <div className="space-y-3">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight text-left">
+            <div className="space-y-4">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-white leading-tight text-left">
                 World-Class AI. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 drop-shadow-sm">
                   Localized for Impact.
                 </span>
               </h2>
 
-              <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0 text-left">
+              <p className="text-xs sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0 text-left">
                 While tech leaders in developed markets race ahead with AI adoption, emerging economies struggle with access and expertise gaps.{' '}
-                <span className="text-white font-medium">1TecHub bridges that divide.</span>{' '}
+                <span className="text-cyan-50 font-medium drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">1TecHub bridges that divide.</span>{' '}
                 We democratize enterprise-grade AI, bringing sophisticated intelligence to innovators in overlooked markets—ensuring no region is left behind.
               </p>
             </div>
 
-            {/* ── Globe visual — MOBILE ONLY (shown between heading and objectives) ── */}
-            <div className="block lg:hidden w-full">
-              <div className="relative w-full max-w-[260px] mx-auto">
-                {/* Spinning rings */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-[110%] h-[110%] border border-cyan-500/10 rounded-full animate-[spin_20s_linear_infinite]" />
-                  <div className="absolute w-[100%] h-[100%] border-t border-b border-blue-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-                </div>
-                {earth ? (
-                  <div className="relative">
-                    <img
-                      src={earth}
-                      alt="Global Adoption Bridge"
-                      className="w-full h-auto object-contain drop-shadow-[0_0_40px_rgba(6,182,212,0.25)] opacity-85"
-                    />
-                    <div className="absolute inset-0 overflow-hidden rounded-full">
-                      <div className="comet comet-1" />
-                      <div className="comet comet-2" />
-                      <div className="comet comet-3" />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full aspect-square rounded-full bg-slate-900/50 border border-slate-700/50 flex items-center justify-center backdrop-blur-md">
-                    <Globe className="w-16 h-16 text-cyan-900 animate-pulse" />
-                  </div>
-                )}
-              </div>
+            {/* ── Globe visual — MOBILE ONLY ── */}
+            <div className="block lg:hidden w-full py-8">
+              <AnimatedGlobe />
             </div>
 
             {/* Mission Objectives */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto lg:mx-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto lg:mx-0">
               {objectives.map((point, index) => (
                 <div
                   key={index}
-                  className="group flex items-start gap-3 p-3 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:border-cyan-500/30 transition-all duration-300"
+                  className="group flex items-start gap-3 p-3 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-900/40 border border-slate-700/50 hover:border-cyan-500/50 hover:bg-slate-800/60 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 backdrop-blur-sm"
                 >
-                  <div className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-cyan-400" strokeWidth={3} />
+                  <div className="mt-0.5 flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/20 group-hover:scale-110 transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                    <Check className="w-4 h-4 text-cyan-400" strokeWidth={3} />
                   </div>
                   <span className="text-xs sm:text-sm text-slate-300 font-bold leading-tight group-hover:text-white transition-colors">
                     {point}
@@ -163,89 +190,155 @@ const GlobalBridge = ({ earth }) => {
             </div>
 
             {/* CTA */}
-            <motion.div whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="pt-2">
               <Link to="/contact"
-                className="w-full sm:w-auto text-center px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-white hover:text-black bg-transparent border-cyan-400 border-2 hover:bg-cyan-400 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto inline-flex px-6 py-3 md:px-10 md:py-4 rounded-full font-bold text-base md:text-lg text-white hover:text-black bg-slate-900/50 border-cyan-400 border-2 hover:bg-cyan-400 items-center justify-center gap-2 group backdrop-blur-md transition-colors"
                 style={{
-                  boxShadow:'0 10px 30px rgba(34,211,238,0.12)',
+                  boxShadow: '0 10px 30px rgba(34,211,238,0.2), inset 0 0 20px rgba(34,211,238,0.1)',
                 }}>
-                <Zap className="w-4 h-4" />
+                <Zap className="w-5 h-5 text-cyan-400 group-hover:text-black transition-colors" />
                 <span>Get Your AI Roadmap</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
           </div>
 
           {/* ─── RIGHT / GLOBE COLUMN — DESKTOP ONLY ─── */}
-          <div className="hidden lg:flex w-full relative order-2 items-center justify-center perspective-1000">
-            <div className="relative z-10 w-full max-w-none">
-              {/* HUD Rings */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[120%] h-[120%] border border-cyan-500/10 rounded-full animate-[spin_20s_linear_infinite]" />
-                <div className="absolute w-[105%] h-[105%] border-t border-b border-blue-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-              </div>
-              {earth ? (
-                <div className="relative group">
-                  <img
-                    src={earth}
-                    alt="Global Adoption Bridge"
-                    className="w-full h-auto object-contain drop-shadow-[0_0_50px_rgba(6,182,212,0.2)] opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                  />
-                  <div className="absolute inset-0 overflow-hidden rounded-full">
-                    <div className="comet comet-1" />
-                    <div className="comet comet-2" />
-                    <div className="comet comet-3" />
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full aspect-square rounded-full bg-slate-900/50 border border-slate-700/50 flex flex-col items-center justify-center backdrop-blur-md">
-                  <Globe className="w-20 h-20 text-cyan-900 animate-pulse" />
-                </div>
-              )}
-            </div>
+          <div className="hidden lg:flex w-full relative order-2 items-center justify-center">
+            <AnimatedGlobe />
           </div>
 
         </div>
       </div>
 
       <style>{`
-        .comet {
+        /* --- GLOBE & 3D ENVIRONMENT --- */
+        .globe-container {
+          perspective: 1200px;
+          transform-style: preserve-3d;
+        }
+        
+        /* Floating Globe Image */
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        /* --- 3D ORBITAL RINGS --- */
+        .orbital-ring {
           position: absolute;
-          width: 3px;
-          height: 3px;
-          background: radial-gradient(circle, #06b6d4, transparent);
-          opacity: 0;
+          top: 50%; left: 50%;
           border-radius: 50%;
-          box-shadow: 0 0 8px #06b6d4;
+          border: 1px solid rgba(6, 182, 212, 0.15);
+          box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.05), 0 0 15px rgba(6,182,212,0.1);
+          transform-style: preserve-3d;
         }
-        .comet-1 { animation: orbit-1 6s linear infinite; }
-        .comet-2 { animation: orbit-2 8s linear infinite 1s; }
-        .comet-3 { animation: orbit-3 7s linear infinite 2s; }
+        .ring-1 {
+          width: 140%; height: 140%;
+          margin-left: -70%; margin-top: -70%;
+          border-top: 2px solid rgba(59, 130, 246, 0.6);
+          border-right: 2px solid transparent;
+          animation: spin-3d-1 20s linear infinite;
+        }
+        .ring-2 {
+          width: 115%; height: 115%;
+          margin-left: -57.5%; margin-top: -57.5%;
+          border-bottom: 2px solid rgba(6, 182, 212, 0.7);
+          border-left: 2px solid transparent;
+          animation: spin-3d-2 15s linear infinite reverse;
+        }
+        .ring-3 {
+          width: 90%; height: 90%;
+          margin-left: -45%; margin-top: -45%;
+          border: 1px dashed rgba(99, 102, 241, 0.3);
+          animation: spin-flat 30s linear infinite;
+        }
 
-        @keyframes orbit-1 {
-          0%   { top: 20%; left: 50%; transform: translate(-50%, -50%); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { top: 80%; left: 20%; transform: translate(-50%, -50%); opacity: 0; }
+        /* Nodes attached to rings */
+        .orbit-node {
+          position: absolute;
+          top: 0; left: 50%;
+          width: 10px; height: 10px;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
         }
-        @keyframes orbit-2 {
-          0%   { top: 80%; left: 30%; transform: translate(-50%, -50%); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { top: 20%; left: 70%; transform: translate(-50%, -50%); opacity: 0; }
+        .node-cyan { background: #fff; box-shadow: 0 0 20px 4px #06b6d4, 0 0 40px 8px #06b6d4; }
+        .node-blue { background: #fff; box-shadow: 0 0 20px 4px #3b82f6, 0 0 40px 8px #3b82f6; }
+
+        @keyframes spin-3d-1 {
+          0% { transform: rotateX(70deg) rotateY(15deg) rotateZ(0deg); }
+          100% { transform: rotateX(70deg) rotateY(15deg) rotateZ(360deg); }
         }
-        @keyframes orbit-3 {
-          0%   { top: 50%; left: 80%; transform: translate(-50%, -50%); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { top: 50%; left: 20%; transform: translate(-50%, -50%); opacity: 0; }
+        @keyframes spin-3d-2 {
+          0% { transform: rotateX(55deg) rotateY(-25deg) rotateZ(0deg); }
+          100% { transform: rotateX(55deg) rotateY(-25deg) rotateZ(360deg); }
+        }
+        @keyframes spin-flat {
+          0% { transform: rotateZ(0deg); }
+          100% { transform: rotateZ(360deg); }
         }
 
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50%       { transform: translateY(-10px); }
+        /* --- PROMINENT SHOOTING STARS --- */
+        .star-container {
+          position: absolute;
+          inset: -40%;
+          pointer-events: none;
+          z-index: 30;
+          overflow: visible;
         }
-        .animate-bounce-slow { animation: bounce-slow 4s ease-in-out infinite; }
+        .shooting-star {
+          position: absolute;
+          width: 4px; height: 4px;
+          background: #fff;
+          border-radius: 50%;
+          box-shadow: 0 0 15px 3px #fff, 0 0 30px 6px #06b6d4;
+          opacity: 0;
+        }
+        .shooting-star::after {
+          content: '';
+          position: absolute;
+          top: 50%; right: 100%;
+          transform: translateY(-50%);
+          width: 180px; height: 2px;
+          background: linear-gradient(to left, rgba(255,255,255,1), rgba(6,182,212,0.8), transparent);
+        }
+
+        /* Angles and timings for heavy animation feel */
+        .ss-1 { top: 15%; left: 0%; transform: rotate(15deg); animation: shoot 3.5s infinite 0.5s ease-in; }
+        .ss-2 { top: 40%; left: -10%; transform: rotate(25deg); animation: shoot 4.2s infinite 2.2s ease-in; }
+        .ss-3 { top: 70%; left: 0%; transform: rotate(-10deg); animation: shoot 5s infinite 1.5s ease-in; }
+        .ss-4 { top: 25%; left: 80%; transform: rotate(160deg); animation: shoot 4s infinite 3s ease-in; }
+        .ss-5 { top: 65%; left: 90%; transform: rotate(195deg); animation: shoot 4.8s infinite 0.8s ease-in; }
+
+        @keyframes shoot {
+          0% { transform: translateX(-50px) scale(0); opacity: 0; }
+          10% { opacity: 1; transform: translateX(20px) scale(1); }
+          70% { opacity: 1; transform: translateX(450px) scale(1.2); }
+          100% { transform: translateX(600px) scale(0.2); opacity: 0; }
+        }
+
+        /* --- SURFACE DATA PULSES (Clipping inside the globe) --- */
+        .surface-pulse {
+          position: absolute;
+          width: 6px; height: 6px;
+          background: #fff;
+          border-radius: 50%;
+          box-shadow: 0 0 10px #06b6d4;
+          opacity: 0;
+        }
+        .sp-1 { top: 30%; left: 40%; animation: pulse-node 4s infinite 1s; }
+        .sp-2 { top: 60%; left: 70%; animation: pulse-node 5s infinite 3s; }
+        .sp-3 { top: 45%; left: 20%; animation: pulse-node 4.5s infinite 0.5s; }
+
+        @keyframes pulse-node {
+          0% { transform: scale(0.5); opacity: 0; box-shadow: 0 0 0 0 rgba(6,182,212,0.8); }
+          30% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px 5px rgba(6,182,212,0.4); }
+          70% { transform: scale(1); opacity: 1; box-shadow: 0 0 30px 10px rgba(6,182,212,0); }
+          100% { transform: scale(0.5); opacity: 0; }
+        }
       `}</style>
     </section>
   );
@@ -675,19 +768,19 @@ const NetworkBackground = () => {
 const About = () => {
   const content1 = [
     {
-      title: "GLOBAL TALENT ENGINE",
-      description: "We source, deploy, and govern elite IT professionals from multiple regions, ensuring unmatched expertise and scalability.",
-      image: one
-    },
+      title: "GLOBAL GOVERNANCE",
+      description: "Our delivery model follows strict global frameworks, ensuring every project is executed with precision and compliance",
+      image: three
+    },    
     {
       title: "PARTNER ECOSYSTEM",
       description: "We enable global AI and cloud hyperscalers to successfully enter, localize, and scale within regional enterprise markets through proven GTM execution.",
       image: two
     },
     {
-      title: "GLOBAL GOVERNANCE",
-      description: "Our delivery model follows strict global frameworks, ensuring every project is executed with precision and compliance",
-      image: three
+      title: "GLOBAL TALENT ENGINE",
+      description: "We source, deploy, and govern elite IT professionals from multiple regions, ensuring unmatched expertise and scalability.",
+      image: one
     }
   ]
 
@@ -838,7 +931,7 @@ const About = () => {
       
       <CoreSpecializations />
 
-      <LeadershipTeam />
+      {/* <LeadershipTeam /> */}
 
       <Footer />
     </div>

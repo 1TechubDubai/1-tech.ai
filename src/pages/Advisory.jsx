@@ -50,14 +50,14 @@ const GlobalStyles = () => (
     .aurora-blob-2 { animation: aurora-2 18s ease-in-out infinite; }
     .aurora-blob-3 { animation: aurora-3 12s ease-in-out infinite; }
 
-    /* ── Shooting stars ── */
+   /* ── Shooting stars ── */
     @keyframes shoot {
       0%   { transform: translateX(-120px) translateY(-120px) rotate(35deg); opacity: 0; }
       5%   { opacity: 1; }
       80%  { opacity: 0.8; }
       100% { transform: translateX(110vw) translateY(110vh) rotate(35deg); opacity: 0; }
     }
-    .star { position:absolute; pointer-events:none; }
+    .star { position:absolute; pointer-events:none; opacity: 0; }
     .star::before {
       content: '';
       position: absolute;
@@ -66,11 +66,13 @@ const GlobalStyles = () => (
       border-radius: 9999px;
       filter: blur(0.5px);
     }
-    .s1 { top:8%;  left:-5%; animation: shoot 8s linear  0s  infinite; }
-    .s2 { top:22%; left:-5%; animation: shoot 11s linear 3s  infinite; }
-    .s3 { top:55%; left:-5%; animation: shoot 9s  linear 6s  infinite; }
-    .s4 { top:75%; left:-5%; animation: shoot 13s linear 1.5s infinite; }
-    .s5 { top:40%; left:-5%; animation: shoot 7s  linear 4.5s infinite; }
+    
+    /* ADDED DELAYS: No stars will fire in the first 4 seconds of page load */
+    .s1 { top:8%;  left:-5%; animation: shoot 8s linear  7s  infinite; }
+    .s2 { top:22%; left:-5%; animation: shoot 11s linear 12s infinite; }
+    .s3 { top:55%; left:-5%; animation: shoot 9s  linear 5s  infinite; }
+    .s4 { top:75%; left:-5%; animation: shoot 13s linear 9s  infinite; }
+    .s5 { top:40%; left:-5%; animation: shoot 7s  linear 15s infinite; }
 
     /* ── Grid shimmer ── */
     @keyframes grid-pulse {
@@ -664,7 +666,7 @@ const AIAdvisoryPage = () => {
           <div className="flex flex-col lg:flex-row gap-3 md:gap-4 items-stretch">
             {[
               { s:"Strategy Session",   d:"Kick-off with stakeholders to define scope and success metrics." },
-              { s:"Deep-Dive Workshop", d:"A collaborative sprint tailored to your specific scale to map your AI opportunity landscape." },
+              { s:"Deep-Dive Workshop", d:"A collaborative sprint to map your AI opportunities at your scale." },
               { s:"Deliver Roadmap",    d:"Full written roadmap with phased milestones and KPI targets." },
               { s:"Handover & Scale",   d:"Embedded support during the first 90 days of execution." },
             ].map((step, i) => (

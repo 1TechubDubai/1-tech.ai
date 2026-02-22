@@ -283,6 +283,19 @@ const Services = () => {
         <style dangerouslySetInnerHTML={{ __html: `
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
   ` }} />
+      
+      {/* --- DYNAMIC AMBIENT BACKGROUND GLOWS --- */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Top Left Cyan Glow */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-600/10 blur-[120px] mix-blend-screen" />
+        {/* Bottom Right Deep Blue Glow */}
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-800/10 blur-[150px] mix-blend-screen" />
+        {/* Middle Soft Glow */}
+        <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-cyan-900/10 blur-[150px] mix-blend-screen" />
+        {/* Optional Noise Texture for Depth */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
+      </div>
+
       <div className="fixed top-0 w-full z-50">
           <Navbar />
       </div>
@@ -307,15 +320,14 @@ const Services = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative h-[70vh] sm:h-[85vh] flex items-center justify-center overflow-hidden">
+      <section className="relative z-10 h-[70vh] sm:h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             src={currentService.hero.backgroundImage} 
             alt="Hero Background" 
             className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/50 via-[#020617]/90 to-[#020617]"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/50 via-[#020617]/80 to-transparent"></div>
         </div>
 
         <div className="relative z-10 max-w-5xl px-4 sm:px-6 text-center mt-16 sm:mt-20">
@@ -335,7 +347,7 @@ const Services = () => {
       </section>
 
       {/* --- MAIN SERVICES NAV & CONTENT --- */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16 pb-20">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12">
           
           {/* Left Navigation */}
@@ -351,10 +363,10 @@ const Services = () => {
           {/* Right Content */}
           <div className="lg:col-span-9 space-y-20 sm:space-y-24 md:space-y-32 pt-6 sm:pt-10">
             {currentService.sections.map((section, sectionIdx) => (
-              <div key={section.id} id={section.id} className="scroll-mt-32">
+              <div key={section.id} id={section.id} className="scroll-mt-32 relative z-10">
                 <div className="mb-8 sm:mb-10 pl-4 border-l-4 border-cyan-500 animate-slide-up">
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">{section.title}</h2>
-                  <p className="text-sm sm:text-base text-slate-400">Enterprise-grade capabilities tailored for scale.</p>
+                  <p className="text-sm sm:text-base text-cyan-100/60">Enterprise-grade capabilities tailored for scale.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {section.cards.map((card, cardIdx) => (
@@ -369,7 +381,7 @@ const Services = () => {
 
       {/* --- FEATURES GRID --- */}
       {currentService.features && (
-        <section className="relative py-12 sm:py-20 md:py-24 bg-gradient-to-b from-[#050b1f] to-[#020617] border-t border-slate-800/50">
+        <section className="relative z-10 py-12 sm:py-20 md:py-24 bg-gradient-to-b from-[#050b1f]/80 to-transparent border-t border-slate-800/50 backdrop-blur-sm">
            <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-12 sm:mb-16 animate-slide-up">
                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">Why Choose 1TecHub?</h2>
@@ -388,26 +400,68 @@ const Services = () => {
 
       {/* --- CTA BANNER --- */}
       {currentService.cta && (
-        <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6">
-          <div className="max-w-6xl mx-auto relative rounded-3xl overflow-hidden border border-cyan-500/30 animate-slide-up">
-             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-cyan-900/80"></div>
-             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>
-             
-             <div className="relative z-10 px-6 sm:px-12 md:px-16 py-12 sm:py-16 md:py-20 text-center">
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
-                  {currentService.cta.title}
-                </h2>
-                <p className="text-base sm:text-lg text-cyan-50 max-w-3xl mx-auto mb-8 sm:mb-10 leading-relaxed">
-                  {currentService.cta.text}
-                </p>
-              <button 
-                className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 rounded-full font-bold text-sm sm:text-lg transition-all hover:bg-cyan-50 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95"
-                onClick={() => navigate('/contact', { state: { selectedService: currentService.title } })}
+        <section className="relative z-10 py-12 md:py-20 overflow-hidden">
+          {/* BIG background glow */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <div style={{
+              width: 'min(70vw, 900px)', height: 'min(70vw, 900px)',
+              maxWidth: '900px', maxHeight: '900px',
+              background: 'radial-gradient(circle, rgba(34,211,238,0.1) 0%, rgba(99,102,241,0.06) 30%, transparent 70%)',
+              borderRadius: '50%',
+              transform: 'translateY(-10%)'
+            }} />
+          </div>
+
+          <div className="container mx-auto px-4 md:px-6 max-w-4xl text-center relative z-10">
+            <div
+              className="relative p-8 sm:p-10 md:p-14 rounded-3xl md:rounded-[2.5rem] overflow-hidden animate-slide-up shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+              style={{
+                background: 'linear-gradient(160deg, rgba(15,23,42,0.95) 0%, rgba(8,14,31,0.98) 100%)',
+                border: '1px solid rgba(34,211,238,0.2)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+              }}>
+              
+              {/* Top glow inside the card */}
+              <div 
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[400px] h-[200px] pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at top, rgba(34,211,238,0.2) 0%, transparent 70%)' }} 
+              />
+              
+              {/* Corner accents */}
+              <div className="absolute top-6 left-6 w-12 h-12 md:w-16 md:h-16 rounded-tl-2xl pointer-events-none border-t-2 border-l-2 border-cyan-400/40" />
+              <div className="absolute bottom-6 right-6 w-12 h-12 md:w-16 md:h-16 rounded-br-2xl pointer-events-none border-b-2 border-r-2 border-indigo-500/40" />
+
+              <p 
+                style={{ fontFamily: "'Space Mono', monospace" }} 
+                className="text-xs md:text-sm tracking-[0.3em] text-cyan-400 uppercase mb-4"
               >
-                {currentService.cta.buttonText}
-                <ArrowRight size={20} />
-              </button>
-             </div>
+                Ready to Begin
+              </p>
+              
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
+                {currentService.cta.title}
+              </h2>
+              
+              <p className="text-sm sm:text-base md:text-lg text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed font-light">
+                {currentService.cta.text}
+              </p>          
+              
+              <div className="w-[85%] sm:w-auto mx-auto mb-2 flex justify-center">
+                <button 
+                  onClick={() => navigate('/contact', { state: { selectedService: currentService.title } })}
+                  className="w-full sm:w-auto text-center px-6 py-3 md:px-8 md:py-4 rounded-full font-bold text-sm md:text-lg text-white bg-transparent border-cyan-400 border hover:bg-cyan-950/60 hover:border-cyan-300 flex items-center justify-center gap-2 group transition-all duration-300 hover:scale-105 active:scale-95"
+                  style={{
+                    boxShadow: '0 10px 30px rgba(34,211,238,0.12)',
+                    background: 'radial-gradient(ellipse at top, rgba(34,211,238,0.15) 0%, transparent 80%)'
+                  }}
+                >
+                  <span className="whitespace-nowrap">{currentService.cta.buttonText}</span>
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </button>
+              </div>
+              
+            </div>
           </div>
         </section>
       )}
@@ -432,7 +486,10 @@ const Services = () => {
         }
       `}</style>
 
-      <Footer />
+      {/* Footer needs to sit above the ambient background as well */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 };

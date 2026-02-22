@@ -84,7 +84,8 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { id: 'nlp', title: 'NLP Solutions', sub: 'Text analysis & processing' },
     { id: 'data-eng', title: 'Data Engineering', sub: 'Big data & warehousing' },
     { id: 'strategy', title: 'Strategic Consulting', sub: 'AI transformation roadmap' },
-    { id: 'voice-ai', title: 'Voice AI', sub: 'Conversational intelligence' }
+    { id: 'voice-ai', title: 'Voice AI', sub: 'Conversational intelligence' },
+    { id: 'partner-integration', title: 'Partner Integration', sub: 'Custom API & system integration' },
   ];
 
   // Close dropdown when clicking outside
