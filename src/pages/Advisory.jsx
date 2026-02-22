@@ -664,7 +664,7 @@ const AIAdvisoryPage = () => {
           <div className="flex flex-col lg:flex-row gap-3 md:gap-4 items-stretch">
             {[
               { s:"Strategy Session",   d:"Kick-off with stakeholders to define scope and success metrics." },
-              { s:"Deep-Dive Workshop", d:"3-day collaborative sprint mapping your AI opportunity landscape." },
+              { s:"Deep-Dive Workshop", d:"A collaborative sprint tailored to your specific scale to map your AI opportunity landscape." },
               { s:"Deliver Roadmap",    d:"Full written roadmap with phased milestones and KPI targets." },
               { s:"Handover & Scale",   d:"Embedded support during the first 90 days of execution." },
             ].map((step, i) => (

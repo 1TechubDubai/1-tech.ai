@@ -6,4 +6,10 @@ export default defineConfig({
   plugins: [react()],
   // This uses the repo name ONLY if we are deploying to GitHub Pages
   base: '/',
+  server: {
+    middlewareMode: false,
+    fallback: {
+      '/': '/index.html'
+    }
+  }
 })
