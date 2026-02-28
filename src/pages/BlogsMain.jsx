@@ -7,7 +7,15 @@ import Footer from "../components/Footer";
 import { Search, ArrowRight, Settings, SlidersHorizontal, Clock, Loader2 } from 'lucide-react';
 
 // Adjusted categories to match your Admin Panel dropdown options
-const CATEGORIES = ["ALL", "TECH", "OPERATIONS", "DEVELOPMENT", "INTELLIGENCE"];
+const CATEGORIES = [
+  "ALL", 
+  "GENERAL", 
+  "ARTIFICIAL INTELLIGENCE", 
+  "GENERATIVE AI", 
+  "SOFTWARE ARCHITECTURE", 
+  "AUTONOMOUS SYSTEMS",
+  "DATA & ANALYTICS"
+];
 
 const BlogsMain = () => {
   const navigate = useNavigate();

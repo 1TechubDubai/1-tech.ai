@@ -106,7 +106,7 @@ const BlogPage = () => {
         {/* ── LOADED ARTICLE STATE ── */}
         {!loading && post && (
           <>
-            <header className="mb-12">
+            <header className="mb-12 text-left">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-cyan-400 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-cyan-500/10 uppercase">
                   {post.category}
@@ -116,7 +116,6 @@ const BlogPage = () => {
                 </span>
               </div>
 
-              {/* Fixed "Squeezed" Heading: Changed leading-[1.1] to leading-[1.2] and added pt-2 */}
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.2] tracking-tight mb-6 pt-2">
                 {post.title}
               </h1>
@@ -166,8 +165,9 @@ const BlogPage = () => {
             )}
 
             {/* ── ARTICLE BODY (TIPTAP HTML RENDER) ── */}
+            {/* Added explicit text-left utility here */}
             <article 
-              className="article-content font-sans leading-relaxed text-slate-300 text-lg sm:text-xl"
+              className="article-content text-left font-sans leading-relaxed text-slate-300 text-lg sm:text-xl"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
@@ -175,7 +175,7 @@ const BlogPage = () => {
             <div className="mt-24 pt-10 border-t border-slate-800 flex justify-between items-center">
               <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">End of Transmission</p>
               <button 
-                onClick={() => navigate('/blogs')} // or replace with logic to fetch the next article id
+                onClick={() => navigate('/blogs')}
                 className="flex items-center gap-2 text-sm font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-widest transition-colors"
               >
                 Next Intel <ChevronRight size={16} />
@@ -189,11 +189,22 @@ const BlogPage = () => {
 
       {/* ── SCOPED EDITORIAL STYLING ── */}
       <style>{`
+        /* Force alignment */
+        .article-content {
+          text-align: left !important;
+        }
+
         /* Typography Scale & Spacing */
         .article-content p { 
-          margin-bottom: 2rem; 
+          margin-bottom: 1.75rem; 
           color: #94a3b8; 
           line-height: 1.8;
+        }
+
+        /* FIX: Prevents Tiptap's internal <p> tags from breaking list items onto new lines */
+        .article-content li p {
+          display: inline;
+          margin-bottom: 0;
         }
         
         .article-content h1, 
@@ -203,9 +214,10 @@ const BlogPage = () => {
           font-weight: 800; 
           font-family: 'Syne', sans-serif;
           margin-top: 3.5rem; 
-          margin-bottom: 1.5rem; 
+          margin-bottom: 1.25rem; 
           letter-spacing: -0.02em;
           line-height: 1.2;
+          text-align: left;
         }
         
         .article-content h2 { font-size: 2.25rem; }
@@ -255,24 +267,32 @@ const BlogPage = () => {
         /* Lists */
         .article-content ul, 
         .article-content ol { 
+          margin-top: 1rem;
           margin-bottom: 2rem; 
-          padding-left: 1.5rem; 
+          padding-left: 0; 
           color: #94a3b8;
         }
+        
+        /* FIX: Better spacing and layout for list items */
         .article-content ul li, 
         .article-content ol li { 
-          margin-bottom: 0.75rem; 
-          padding-left: 0.5rem;
+          margin-bottom: 1rem; 
+          padding-left: 2rem;
+          position: relative;
+          line-height: 1.7;
         }
+        
         .article-content ul { list-style-type: none; }
+        
+        /* FIX: Absolute positioning prevents the custom bullet from disrupting text flow */
         .article-content ul li::before {
           content: '>';
           color: #06b6d4;
           font-family: 'Space Mono', monospace;
           font-weight: bold;
-          display: inline-block;
-          width: 1.5em;
-          margin-left: -1.5em;
+          position: absolute;
+          left: 0.25rem;
+          top: 0;
         }
         
         /* Image formatting inside article */
