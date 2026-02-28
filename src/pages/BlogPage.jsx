@@ -12,7 +12,17 @@ const BlogPage = () => {
   
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showCopied, setShowCopied] = useState(false);
 
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShowCopied(true);
+    
+    // Hide the popup after 2 seconds
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 2000);
+  };
   // Scroll to top and fetch data on load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -73,16 +83,25 @@ const BlogPage = () => {
         {/* ── TOP NAV / BREADCRUMBS ── */}
         <div className="flex justify-between items-center mb-10 border-b border-slate-800/60 pb-6">
           <button 
-            onClick={() => navigate(-1)} 
+            onClick={() => navigate('/blogs')} 
             className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-cyan-400 transition-colors"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             Back to Transmissions
           </button>
+          <div className="relative flex items-center gap-4">
+            <button 
+              onClick={handleCopyUrl}
+              className="group flex items-center gap-2 text-slate-500 hover:text-cyan-400 transition-colors"
+              title="Share Transmission"
+            >
+              <Share2 size={18} className="group-hover:scale-110 transition-transform" />
+            </button>
 
-          <div className="flex items-center gap-4">
-            <button className="text-slate-500 hover:text-white transition-colors"><Bookmark size={18} /></button>
-            <button className="text-slate-500 hover:text-white transition-colors"><Share2 size={18} /></button>
+            {/* Custom Cyberpunk Popup */}
+            <div className={`absolute top-8 right-0 bg-slate-900 border border-cyan-500/50 text-cyan-400 text-[10px] font-mono tracking-widest uppercase px-3 py-1.5 rounded shadow-lg shadow-cyan-900/20 whitespace-nowrap pointer-events-none transition-all duration-300 ${showCopied ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}>
+              Copied URL
+            </div>
           </div>
         </div>
 
@@ -116,7 +135,7 @@ const BlogPage = () => {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.2] tracking-tight mb-6 pt-2">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-6 pt-2">
                 {post.title}
               </h1>
 

@@ -1002,54 +1002,54 @@ import { collection, query, where, orderBy, limit, getDocs } from "firebase/fire
 import { BookOpen, Clock, Loader2 } from "lucide-react";
 
 const TransmissionTeaser = () => {
-  const [latestPost, setLatestPost] = useState(null);
+  const [latestPosts, setLatestPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const fetchLatestPost = async () => {
-        try {
-          // 1. Just fetch active posts (No composite index needed)
-          const q = query(
-            collection(db, "blog_posts"),
-            where("status", "==", "active")
-          );
-          
-          const snap = await getDocs(q);
-          
-          if (!snap.empty) {
-            // 2. Sort the documents locally in JavaScript (Newest first)
-            const sortedDocs = snap.docs.sort((a, b) => {
-              const timeA = a.data().createdAt?.toMillis() || 0;
-              const timeB = b.data().createdAt?.toMillis() || 0;
-              return timeB - timeA;
-            });
+    const fetchLatestPosts = async () => {
+      try {
+        // 1. Fetch all active posts (avoids the Firebase Index error)
+        const q = query(
+          collection(db, "blog_posts"),
+          where("status", "==", "active")
+        );
+        
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+          // 2. Sort the documents locally (Newest first)
+          const sortedDocs = snap.docs.sort((a, b) => {
+            const timeA = a.data().createdAt?.toMillis() || 0;
+            const timeB = b.data().createdAt?.toMillis() || 0;
+            return timeB - timeA;
+          });
 
-            // 3. Grab the very first one
-            const doc = sortedDocs[0];
+          // 3. Grab the top 2
+          const topDocs = sortedDocs.slice(0, 2).map(doc => {
             const data = doc.data();
-            
-            // Format the Firebase Timestamp
             let dateStr = "PENDING";
             if (data.createdAt) {
               const d = data.createdAt.toDate();
               dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
             }
-
-            setLatestPost({ 
-              id: doc.id, 
-              ...data, 
+            return {
+              id: doc.id,
+              ...data,
               dateStr,
               featuredImage: data.featuredImage || "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2000&auto=format&fit=crop"
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching latest transmission:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+            };
+          });
 
-      fetchLatestPost();
+          setLatestPosts(topDocs);
+        }
+      } catch (error) {
+        console.error("Error fetching latest transmissions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLatestPosts();
   }, []);
 
   return (
@@ -1058,27 +1058,27 @@ const TransmissionTeaser = () => {
       {/* Background Ambience */}
       <div className="absolute top-0 right-0 w-full md:w-1/2 h-[500px] bg-blue-600/5 blur-[150px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-full md:w-1/2 h-[300px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* --- HEADER --- */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
-          <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-cyan-500/30 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-cyan-500/30 backdrop-blur-md mb-6">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
               <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-cyan-400 uppercase font-mono">
                 Live Network Feed
               </span>
             </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* --- HEADER (Kept exactly the same as original) --- */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+          <div className="space-y-4 max-w-2xl">
+
             
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1]">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] text-left">
               Editorial <br className="hidden md:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
                 Transmissions
               </span>
             </h2>
             
-            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed">
+            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed text-left">
               Signal vs Noise. Deep dives into Artificial Intelligence, autonomous systems, and the frameworks governing the future of enterprise.
             </p>
           </div>
@@ -1092,56 +1092,62 @@ const TransmissionTeaser = () => {
           </Link>
         </div>
 
-        {/* --- CONTENT AREA --- */}
+        {/* --- CONTENT AREA: 2 CARDS --- */}
         {loading ? (
           <div className="w-full h-64 md:h-96 border border-slate-800/60 rounded-3xl bg-slate-900/20 flex flex-col items-center justify-center text-cyan-500 gap-4">
             <Loader2 size={40} className="animate-spin" />
             <p className="font-mono text-xs uppercase tracking-widest">Intercepting Data...</p>
           </div>
-        ) : latestPost ? (
-          <Link to={`/blogs/${latestPost.id}`} className="block group">
-            <div className="relative flex flex-col lg:flex-row border border-slate-800/60 rounded-[2rem] overflow-hidden bg-slate-900/40 hover:border-cyan-500/50 hover:bg-slate-900/60 transition-all duration-500 shadow-2xl shadow-black/50">
-              
-              {/* Left/Top: Image Container */}
-              <div className="lg:w-1/2 h-64 lg:h-[450px] relative overflow-hidden bg-black border-b lg:border-b-0 lg:border-r border-slate-800/60">
-                <img 
-                  src={latestPost.featuredImage} 
-                  alt={latestPost.title} 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
-                />
-                
-                {/* Decorative Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-60 lg:opacity-0"></div>
-                <div className="absolute top-6 left-6 flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] text-white uppercase font-mono bg-black/60 px-3 py-1.5 rounded backdrop-blur-md border border-slate-700">
-                  <Clock size={12} className="text-cyan-400" />
-                  {latestPost.dateStr}
-                </div>
-              </div>
+        ) : latestPosts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            {latestPosts.map((post) => (
+              <Link key={post.id} to={`/blogs/${post.id}`} className="block group h-full">
+                <div className="relative flex flex-col h-full border border-slate-800/60 rounded-[2rem] overflow-hidden bg-slate-900/40 hover:border-cyan-500/50 hover:bg-slate-900/60 transition-all duration-500 shadow-2xl shadow-black/50">
+                  
+                  {/* Top: Image Container */}
+                  <div className="h-56 sm:h-64 relative overflow-hidden bg-black border-b border-slate-800/60 shrink-0">
+                    <img 
+                      src={post.featuredImage} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
+                    />
+                    
+                    {/* Decorative Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/20 to-transparent opacity-80 lg:opacity-60"></div>
+                    <div className="absolute top-6 left-6 flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] text-white uppercase font-mono bg-black/60 px-3 py-1.5 rounded backdrop-blur-md border border-slate-700">
+                      <Clock size={12} className="text-cyan-400" />
+                      {post.dateStr}
+                    </div>
+                  </div>
 
-              {/* Right/Bottom: Content Container */}
-              <div className="lg:w-1/2 p-8 sm:p-10 lg:p-16 flex flex-col justify-center relative z-10">
-                <div className="inline-block px-3 py-1 border border-cyan-500/30 rounded text-[9px] font-bold text-cyan-400 tracking-[0.2em] uppercase mb-6 w-max font-mono bg-cyan-500/5">
-                  //{latestPost.category}
+                  {/* Bottom: Content Container */}
+                  <div className="p-8 sm:p-10 flex flex-col flex-grow relative z-10 justify-between">
+                    <div>
+                      <div className="inline-block px-3 py-1 border border-cyan-500/30 rounded text-[9px] font-bold text-cyan-400 tracking-[0.2em] uppercase mb-6 w-max font-mono bg-cyan-500/5">
+                        //{post.category}
+                      </div>
+                      
+                      <h3 className="text-2xl sm:text-3xl font-bold leading-[1.2] tracking-tight mb-4 group-hover:text-cyan-50 transition-colors line-clamp-2 text-white text-left">
+                        {post.title}
+                      </h3>
+                      
+                      <p className="text-slate-400 text-sm sm:text-base mb-10 leading-relaxed line-clamp-3 text-left">
+                        {post.excerpt}
+                      </p>
+                    </div>
+                    
+                    {/* Simulated Button inside the link block */}
+                    <div className="flex items-center gap-3 text-cyan-400 font-bold text-xs tracking-[0.2em] uppercase w-max group-hover:text-cyan-300 transition-colors mt-auto">
+                      Read Transmission <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-300" />
+                    </div>
+                  </div>
+                  
+                  {/* Scanline Effect on Hover */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.5)] transform -translate-y-full group-hover:animate-[scan_3s_ease-in-out_infinite] hidden lg:block z-20 pointer-events-none"></div>
                 </div>
-                
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.2] tracking-tight mb-4 group-hover:text-cyan-50 transition-colors line-clamp-3 text-white">
-                  {latestPost.title}
-                </h3>
-                
-                <p className="text-slate-400 text-sm sm:text-base mb-10 leading-relaxed max-w-lg line-clamp-3">
-                  {latestPost.excerpt}
-                </p>
-                
-                {/* Simulated Button inside the link block */}
-                <div className="flex items-center gap-3 text-cyan-400 font-bold text-xs tracking-[0.2em] uppercase w-max group-hover:text-cyan-300 transition-colors">
-                  Read Transmission <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-300" />
-                </div>
-              </div>
-              
-              {/* Scanline Effect on Hover */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.5)] transform -translate-y-full group-hover:animate-[scan_3s_ease-in-out_infinite] hidden lg:block z-20 pointer-events-none"></div>
-            </div>
-          </Link>
+              </Link>
+            ))}
+          </div>
         ) : (
           <div className="w-full py-20 border border-dashed border-slate-800/60 rounded-3xl bg-slate-900/10 flex flex-col items-center justify-center text-slate-500 gap-4">
             <BookOpen size={40} className="text-slate-700" />
@@ -1157,12 +1163,11 @@ const TransmissionTeaser = () => {
           0% { transform: translateY(-100%); opacity: 0; }
           10% { opacity: 1; }
           90% { opacity: 1; }
-          100% { transform: translateY(500px); opacity: 0; }
+          100% { transform: translateY(600px); opacity: 0; }
         }
       `}</style>
     </section>
   );
-
 };
 
 // Simple Mockup of TestimonialCard for context
