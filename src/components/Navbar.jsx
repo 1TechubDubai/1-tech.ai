@@ -170,8 +170,8 @@ const Navbar = () => {
 
           {/* CTA & Mobile Toggle */}
           <div className="flex items-center gap-3">
-            <Link
-              to="https://calendly.com/"
+            <a
+              href="https://calendly.com/harish-krishnan1976"
               className="
                 hidden sm:flex items-center gap-2 /* Added alignment and spacing */
                 px-5 py-2 rounded-full text-sm font-semibold
@@ -180,10 +180,12 @@ const Navbar = () => {
                 hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]
                 hover:-translate-y-0.5
               "
+              target="_blank" 
+              rel="noopener noreferrer"
             >
               <span>Book a Meeting</span>
               <CalendarCheck className="w-4 h-4" />
-            </Link>
+            </a>
 
             {/* Hamburger Button */}
             <button 
