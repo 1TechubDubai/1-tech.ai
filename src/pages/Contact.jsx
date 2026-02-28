@@ -68,7 +68,7 @@ const Contact = () => {
                   <a href="mailto:contactus@1techub.com"                 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-lg font-medium text-white hover:text-cyan-400 transition-colors text-left">
+                    className="text-lg font-medium text-white hover:text-cyan-400 transition-colors text-left lining-nums">
                     contactus@1techub.com
                   </a>
                 </div>

@@ -713,8 +713,8 @@ const CombinedWhyChooseUs = () => {
           <span className="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">Strategic Edge</span>
         </div>
         
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-          Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-mono stretch-125">1</span><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">TecHub?</span>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight lining-nums">
+          Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">1TecHub?</span>
         </h2>
         
         <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
@@ -963,7 +963,7 @@ const TestimonialsSection = () => {
           {testimonials.map((item, index) => (
             <div 
               key={index} 
-              className="min-w-[85vw] sm:min-w-[60vw] md:min-w-0 snap-center"
+              className="min-w-[85vw] sm:min-w-[60vw] md:min-w-0 snap-center lining-nums"
             >
               {/* Assuming TestimonialCard is a separate component */}
               <TestimonialCard {...item} index={index} />
@@ -977,7 +977,7 @@ const TestimonialsSection = () => {
             <button
               key={i}
               onClick={() => scrollToCard(i)}
-              className={`transition-all duration-300 rounded-full ${
+              className={`transition-all duration-300 rounded-full lining-nums ${
                 activeIndex === i 
                 ? "w-6 h-1.5 bg-cyan-500" 
                 : "w-1.5 h-1.5 bg-slate-700 hover:bg-slate-600"

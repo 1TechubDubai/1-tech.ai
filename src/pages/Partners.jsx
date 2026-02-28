@@ -326,7 +326,7 @@ const Partners = () => {
                         }
                       })}
                     >
-                      Request Integration
+                      Request Advisory
                       <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   </div>

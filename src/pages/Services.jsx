@@ -384,7 +384,7 @@ const Services = () => {
         <section className="relative z-10 py-12 sm:py-20 md:py-24 bg-gradient-to-b from-[#050b1f]/80 to-transparent border-t border-slate-800/50 backdrop-blur-sm">
            <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-12 sm:mb-16 animate-slide-up">
-                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">Why Choose <span className="font-mono">1</span>TecHub?</h2>
+                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 lining-nums">Why Choose 1TecHub?</h2>
                  <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-2xl mx-auto">
                    We bring a proactive, insight-led approach to managed services, ensuring your technology is an asset, not an obstacle.
                  </p>

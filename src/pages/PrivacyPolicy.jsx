@@ -45,7 +45,7 @@ const PrivacyPolicy = () => {
       icon: <Globe className="text-indigo-400" />,
       title: "3. Cookies and Tracking",
       content: (
-        <p className="text-slate-400 text-sm leading-relaxed">
+        <p className="text-slate-400 text-sm leading-relaxed lining-nums">
           1techub.ai may use cookies to remember user preferences, analyze traffic patterns, and enhance functionality. You can choose to disable cookies through your browser settings.
         </p>
       )
@@ -140,8 +140,8 @@ const PrivacyPolicy = () => {
           {/* Policy Text Area */}
           <div className="lg:col-span-9 space-y-12">
             <section className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 backdrop-blur-sm">
-              <p className="text-lg leading-relaxed text-slate-300">
-                At <span className="font-mono">1</span>TecHub (“we,” “our,” or “us”), your privacy is important to us. This Privacy Policy document explains what information we collect, how we use it, and your rights regarding that information.
+              <p className="text-lg leading-relaxed text-slate-300 lining-nums">
+                At 1TecHub (“we,” “our,” or “us”), your privacy is important to us. This Privacy Policy document explains what information we collect, how we use it, and your rights regarding that information.
               </p>
             </section>
 
@@ -174,10 +174,10 @@ const PrivacyPolicy = () => {
                <h2 className="text-3xl font-bold text-white mb-6 relative z-10">9. Contact Us</h2>
                <p className="text-slate-400 mb-8 relative z-10">If you have questions or concerns about this Privacy Policy, our team is here to help.</p>
                <div className="flex flex-col sm:flex-row gap-6 relative z-10">
-                  <a href="mailto:contactus@1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors">
+                  <a href="mailto:contactus@1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
                     <Mail size={20} /> contactus@1techub.ai
                   </a>
-                  <a href="https://1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors">
+                  <a href="https://1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
                     <Globe size={20} /> 1techub.ai
                   </a>
                </div>

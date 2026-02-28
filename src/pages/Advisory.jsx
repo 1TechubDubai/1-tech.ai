@@ -312,7 +312,7 @@ const StrategySection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 { t: "Industry Mapping", d: "Tailored AI use cases for your specific sector.", icon: <Target size={20} /> },
-                { t: "Data Readiness", d: "Full assessment of existing infrastructure.", icon: <Database size={20} /> },
+                { t: "Data Readiness", d: "AI Capability & Readiness Assessment", icon: <Database size={20} /> },
                 { t: "Risk Mitigation", d: "Compliance and ethical AI guardrails built in.", icon: <ShieldCheck size={20} /> },
                 { t: "Growth Scale", d: "Architecting for long-term scalability.", icon: <TrendingUp size={20} /> },
               ].map((item, i) => (
@@ -753,8 +753,8 @@ const AIAdvisoryPage = () => {
               The Future Is <br />
               <span className="grad-text">Wait-less.</span>
             </h2>
-            <p className="text-sm md:text-base text-slate-400 mb-6 md:mb-8 max-w-xl mx-auto leading-relaxed font-light">
-              Don't let your competition define your AI strategy. Partner with <span className="font-mono">1</span>TecHub to architect a future that belongs to you alone.
+            <p className="text-sm md:text-base text-slate-400 mb-6 md:mb-8 max-w-xl mx-auto leading-relaxed font-light lining-nums">
+              Don't let your competition define your AI strategy. Partner with 1TecHub to architect a future that belongs to you alone.
             </p>           
             <motion.div 
               whileHover={{ scale: 1.03 }} 
