@@ -1067,29 +1067,20 @@ const TransmissionTeaser = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* --- HEADER (Kept exactly the same as original) --- */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
-          <div className="space-y-4 max-w-2xl">
-
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 w-full">
+          <div className="space-y-4 w-full">
             
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] text-left">
-              Editorial <br className="hidden md:block" />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] text-left flex">
+              Editorial &nbsp;
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
                 Transmissions
               </span>
             </h2>
             
             <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed text-left">
-              Signal vs Noise. Deep dives into Artificial Intelligence, autonomous systems, and the frameworks governing the future of enterprise.
+              Access our library of editorial blogs and technical articles. Deep dives into AI, autonomous systems, and the frameworks governing the future of enterprise.
             </p>
           </div>
-
-          <Link 
-            to="/blogs"
-            className="group flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent border border-slate-700 hover:border-cyan-500/50 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-cyan-400 transition-all w-full md:w-auto shrink-0"
-          >
-            Access All Records
-            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
         </div>
 
         {/* --- CONTENT AREA: 2 CARDS --- */}
@@ -1101,7 +1092,7 @@ const TransmissionTeaser = () => {
         ) : latestPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {latestPosts.map((post) => (
-              <Link key={post.id} to={`/blogs/${post.id}`} className="block group h-full">
+              <Link key={post.id} to={`/blogs/${post.id}`} className="block group h-full" state={{ fromHome: true }}>
                 <div className="relative flex flex-col h-full border border-slate-800/60 rounded-[2rem] overflow-hidden bg-slate-900/40 hover:border-cyan-500/50 hover:bg-slate-900/60 transition-all duration-500 shadow-2xl shadow-black/50">
                   
                   {/* Top: Image Container */}
@@ -1123,7 +1114,7 @@ const TransmissionTeaser = () => {
                   {/* Bottom: Content Container */}
                   <div className="p-8 sm:p-10 flex flex-col flex-grow relative z-10 justify-between">
                     <div>
-                      <div className="inline-block px-3 py-1 border border-cyan-500/30 rounded text-[9px] font-bold text-cyan-400 tracking-[0.2em] uppercase mb-6 w-max font-mono bg-cyan-500/5">
+                      <div className="px-3 py-1 border border-cyan-500/30 rounded text-[9px] font-bold text-cyan-400 tracking-[0.2em] uppercase mb-6 w-max font-mono bg-cyan-500/5">
                         //{post.category}
                       </div>
                       
@@ -1154,7 +1145,13 @@ const TransmissionTeaser = () => {
             <p className="font-mono text-xs uppercase tracking-widest">No transmissions available on the network.</p>
           </div>
         )}
-
+         <Link 
+            to="/blogs"
+            className="mt-10 group flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent border border-slate-700 hover:border-cyan-500/50 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-cyan-400 transition-all w-full md:w-auto shrink-0"
+          >
+            Access All Records
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
       </div>
       
       {/* Required Keyframes for the scan effect */}

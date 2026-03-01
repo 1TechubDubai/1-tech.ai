@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig"; // Adjust path if necessary
 import Navbar from "../components/Navbar";
@@ -9,7 +9,18 @@ import { ArrowLeft, Calendar, User, Clock, Share2, Bookmark, ChevronRight, Loade
 const BlogPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
+  const handleBackClick = () => {
+    // Check if the hidden state 'fromHome' was passed
+    if (location.state?.fromHome) {
+      // Go to home ('/') and jump straight to the section ID
+      navigate("/", { state: { scrollTo: 'transmissions-teaser' } }) 
+    } else {
+      // Otherwise, just go back 1 step in history
+      navigate(-1);
+    }
+  };
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCopied, setShowCopied] = useState(false);
@@ -83,7 +94,7 @@ const BlogPage = () => {
         {/* ── TOP NAV / BREADCRUMBS ── */}
         <div className="flex justify-between items-center mb-10 border-b border-slate-800/60 pb-6">
           <button 
-            onClick={() => navigate('/blogs')} 
+            onClick={handleBackClick} 
             className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-cyan-400 transition-colors"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

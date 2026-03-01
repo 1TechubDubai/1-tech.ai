@@ -106,11 +106,11 @@ const BlogsMain = () => {
         {/* ── HEADER ── */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
           <div className="max-w-xl">
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 lining-nums">
+            <h1 className="text-4xl md:text-5xl font-bold mb-3 lining-nums">
               1Techub <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-400">Transmission</span>
             </h1>
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-              Signal vs Noise. Deep dives into Artificial Intelligence, autonomous systems, and the future of enterprise.
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed text-left">
+              Explore our collection of articles and expert blogs covering Artificial Intelligence, autonomous workflows, and the future of enterprise
             </p>
           </div>
 
@@ -170,7 +170,7 @@ const BlogsMain = () => {
               <div className="inline-block px-3 py-1 border border-cyan-500/50 rounded-full text-[10px] font-bold text-cyan-400 tracking-widest uppercase mb-6 w-max font-mono">
                 Featured Intel
               </div>
-              <h2 className="text-3xl lg:text-5xl font-bold leading-[1.1] tracking-tight mb-6 group-hover:text-cyan-50 transition-colors line-clamp-3">
+              <h2 className="text-left text-3xl lg:text-5xl font-bold leading-[1.1] tracking-tight mb-6 group-hover:text-cyan-50 transition-colors line-clamp-3">
                 {featuredPost.title}
               </h2>
               <p className="text-slate-400 text-base lg:text-lg mb-10 leading-relaxed max-w-lg line-clamp-3">
