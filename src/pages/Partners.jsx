@@ -16,7 +16,7 @@ import Footer from '../components/Footer';
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 // --- DATA: SUITE GRID (Top Section) ---
@@ -135,7 +135,7 @@ const Partners = () => {
           // 1. Fetch only ACTIVE listings (removed orderBy to bypass index requirement)
           const q = query(
             collection(db, "service_listings"), 
-            where("status", "==", "active")
+            where("status", "==", "active"),
           );
           
           const querySnapshot = await getDocs(q);
@@ -149,7 +149,7 @@ const Partners = () => {
           firebaseData.sort((a, b) => {
             const timeA = a.createdAt?.toMillis() || 0;
             const timeB = b.createdAt?.toMillis() || 0;
-            return timeB - timeA; 
+            return timeA - timeB; 
           });
 
           console.log("Firestore Data Received:", firebaseData);
