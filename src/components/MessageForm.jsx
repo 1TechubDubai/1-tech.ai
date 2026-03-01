@@ -40,10 +40,108 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   const formRef = useRef(); // Ref for EmailJS
   const dropdownRef = useRef(null);
   const location = useLocation();
+  const countryDropdownRef = useRef(null);
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+
+  const COUNTRY_CODES = [
+    // North America
+    { code: "+1", country: "US/CA" },
+    { code: "+52", country: "MX" },
+
+    // South America
+    { code: "+55", country: "BR" },
+    { code: "+54", country: "AR" },
+    { code: "+56", country: "CL" },
+    { code: "+57", country: "CO" },
+    { code: "+51", country: "PE" },
+    { code: "+58", country: "VE" },
+
+    // Europe
+    { code: "+44", country: "UK" },
+    { code: "+49", country: "DE" },
+    { code: "+33", country: "FR" },
+    { code: "+39", country: "IT" },
+    { code: "+34", country: "ES" },
+    { code: "+31", country: "NL" },
+    { code: "+32", country: "BE" },
+    { code: "+41", country: "CH" },
+    { code: "+43", country: "AT" },
+    { code: "+46", country: "SE" },
+    { code: "+47", country: "NO" },
+    { code: "+45", country: "DK" },
+    { code: "+358", country: "FI" },
+    { code: "+48", country: "PL" },
+    { code: "+420", country: "CZ" },
+    { code: "+36", country: "HU" },
+    { code: "+30", country: "GR" },
+    { code: "+351", country: "PT" },
+    { code: "+353", country: "IE" },
+    { code: "+40", country: "RO" },
+    { code: "+359", country: "BG" },
+    { code: "+380", country: "UA" },
+    { code: "+7", country: "RU" },
+
+    // Asia
+    { code: "+91", country: "IN" },
+    { code: "+81", country: "JP" },
+    { code: "+86", country: "CN" },
+    { code: "+82", country: "KR" },
+    { code: "+65", country: "SG" },
+    { code: "+60", country: "MY" },
+    { code: "+62", country: "ID" },
+    { code: "+63", country: "PH" },
+    { code: "+66", country: "TH" },
+    { code: "+84", country: "VN" },
+    { code: "+92", country: "PK" },
+    { code: "+880", country: "BD" },
+    { code: "+94", country: "LK" },
+    { code: "+977", country: "NP" },
+    { code: "+852", country: "HK" },
+    { code: "+853", country: "MO" },
+    { code: "+886", country: "TW" },
+
+    // Middle East
+    { code: "+971", country: "UAE" },
+    { code: "+966", country: "SA" },
+    { code: "+974", country: "QA" },
+    { code: "+973", country: "BH" },
+    { code: "+968", country: "OM" },
+    { code: "+965", country: "KW" },
+    { code: "+972", country: "IL" },
+    { code: "+90", country: "TR" },
+    { code: "+98", country: "IR" },
+    { code: "+964", country: "IQ" },
+    { code: "+962", country: "JO" },
+
+    // Africa
+    { code: "+27", country: "ZA" },
+    { code: "+20", country: "EG" },
+    { code: "+212", country: "MA" },
+    { code: "+216", country: "TN" },
+    { code: "+213", country: "DZ" },
+    { code: "+234", country: "NG" },
+    { code: "+233", country: "GH" },
+    { code: "+254", country: "KE" },
+    { code: "+255", country: "TZ" },
+    { code: "+256", country: "UG" },
+    { code: "+251", country: "ET" },
+
+    // Oceania
+    { code: "+61", country: "AU" },
+    { code: "+64", country: "NZ" },
+    { code: "+675", country: "PG" },
+
+    // Caribbean & Others
+    { code: "+ Jamaica", country: "JM", code: "+1-876" },
+    { code: "+ Trinidad & Tobago", country: "TT", code: "+1-868" },
+    { code: "+ Bahamas", country: "BS", code: "+1-242" },
+  ];
 
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    countryCode: '+1', // <-- Add this line
     phone: '',
     company: '',
     service: [],
@@ -91,8 +189,13 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Close Services Dropdown
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
+      }
+      // Close Country Dropdown
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
+        setIsCountryOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -139,12 +242,13 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
       await addDoc(messagesRef, {
         name: formData.fullName,
         email: formData.email,
-        phone_number: formData.phone,
+        // Combine the country code and phone number here:
+        phone_number: formData.phone ? `${formData.countryCode} ${formData.phone}` : "", 
         company: formData.company,
         service_interest: formData.service,
         message: formData.message,
-        timestamp: serverTimestamp(), // Critical for the "Newest First" sort
-        status: "unread" // Optional: helps you track new vs seen messages
+        timestamp: serverTimestamp(),
+        status: "unread" 
       });
 
       // Success Logic
@@ -246,33 +350,81 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             </div>
           </div>
 
-          {/* Row 2: Phone & Company */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Phone Number</label>
+          {/* Row 2: Phone Number (Full Row) */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Phone Number</label>
+            <div className="flex gap-2 relative">
+              
+              {/* Country Code Custom Searchable Dropdown */}
+              <div className="relative w-[120px] shrink-0" ref={countryDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCountryOpen(!isCountryOpen);
+                    setCountrySearch(""); // Reset search when opened
+                  }}
+                  disabled={status === 'loading'}
+                  className="w-full h-full bg-[#0d1425] border border-slate-800/60 text-slate-100 pl-4 pr-3 py-3.5 rounded-xl 
+                             focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
+                             disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
+                             flex items-center justify-between group"
+                >
+                  <span className="truncate">{formData.countryCode}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isCountryOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu & Search Input */}
+                <div 
+                  className={`absolute left-0 top-[calc(100%+8px)] z-50 w-[240px] bg-[#0d1425] border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top
+                    ${isCountryOpen ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}`}
+                >
+                  {/* Search Input */}
+                  <div className="p-2 border-b border-slate-800/60">
+                    <input
+                      type="text"
+                      placeholder="Search code or country..."
+                      value={countrySearch}
+                      onChange={(e) => setCountrySearch(e.target.value)}
+                      className="w-full bg-slate-900/80 border border-slate-800 text-slate-100 px-3 py-2 rounded-lg text-xs 
+                                 focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-600"
+                      autoFocus={isCountryOpen} 
+                    />
+                  </div>
+
+                  {/* Filtered List */}
+                  <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    {COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).length > 0 ? (
+                      COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).map((c) => (
+                        <button
+                          key={c.code + c.country}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, countryCode: c.code }));
+                            setIsCountryOpen(false);
+                            setCountrySearch(""); // Reset for next time
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-slate-800/50 rounded-lg transition-colors group/item"
+                        >
+                          <span className="font-medium text-slate-200 group-hover/item:text-cyan-400 transition-colors">{c.code}</span>
+                          <span className="text-xs text-slate-500">{c.country}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-4 text-center text-xs text-slate-500">No results found</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Phone Number Input */}
               <input
                 type="tel"
                 name="phone"
-                placeholder="+1 (555) 000-0000"
+                placeholder="(555) 000-0000"
                 value={formData.phone}
                 onChange={handleChange}
                 disabled={status === 'loading'}
-                className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
-                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all placeholder:text-slate-600 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Company</label>
-              <input
-                type="text"
-                name="company"
-                placeholder="Your Company"
-                value={formData.company}
-                onChange={handleChange}
-                disabled={status === 'loading'}
-                className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
+                className="flex-1 bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
                            focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
                            disabled:opacity-50 disabled:cursor-not-allowed
                            transition-all placeholder:text-slate-600 text-sm"
@@ -280,7 +432,24 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             </div>
           </div>
 
-          {/* Row 3: Custom Services Select */}
+          {/* Row 3: Company (Full Row) */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Company</label>
+            <input
+              type="text"
+              name="company"
+              placeholder="Your Company"
+              value={formData.company}
+              onChange={handleChange}
+              disabled={status === 'loading'}
+              className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
+                         focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         transition-all placeholder:text-slate-600 text-sm"
+            />
+          </div>
+
+          {/* Row 4: Custom Services Select */}
           <div className="space-y-1.5 relative" ref={dropdownRef}>
             <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">AI Solution Needed</label>
             

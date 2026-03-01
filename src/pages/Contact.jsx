@@ -137,7 +137,7 @@ const Contact = () => {
               <div className="w-16 h-16 rounded-full bg-[#0a0f1d] border border-slate-700 flex items-center justify-center text-slate-400 mb-6 group-hover:border-cyan-500 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-300 shadow-[0_0_20px_-10px_rgba(0,0,0,0.5)]">
                 <MessageSquare size={28} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">1. Initial Discovery</h3>
+              <h3 className="text-xl font-bold text-white mb-3 lining-nums">1. Initial Discovery</h3>
               <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
                 We listen to your challenges and identify immediate AI opportunities tailored to your business.
               </p>
@@ -148,7 +148,7 @@ const Contact = () => {
               <div className="w-16 h-16 rounded-full bg-[#0a0f1d] border border-slate-700 flex items-center justify-center text-slate-400 mb-6 group-hover:border-cyan-500 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-300 shadow-[0_0_20px_-10px_rgba(0,0,0,0.5)]">
                 <FileText size={28} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">2. Strategic Roadmap</h3>
+              <h3 className="text-xl font-bold text-white mb-3 lining-nums">2. Strategic Roadmap</h3>
               <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
                 We present a tailored architecture and implementation plan designed for scale.
               </p>
@@ -159,7 +159,7 @@ const Contact = () => {
               <div className="w-16 h-16 rounded-full bg-[#0a0f1d] border border-slate-700 flex items-center justify-center text-slate-400 mb-6 group-hover:border-cyan-500 group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-300 shadow-[0_0_20px_-10px_rgba(0,0,0,0.5)]">
                 <Rocket size={28} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">3. Agile Launch</h3>
+              <h3 className="text-xl font-bold text-white mb-3 lining-nums">3. Agile Launch</h3>
               <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
                 We deploy your pilot within weeks, not months, ensuring rapid time-to-value.
               </p>
