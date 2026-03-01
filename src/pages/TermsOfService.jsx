@@ -168,8 +168,8 @@ const TermsOfService = () => {
                <h2 className="text-3xl font-bold text-white mb-6 relative z-10">11. Contact Us</h2>
                <p className="text-slate-400 mb-8 relative z-10">Questions regarding these terms? Reach out to our legal and support team.</p>
                <div className="flex flex-col sm:flex-row gap-6 relative z-10">
-                  <a href="mailto:contactus@1techub.ai" className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors font-medium">
-                    <Mail size={20} /> contactus@1techub.ai
+                  <a href="mailto:contactus@1techub.com" className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors font-medium">
+                    <Mail size={20} /> contactus@1techub.com
                   </a>
                   <div className="flex items-center gap-3 text-slate-500">
                     <Globe size={20} /> 1techub.ai

@@ -174,8 +174,8 @@ const PrivacyPolicy = () => {
                <h2 className="text-3xl font-bold text-white mb-6 relative z-10">9. Contact Us</h2>
                <p className="text-slate-400 mb-8 relative z-10">If you have questions or concerns about this Privacy Policy, our team is here to help.</p>
                <div className="flex flex-col sm:flex-row gap-6 relative z-10">
-                  <a href="mailto:contactus@1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
-                    <Mail size={20} /> contactus@1techub.ai
+                  <a href="mailto:contactus@1techub.com" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
+                    <Mail size={20} /> contactus@1techub.com
                   </a>
                   <a href="https://1techub.ai" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
                     <Globe size={20} /> 1techub.ai
