@@ -216,12 +216,16 @@ const GeminiChatBot = ({ apiKey }) => {
                     <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
                       <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
                       <button 
-                        onClick={() => navigate("/contact", { 
+                        onClick={() => {
+                          
+                          toggleChat()
+                          navigate("/contact", { 
                           state: { 
                             prefilledMessage: msg.contactRouting.message,
                             selectedServices: msg.contactRouting.services
                           }
-                        })}
+
+                        })}}
                         className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
                       >
                         Contact Our Experts
