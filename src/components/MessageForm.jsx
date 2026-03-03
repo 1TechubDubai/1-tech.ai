@@ -133,9 +133,9 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+675", country: "PG" },
 
     // Caribbean & Others
-    { code: "+ Jamaica", country: "JM", code: "+1-876" },
-    { code: "+ Trinidad & Tobago", country: "TT", code: "+1-868" },
-    { code: "+ Bahamas", country: "BS", code: "+1-242" },
+    { country: "JM", code: "+1-876" },
+    { country: "TT", code: "+1-868" },
+    { country: "BS", code: "+1-242" }
   ];
 
   const [formData, setFormData] = useState({
