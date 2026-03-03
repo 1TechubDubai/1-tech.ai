@@ -80,6 +80,15 @@ import {
                 HardDrive,
 } from 'lucide-react';
 
+import customAISolutions from '../assets/custom-ai-solutions.svg'
+import autonomousAIAgents from '../assets/autonomous-ai-agents.svg'
+import llmIntegration from '../assets/llm-integration.svg'
+import advancedMachineLearning from '../assets/advanced-machine-learning.svg'
+import dataScienceAnalyticsBigData from '../assets/data-science-analytics-big-data.svg'
+import naturalLanguageProcessing from '../assets/natural-language-processing.svg'
+import conversationalAI from '../assets/conversational-voice-ai.svg'
+import softwareDevelopment from '../assets/software-development.svg' 
+
 // Consolidated Services Data
 export const allServicesData = [
   {
@@ -89,7 +98,7 @@ export const allServicesData = [
     hero: {
       title: "Custom Enterprise AI Solutions.",
       description: "AI Strategy. Transformation. Governance. We go beyond simple tools to build comprehensive AI strategies that drive real-world transformation. From automated decision systems to ethical governance, 1TecHub ensures your AI journey is secure, scalable, and focused on measurable business impact.",
-      backgroundImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop" // Strategic AI Network Image
+      backgroundImage: customAISolutions
     },
     sections: [
       {
@@ -247,7 +256,7 @@ export const allServicesData = [
     hero: {
       title: "Autonomous AI Agents.",
       description: "Agentic Workflows. Orchestration. Hyper-Automation. The future of business is autonomous. We build systems that don't just follow instructions, but reason, plan, and execute. From multi-agent collaboration to human-in-the-loop governance, 1TecHub delivers the intelligent workforce of tomorrow.",
-      backgroundImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop" // Neural Network / AI Brain Image
+      backgroundImage: autonomousAIAgents
     },
     sections: [
       {
@@ -405,7 +414,7 @@ export const allServicesData = [
   hero: {
     title: "Large Language Model Integration & Orchestration.",
     description: "Smarter Decisions. Autonomous Actions. Enterprise Intelligence Reinvented. We go beyond traditional automation to create autonomous digital agents that think, reason, and execute. Combined with advanced machine learning, we help organizations unlock unprecedented operational efficiency.",
-    backgroundImage: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2000&auto=format&fit=crop/" // Abstract Generative AI / Particles
+    backgroundImage: llmIntegration
   },
   
   sections: [
@@ -606,7 +615,7 @@ export const allServicesData = [
   hero: {
     title: "Advanced Machine Learning.",
     description: "Predictive Modeling. Pattern Recognition. MLOps & Scaling. We build sophisticated models that evolve and improve over time. From statistical modeling to full-scale MLOps, 1TecHub ensures your ML initiatives are robust, scalable production systems that drive significant ROI.",
-    backgroundImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop" // Data Analytics / Financial Graph
+    backgroundImage: advancedMachineLearning
   },
   
   sections: [
@@ -807,7 +816,7 @@ export const allServicesData = [
   hero: {
     title: "Data Science, Analytics & Big Data.",
     description: "Big Data Infra. Real-time Analytics. Insight Generation. In the age of AI, data is the most valuable asset. We turn raw information into strategic intelligence, building the massive infrastructure needed to handle modern data loads and finding the 'why' behind the numbers.",
-    backgroundImage: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=80&w=2000&auto=format&fit=crop" // Abstract Data / Network Nodes
+    backgroundImage: dataScienceAnalyticsBigData
   },
   
   sections: [
@@ -1008,7 +1017,7 @@ export const allServicesData = [
   hero: {
     title: "Natural Language Processing.",
     description: "Semantic Analysis. Multilingual Text. Automated Summaries. We leverage the world's most advanced language models to build systems that interpret meaning, emotion, and intent—providing a bridge between massive unstructured data and actionable business strategy.",
-    backgroundImage: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=2000&auto=format&fit=crop" // Education / Text / Letters / Abstract
+    backgroundImage: naturalLanguageProcessing
   },
   
   sections: [
@@ -1209,7 +1218,7 @@ export const allServicesData = [
   hero: {
     title: "Conversational Voice AI.",
     description: "Speech-To-Text. Natural TTS. Global Voice. We bridge the gap between human speech and digital execution. From hands-free industrial solutions to global customer support, 1TecHub implements high-precision STT and hyper-realistic TTS for interactions that are natural, clear, and contextually aware.",
-    backgroundImage: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2000&auto=format&fit=crop" // Sound Wave / Microphone / Audio visualization
+    backgroundImage: conversationalAI
   },
   
   sections: [
@@ -1410,7 +1419,7 @@ export const allServicesData = [
   hero: {
     title: "End-to-End Software Development.",
     description: "AI-Integrated Apps. Scalable Backend. Modern Tech Stack. We combine traditional product engineering with cutting-edge AI integration. From mobile apps with integrated voice assistants to massive SaaS platforms, we deliver the digital infrastructure your enterprise needs to win in the AI era.",
-    backgroundImage: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?q=80&w=2000&auto=format&fit=crop" // Coding / Developer Monitor
+    backgroundImage: softwareDevelopment
   },
   
   sections: [

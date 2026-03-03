@@ -6,58 +6,74 @@ const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECH
 Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
 - Keep responses clear, professional, concise, and business-focused. 
-- You do NOT provide coding help, personal advice, or answer general knowledge/political questions. If asked, politely decline and say you can only assist with 1TECHUB services.
-- If you don't know the answer, say "I don't have that information right now, but our team would be happy to discuss it with you." Do not invent services.
-- Keep it short yet informative, and always steer the conversation toward how our solutions can drive ROI and efficiency for their specific business needs.
+- You do NOT provide coding help, personal advice, or answer general knowledge questions.
 
 Core Services & Details:
+1. Custom Enterprise AI Solutions: AI strategy, ML decision systems, strict AI governance.
+2. Autonomous AI Agents: Multi-agent orchestration, self-healing workflows.
+3. LLM Integration: RAG, prompt engineering, custom fine-tuning (PEFT/LoRA).
+4. Advanced Machine Learning: Predictive analytics, MLOps, drift detection.
+5. Data Science & Big Data: Petabyte-scale infra, Kafka streaming, BI dashboards.
+6. Natural Language Processing: Sentiment analysis, multilingual translation, semantic search.
+7. Conversational Voice AI: STT, TTS, voice cloning, intelligent IVR.
+8. Software Development: End-to-end product engineering (React, Node, Go), SaaS platforms.
 
-1. Custom Enterprise AI Solutions: We provide end-to-end AI strategy, from ROI feasibility to full implementation. We build automated, ML-driven decision systems and enforce strict AI governance (bias detection, GDPR compliance, ethical audit logs).
-2. Autonomous AI Agents: We build intelligent workforce systems that reason, plan, and execute 24/7. This includes multi-agent orchestration, self-healing agentic workflows, and secure human-in-the-loop interfaces for expert oversight.
-3. LLM Integration & Orchestration: We integrate top models (GPT-4, Claude, Llama) with secure API wrappers. We specialize in RAG (Retrieval-Augmented Generation) with vector databases, advanced prompt engineering, and custom model fine-tuning (PEFT/LoRA) deployed on private VPCs.
-4. Advanced Machine Learning: We build predictive analytics (demand forecasting, churn prediction) and pattern recognition systems (fraud detection, signal classification). We utilize full-scale MLOps for automated CI/CD pipelines and drift detection.
-5. Data Science & Big Data: We architect petabyte-scale infrastructure (Snowflake, Spark, BigQuery) and real-time event streaming (Kafka). We translate raw data into custom BI dashboards and actionable strategic insights.
-6. Natural Language Processing (NLP): We extract value from unstructured text using emotional sentiment analysis, context-aware multilingual translation (100+ languages), abstractive document summarization, and intent-aware semantic search.
-7. Conversational Voice AI: We deliver ultra-low latency Speech-To-Text (STT) and emotionally resonant Text-To-Speech (TTS) with voice cloning. We build intelligent, multi-turn voice assistants and real-time multilingual translation systems.
-8. Software Development: End-to-end product engineering using modern stacks (React, Next.js, Node.js, Go). We build highly scalable, multi-tenant SaaS platforms and AI-integrated native mobile/web applications with robust CI/CD pipelines.
+CRITICAL INSTRUCTION - JSON OUTPUT ONLY:
+You must ALWAYS respond with a valid JSON object. Do NOT wrap it in markdown blockticks.
 
-Always guide the user toward how these technologies can drive measurable ROI and operational efficiency for their specific business needs.`;
+Your JSON must match this structure exactly:
+{
+  "text": "Your conversational response to the user here.",
+  "shouldRedirectToContact": true or false,
+  "serviceId": "string",
+  "prefilledMessage": "string"
+}
+
+RULES FOR CONTACT REDIRECTION:
+- If the user asks for pricing, wants to schedule a meeting, asks how to start, or shows strong intent to build a project, set "shouldRedirectToContact" to true.
+- If true, choose the best matching "serviceId" from this exact list: ['intelligent-systems', 'gen-ai', 'ml', 'computer-vision', 'nlp', 'data-eng', 'strategy', 'voice-ai', 'partner-integration'].
+- If true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
+- If false, leave serviceId and prefilledMessage as empty strings.`;
 
 const GeminiChatBot = ({ apiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true); // New state for the tooltip
   const messagesEndRef = useRef(null);
 
+  // Auto-scroll effect
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const toggleChat = () => setIsOpen(!isOpen);
+  // Tooltip auto-hide timer effect (5 seconds)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleChat = () => {
+    setIsOpen(!isOpen);
+    if (showTooltip) setShowTooltip(false); // Instantly hide tooltip if user clicks early
+  };
 
   // A tiny custom parser for **bold** text and lists
   const formatMarkdown = (text) => {
     if (!text) return null;
-    
-    // Split text by newlines to handle paragraphs and lists
     return text.split('\n').map((line, index) => {
-      // Handle bold text (replace **text** with <strong>text</strong>)
       const boldRegex = /\*\*(.*?)\*\*/g;
-      
-      // If it's a bullet point
       if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
         const cleanLine = line.trim().substring(2);
-        
-        // Return a list item, processing bold text inside it
         return (
           <li key={index} className="ml-4 list-disc mb-1">
             <span dangerouslySetInnerHTML={{ __html: cleanLine.replace(boldRegex, '<strong>$1</strong>') }} />
           </li>
         );
       }
-      
-      // Regular paragraph
       return (
         <p key={index} className="mb-2 last:mb-0">
           <span dangerouslySetInnerHTML={{ __html: line.replace(boldRegex, '<strong>$1</strong>') }} />
@@ -69,6 +85,7 @@ const GeminiChatBot = ({ apiKey }) => {
   const triggerSend = async (messageText) => {
     if (!messageText.trim() || isLoading) return;
 
+    // We store 'text' for the API history, and 'displayData' for the UI routing logic
     const userMessage = { role: 'user', text: messageText.trim() };
     
     let newHistory = [...messages, userMessage].slice(-5);
@@ -85,18 +102,31 @@ const GeminiChatBot = ({ apiKey }) => {
       const ai = new GoogleGenAI({ apiKey: apiKey });
       const formattedContents = apiHistory.map(msg => ({
         role: msg.role,
-        parts: [{ text: msg.text }]
+        parts: [{ text: msg.text }] // Send only the raw text history to Gemini
       }));
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-lite", // Changed to standard flash to ensure stability
+        model: "gemini-2.5-flash", 
         contents: formattedContents,
         config: {
           systemInstruction: SYSTEM_PROMPT,
+          responseMimeType: "application/json", 
         }
       });
 
-      const botMessage = { role: 'model', text: response.text };
+      // Parse the JSON response
+      const rawText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const responseData = JSON.parse(rawText);
+
+      const botMessage = { 
+        role: 'model', 
+        text: responseData.text,
+        contactRouting: responseData.shouldRedirectToContact ? {
+          serviceId: responseData.serviceId,
+          message: responseData.prefilledMessage
+        } : null
+      };
+
       setMessages((prev) => [...prev, botMessage].slice(-5));
       
     } catch (error) {
@@ -113,12 +143,19 @@ const GeminiChatBot = ({ apiKey }) => {
     triggerSend(input);
   };
 
-  const handleSuggestion = (text) => {
-    triggerSend(text);
-  };
-
   return (
     <>
+      {/* Tooltip Popup */}
+      <div 
+        className={`fixed bottom-[96px] right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${
+          showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+      >
+        Need AI assistance? Chat with us! 👋
+        {/* The little pointer arrow at the bottom of the tooltip */}
+        <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-[#171a24] border-b border-r border-[#1f2333] transform rotate-45"></div>
+      </div>
+
       {/* Launcher Button */}
       <button
         onClick={toggleChat}
@@ -136,9 +173,7 @@ const GeminiChatBot = ({ apiKey }) => {
       >
         {/* Header */}
         <div className="px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">
-            🤖
-          </div>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
           <div className="flex-1">
             <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">
               1TECHUB Assistant
@@ -156,11 +191,8 @@ const GeminiChatBot = ({ apiKey }) => {
         </div>
 
         {/* Messages Area */}
-        <div 
-          className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]"
-          style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
-        >
-          {/* Welcome Message & Suggestions */}
+        <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}>
+          
           {messages.length === 0 && (
             <div className="flex gap-2 max-w-[88%] self-start animate-[fadeUp_0.25s_ease]">
               <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
@@ -170,9 +202,9 @@ const GeminiChatBot = ({ apiKey }) => {
                   I'm here to help you learn about our AI & technology solutions. What can I assist you with today?
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  <button onClick={() => handleSuggestion('What services do you offer?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Our services</button>
-                  <button onClick={() => handleSuggestion('How does AI consulting work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI consulting</button>
-                  <button onClick={() => handleSuggestion('Tell me about chatbot development')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Chatbot dev</button>
+                  <button onClick={() => triggerSend('I need a custom AI solution.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Custom AI</button>
+                  <button onClick={() => triggerSend('Tell me about your Autonomous Agents.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
+                  <button onClick={() => triggerSend('I want to start a project. How much does it cost?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Get a Quote</button>
                 </div>
               </div>
             </div>
@@ -180,28 +212,34 @@ const GeminiChatBot = ({ apiKey }) => {
 
           {/* Chat History */}
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${
-                msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'
-              }`}
-            >
-              <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${
-                msg.role === 'user' 
-                  ? 'bg-[#1a1f35] border border-[#1f2333] text-right' 
-                  : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] text-left'
-              }`}>
+            <div key={index} className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
+              <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
                 {msg.role === 'user' ? '👤' : '🤖'}
               </div>
-              <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words ${
-                msg.role === 'user'
-                  ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
-                  : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
-              }`}>
-                {/* Replaced ReactMarkdown with our custom formatting function */}
-                <div>
-                  {formatMarkdown(msg.text)}
+              
+              <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words ${
+                  msg.role === 'user'
+                    ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
+                    : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
+                }`}>
+                  <div>{formatMarkdown(msg.text)}</div>
                 </div>
+
+                {/* --- SMART CONTACT ROUTING BUTTON --- */}
+                {msg.contactRouting && (
+                  <div className="mt-2 w-full max-w-[240px]">
+                    <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
+                      <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
+                      <a 
+                        href={`/contact?service=${encodeURIComponent(msg.contactRouting.serviceId)}&message=${encodeURIComponent(msg.contactRouting.message)}`}
+                        className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
+                      >
+                        Contact Our Experts
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

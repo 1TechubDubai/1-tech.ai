@@ -158,14 +158,14 @@ const BlogPage = () => {
               <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-slate-800/60">
                 <div className="flex items-center gap-3">
                   {post.authorAvatar ? (
-                    <img src={post.authorAvatar} alt={post.authorName} className="w-10 h-10 rounded-full border border-slate-700 bg-black object-cover" />
+                    <img src={post.authorAvatar} alt='System Admin' className="w-10 h-10 rounded-full border border-slate-700 bg-black object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center text-xs font-bold text-white">
-                      {post.authorName?.charAt(0) || "S"}
+                      {"S"}
                     </div>
                   )}
                   <div>
-                    <p className="text-xs font-bold text-white uppercase tracking-wider">{post.authorName || "System Admin"}</p>
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">System Admin</p>
                     <p className="text-[10px] text-slate-500 font-mono uppercase">System Administrator</p>
                   </div>
                 </div>
