@@ -182,7 +182,7 @@ const GeminiChatBot = ({ apiKey }) => {
               <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
               <div>
                 <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
-                  <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHHUB! 👋</strong>
+                  <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
                   I'm here to help you learn about our AI & technology solutions. What can I assist you with today?
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
