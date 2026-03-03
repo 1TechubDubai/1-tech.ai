@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { useNavigate } from 'react-router-dom';
 
 const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
@@ -25,30 +26,29 @@ Your JSON must match this structure exactly:
 {
   "text": "Your conversational response to the user here.",
   "shouldRedirectToContact": true or false,
-  "serviceId": "string",
+  "selectedServices": ["Service 1", "Service 2"],
   "prefilledMessage": "string"
 }
 
 RULES FOR CONTACT REDIRECTION:
 - If the user asks for pricing, wants to schedule a meeting, asks how to start, or shows strong intent to build a project, set "shouldRedirectToContact" to true.
-- If true, choose the best matching "serviceId" from this exact list: ['intelligent-systems', 'gen-ai', 'ml', 'computer-vision', 'nlp', 'data-eng', 'strategy', 'voice-ai', 'partner-integration'].
+- If true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: ["Intelligent Systems", "Generative AI", "Machine Learning", "Computer Vision", "NLP Solutions", "Data Engineering", "Strategic Consulting", "Voice AI", "Partner Integration"].
 - If true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
-- If false, leave serviceId and prefilledMessage as empty strings.`;
+- If false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
 
 const GeminiChatBot = ({ apiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(true); // New state for the tooltip
+  const [showTooltip, setShowTooltip] = useState(true);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate(); // Initialize React Router navigation
 
-  // Auto-scroll effect
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Tooltip auto-hide timer effect (5 seconds)
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowTooltip(false);
@@ -58,10 +58,9 @@ const GeminiChatBot = ({ apiKey }) => {
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    if (showTooltip) setShowTooltip(false); // Instantly hide tooltip if user clicks early
+    if (showTooltip) setShowTooltip(false);
   };
 
-  // A tiny custom parser for **bold** text and lists
   const formatMarkdown = (text) => {
     if (!text) return null;
     return text.split('\n').map((line, index) => {
@@ -85,7 +84,6 @@ const GeminiChatBot = ({ apiKey }) => {
   const triggerSend = async (messageText) => {
     if (!messageText.trim() || isLoading) return;
 
-    // We store 'text' for the API history, and 'displayData' for the UI routing logic
     const userMessage = { role: 'user', text: messageText.trim() };
     
     let newHistory = [...messages, userMessage].slice(-5);
@@ -102,7 +100,7 @@ const GeminiChatBot = ({ apiKey }) => {
       const ai = new GoogleGenAI({ apiKey: apiKey });
       const formattedContents = apiHistory.map(msg => ({
         role: msg.role,
-        parts: [{ text: msg.text }] // Send only the raw text history to Gemini
+        parts: [{ text: msg.text }]
       }));
 
       const response = await ai.models.generateContent({
@@ -114,7 +112,6 @@ const GeminiChatBot = ({ apiKey }) => {
         }
       });
 
-      // Parse the JSON response
       const rawText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
       const responseData = JSON.parse(rawText);
 
@@ -122,8 +119,8 @@ const GeminiChatBot = ({ apiKey }) => {
         role: 'model', 
         text: responseData.text,
         contactRouting: responseData.shouldRedirectToContact ? {
-          serviceId: responseData.serviceId,
-          message: responseData.prefilledMessage
+          services: responseData.selectedServices || [],
+          message: responseData.prefilledMessage || ""
         } : null
       };
 
@@ -146,41 +143,28 @@ const GeminiChatBot = ({ apiKey }) => {
   return (
     <>
       {/* Tooltip Popup */}
-      <div 
-        className={`fixed bottom-[96px] right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${
-          showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}
-      >
+      <div className={`fixed bottom-[96px] right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         Need AI assistance? Chat with us! 👋
-        {/* The little pointer arrow at the bottom of the tooltip */}
         <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-[#171a24] border-b border-r border-[#1f2333] transform rotate-45"></div>
       </div>
 
       {/* Launcher Button */}
-      <button
-        onClick={toggleChat}
-        title="Chat with us"
-        className={`fixed bottom-7 right-7 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] border-none cursor-pointer flex items-center justify-center shadow-[0_4px_24px_rgba(0,229,255,0.35)] hover:scale-105 hover:shadow-[0_6px_32px_rgba(0,229,255,0.5)] transition-all z-[9999] ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
-      >
+      <button onClick={toggleChat} title="Chat with us" className={`fixed bottom-7 right-7 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] border-none cursor-pointer flex items-center justify-center shadow-[0_4px_24px_rgba(0,229,255,0.35)] hover:scale-105 hover:shadow-[0_6px_32px_rgba(0,229,255,0.5)] transition-all z-[9999] ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
         <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px]">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </button>
 
       {/* Chat Window */}
-      <div 
-        className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 lining-nums font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}
-      >
+      <div className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 lining-nums font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}>
+        
         {/* Header */}
         <div className="px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
           <div className="flex-1">
-            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">
-              1TECHUB Assistant
-            </div>
-            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px] ">
-              <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span>
-              Online
+            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
+            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
+              <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
             </div>
           </div>
           <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
@@ -226,17 +210,22 @@ const GeminiChatBot = ({ apiKey }) => {
                   <div>{formatMarkdown(msg.text)}</div>
                 </div>
 
-                {/* --- SMART CONTACT ROUTING BUTTON --- */}
+                {/* --- SMART ROUTING BUTTON (REACT ROUTER) --- */}
                 {msg.contactRouting && (
                   <div className="mt-2 w-full max-w-[240px]">
                     <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
                       <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
-                      <a 
-                        href={`/contact?service=${encodeURIComponent(msg.contactRouting.serviceId)}&message=${encodeURIComponent(msg.contactRouting.message)}`}
+                      <button 
+                        onClick={() => navigate("/contact", { 
+                          state: { 
+                            prefilledMessage: msg.contactRouting.message,
+                            selectedServices: msg.contactRouting.services
+                          }
+                        })}
                         className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
                       >
                         Contact Our Experts
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}
