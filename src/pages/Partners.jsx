@@ -16,7 +16,7 @@ import Footer from '../components/Footer';
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 // --- DATA: SUITE GRID (Top Section) ---
@@ -92,32 +92,32 @@ const PillarSection = ({ item, index = 0 }) => {
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${glowMap[item.color]} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] blur-xl -z-10`} />
 
-      <div className={`h-full relative p-8 rounded-[2rem] border bg-[#0a0f1d]/80 backdrop-blur-xl transition-all duration-500 group-hover:-translate-y-2 ${colorMap[item.color].split(' ').find(c => c.startsWith('border-'))} hover:border-opacity-100 border-opacity-20 shadow-2xl group-hover:shadow-2xl flex flex-col`}>
+      <div className={`h-full relative p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border bg-[#0a0f1d]/80 backdrop-blur-xl transition-all duration-500 group-hover:-translate-y-2 ${colorMap[item.color].split(' ').find(c => c.startsWith('border-'))} hover:border-opacity-100 border-opacity-20 shadow-2xl group-hover:shadow-2xl flex flex-col`}>
         
-        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${glowMap[item.color]} to-transparent opacity-10 group-hover:opacity-30 rounded-tr-[2rem] transition-opacity`} />
+        <div className={`absolute top-0 right-0 w-20 sm:w-24 h-20 sm:h-24 bg-gradient-to-bl ${glowMap[item.color]} to-transparent opacity-10 group-hover:opacity-30 rounded-tr-[1.5rem] sm:rounded-tr-[2rem] transition-opacity`} />
 
         <div className="relative z-10 flex-1 flex flex-col">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${colorMap[item.color]}`}>
-            <item.icon size={32} strokeWidth={1.5} />
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-8 border transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${colorMap[item.color]}`}>
+            <item.icon size={24} strokeWidth={1.5} />
           </div>
 
-          <div className="flex items-center gap-3 mb-6">
-            <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase border ${colorMap[item.color]}`}>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <span className={`px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase border ${colorMap[item.color]}`}>
               {item.tag}
             </span>
             <div className={`h-[1px] flex-grow bg-gradient-to-r from-slate-800 to-transparent opacity-50`} />
           </div>
 
-          <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-4 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
             {item.title}
           </h3>
           
-          <p className="text-slate-400 text-sm lg:text-base leading-relaxed group-hover:text-slate-200 transition-colors duration-300">
+          <p className="text-xs sm:text-sm lg:text-base text-slate-400 leading-relaxed group-hover:text-slate-200 transition-colors duration-300">
             {item.desc}
           </p>
 
-          <div className="mt-auto pt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors duration-300">
-            <div className="w-0 group-hover:w-24 h-[1px] bg-white transition-all duration-300" />
+          <div className="mt-auto pt-4 sm:pt-8 flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors duration-300">
+            <div className="w-0 group-hover:w-16 sm:group-hover:w-24 h-[1px] bg-white transition-all duration-300" />
           </div>
         </div>
       </div>
@@ -132,7 +132,6 @@ const Partners = () => {
   useEffect(() => {
       const fetchNodes = async () => {
         try {
-          // 1. Fetch only ACTIVE listings (removed orderBy to bypass index requirement)
           const q = query(
             collection(db, "service_listings"), 
             where("status", "==", "active"),
@@ -145,7 +144,6 @@ const Partners = () => {
             ...doc.data()
           }));
 
-          // 2. Sort the data client-side (Newest first)
           firebaseData.sort((a, b) => {
             const timeA = a.createdAt?.toMillis() || 0;
             const timeB = b.createdAt?.toMillis() || 0;
@@ -174,20 +172,20 @@ const Partners = () => {
          <Navbar />
       </div>
 
-      <div className="relative pt-20 sm:pt-32 pb-20 px-6 max-w-7xl mx-auto space-y-32">
+      <div className="relative pt-20 sm:pt-32 pb-20 px-4 sm:px-6 max-w-7xl mx-auto space-y-20 sm:space-y-32">
         
         {/* --- HERO SECTION --- */}
-        <section className="text-center space-y-6 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-600/20 rounded-full blur-[100px] -z-10"></div>
+        <section className="text-center space-y-4 sm:space-y-6 relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[600px] h-[200px] sm:h-[400px] bg-blue-600/20 rounded-full blur-[60px] sm:blur-[100px] -z-10"></div>
 
           <div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight uppercase mb-6">
-              Explore Our <br />
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight uppercase mb-3 sm:mb-6">
+              Explore Our <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                 Advanced Suite
               </span>
             </h1>
-            <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed px-2">
               Streamline operations. Enhance collaboration. Drive growth through intelligent automation.
             </p>
           </div>
@@ -195,14 +193,14 @@ const Partners = () => {
 
         {/* --- SUITE GRID (Top 4 Cards) --- */}
         <section>
-          <div className="flex items-center gap-4 mb-10 pl-2">
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
-            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">
+          <div className="flex items-center gap-4 mb-6 sm:mb-10 pl-2">
+            <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-purple-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
+            <h2 className="text-[10px] sm:text-sm font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400">
               Mesh Architecture Core
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
             {ecosystemPillars.map((item, index) => (
               <PillarSection key={item.id} item={item} index={index} />
             ))}
@@ -210,37 +208,36 @@ const Partners = () => {
         </section>
         
         {/* --- CAPABILITY MESH LIST (Replaced Partners List) --- */}
-        <section className="space-y-8">
+        <section className="space-y-6 sm:space-y-8">
           
           {/* Section Heading */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pl-2">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-10 pl-2">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
-                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-cyan-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
+                <h2 className="text-[10px] sm:text-sm font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400">
                   Live Capability Nodes
                 </h2>
               </div>
-              <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              <h3 className="text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
                 Integrated Partner Ecosystem
               </h3>
             </div>
             
-            <p className="text-slate-400 text-sm max-w-md md:text-right">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-md md:text-right">
               Discover and deploy specialized functional modules provided by our vetted network of industry leaders.
             </p>
           </div>
 
           {/* Node Mapping */}
-          <div className="space-y-12">
+          <div className="space-y-8 sm:space-y-12">
             {nodes.length > 0 ? nodes.map((node, index) => {
-              // Use the node's provided theme, default to cyan if missing
               const themeColor = node.theme || "#06b6d4";
 
               return (
               <div
                 key={node.id}
-                className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-[#0a0f1d] grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 p-1 group transition-all duration-500"
+                className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] border border-slate-800 bg-[#0a0f1d] grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 p-1 group transition-all duration-500"
                 style={{ transition: 'all 0.5s ease' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = themeColor;
@@ -258,47 +255,40 @@ const Partners = () => {
                 {/* Glow Effect */}
                 <div 
                   data-glow
-                  className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] -z-10 transition-opacity duration-500"
+                  className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[60px] sm:blur-[120px] -z-10 transition-opacity duration-500"
                   style={{ backgroundColor: `${themeColor}`, opacity: 0.3 }}
                 ></div>
 
                 {/* Text Content */}
-                <div className="p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1 z-10">
-                  <div className="flex items-baseline gap-4 mb-2">
-                    <span className={`text-4xl font-bold opacity-50 font-mono`} style={{ color: themeColor }}>
+                <div className="p-4 sm:p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1 z-10">
+                  <div className="flex items-baseline gap-2 sm:gap-4 mb-2 flex-wrap">
+                    <span className={`text-2xl sm:text-4xl font-bold opacity-50 font-mono`} style={{ color: themeColor }}>
                       {(index + 1).toString().padStart(2, '0')}.
                     </span>
-                    <h2 className={`text-3xl font-bold tracking-wide uppercase break-words text-left`} style={{ color: themeColor }}>
+                    <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold tracking-wide uppercase break-words text-left`} style={{ color: themeColor }}>
                       {node.name}
                     </h2>
                   </div>
                   
-                  <h3 className="text-lg text-slate-300 font-medium mb-6 pl-4 border-l-2 border-slate-700 text-left">
+                  <h3 className="text-sm sm:text-lg text-slate-300 font-medium mb-3 sm:mb-6 pl-3 sm:pl-4 border-l-2 border-slate-700 text-left">
                     {node.sub}
                   </h3>
 
-                  <p className="text-slate-400 mb-8 leading-relaxed text-left">
+                  <p className="text-xs sm:text-sm text-slate-400 mb-4 sm:mb-8 leading-relaxed text-left">
                     {node.desc}
                   </p>
 
                   {/* Features Grid */}
-                  <div className="flex flex-wrap gap-3 mb-8">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-8">
                     {node.features?.map((feat, i) => {
                       const Icon = iconMap[feat.icon] || Box; 
                       return (
                         <div 
                           key={i} 
-                          // flex-1: allows the item to grow
-                          // min-w-[calc(50%-12px)]: ensures 2 columns on small screens, adjusts on tiny ones
-                          // sm:min-w-[200px]: gives a stable base width for larger screens
-                          className="flex flex-1 min-w-[calc(50%-12px)] sm:min-w-[200px] items-center gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors"
+                          className="flex items-center gap-1.5 sm:gap-3 p-2 sm:p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors"
                         >
-                          {/* flex-shrink-0: keeps the icon from squishing if text is long */}
-                          <Icon size={16} className="flex-shrink-0" style={{ color: themeColor }} />
-                          
-                          {/* Removed 'truncate' to allow text to wrap if it's long, 
-                              which will trigger the 'same-height' behavior you want */}
-                          <span className="text-xs font-medium text-slate-300 leading-tight">
+                          <Icon size={14} className="flex-shrink-0" style={{ color: themeColor }} />
+                          <span className="text-[10px] sm:text-xs font-medium text-slate-300 leading-tight">
                             {feat.label}
                           </span>
                         </div>
@@ -309,7 +299,7 @@ const Partners = () => {
                   {/* CTA Button - Links omitted for platform enclosure */}
                   <div className='w-full flex justify-start'>
                     <button 
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wide text-white transition-all duration-300 hover:scale-105 relative group/btn"
+                      className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wide text-white transition-all duration-300 hover:scale-105 relative group/btn"
                       style={{ backgroundColor: themeColor, boxShadow: `0 0 15px ${themeColor}40` }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.boxShadow = `0 0 25px ${themeColor}80`;
@@ -327,27 +317,27 @@ const Partners = () => {
                       })}
                     >
                       Request Advisory
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
 
                 {/* Visual/Image Side */}
-                <div className="relative h-64 lg:h-auto min-h-[300px] overflow-hidden rounded-[1.5rem] lg:rounded-r-[1.5rem] lg:rounded-l-none m-1 lg:m-0 border border-slate-800/50 group-hover:border-slate-700 transition-colors order-1 lg:order-2">
+                <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] sm:min-h-[300px] overflow-hidden rounded-[1rem] sm:rounded-[1.5rem] lg:rounded-r-[1.5rem] lg:rounded-l-none m-1 lg:m-0 border border-slate-800/50 group-hover:border-slate-700 transition-colors order-1 lg:order-2">
                   <div className="absolute inset-0 bg-slate-900/20 z-10"></div>
                   
                   {/* Tech Overlay Lines */}
                   <div 
-                    className="absolute inset-0 z-20 m-4 rounded-xl pointer-events-none"
+                    className="absolute inset-0 z-20 m-2 sm:m-4 rounded-lg sm:rounded-xl pointer-events-none"
                     style={{ borderColor: `${themeColor}30`, borderWidth: '0.5px' }}
                   >
-                    <div className="absolute top-0 right-0 w-20 h-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
-                    <div className="absolute bottom-0 left-0 w-20 h-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
-                    <div className="absolute top-0 right-0 h-10 w-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
+                    <div className="absolute top-0 right-0 w-12 sm:w-20 h-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
+                    <div className="absolute bottom-0 left-0 w-12 sm:w-20 h-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
+                    <div className="absolute top-0 right-0 h-6 sm:h-10 w-[1px]" style={{ backgroundColor: `${themeColor}80` }}></div>
                   </div>
 
                   {/* Main Image */}
-                  <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black p-4">
+                  <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black p-3 sm:p-4">
                     <div className="absolute inset-0 bg-black z-0" />
 
                     {node.image ? (
@@ -358,9 +348,9 @@ const Partners = () => {
                       />
                     ) : (
                       /* Text Fallback Theme if no image is provided */
-                      <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 select-none">
+                      <div className="relative z-10 flex flex-col items-center justify-center text-center p-3 sm:p-6 select-none">
                         <h2 
-                          className="text-4xl md:text-5xl font-black italic tracking-tighter transition-all duration-700 group-hover:scale-110"
+                          className="text-2xl sm:text-4xl md:text-5xl font-black italic tracking-tighter transition-all duration-700 group-hover:scale-110"
                           style={{ 
                             color: 'transparent',
                             WebkitTextStroke: `1px ${themeColor}80`,
@@ -370,25 +360,23 @@ const Partners = () => {
                           {node.name}
                         </h2>
                         <div 
-                          className="mt-4 w-12 h-1 rounded-full opacity-20 group-hover:w-24 group-hover:opacity-100 transition-all duration-700"
+                          className="mt-2 sm:mt-4 w-8 sm:w-12 h-0.5 sm:h-1 rounded-full opacity-20 group-hover:w-12 sm:group-hover:w-24 group-hover:opacity-100 transition-all duration-700"
                           style={{ backgroundColor: themeColor }}
                         />
                       </div>
                     )}
                   </div>
                 </div>
-
               </div>
             );
             }) : (
-              <div className="py-24 text-center border border-dashed border-slate-800 rounded-[2rem]">
-                 <Activity size={40} className="mx-auto text-slate-800 mb-4 opacity-50" />
-                 <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">No active modules deployed.</p>
+              <div className="py-16 sm:py-24 text-center border border-dashed border-slate-800 rounded-[1.5rem] sm:rounded-[2rem]">
+                 <Activity size={30} className="mx-auto text-slate-800 mb-3 sm:mb-4 opacity-50" />
+                 <p className="text-xs sm:text-sm text-slate-500 font-mono uppercase tracking-widest">No active modules deployed.</p>
               </div>
             )}
           </div>
         </section>
-
       </div>
 
       <Footer />

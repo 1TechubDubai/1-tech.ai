@@ -220,7 +220,7 @@ const Navbar = () => {
                   AI Solutions  →
                 </button>
                 <Link to="/ai-advisory" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/ai-advisory' ? 'text-cyan-400' : 'text-white'}`}>AI Advisory</Link>
-                <Link to="/partners" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/partners' ? 'text-cyan-400' : 'text-white'}`}>AI Partners</Link>                
+                <Link to="/solutions" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/solutions' ? 'text-cyan-400' : 'text-white'}`}>AI Solutions</Link>                
                 <Link to="/contact" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/contact' ? 'text-cyan-400' : 'text-white'}`}>Contact</Link>
 
               </div>
