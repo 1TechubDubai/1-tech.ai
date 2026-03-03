@@ -243,7 +243,7 @@ const GeminiChatBot = ({ apiKey }) => {
             </button>
           </form>
           <div className="text-center text-[10px] text-[#6b7280] pb-2">
-            Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHHUB</a>
+            Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
           </div>
         </div>
       </div>
