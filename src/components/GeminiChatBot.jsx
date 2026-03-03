@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
-const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
 - Keep responses clear, professional, concise, and business-focused. 
-- You do NOT provide coding help, personal advice, or answer general knowledge/political questions. If asked, politely decline and say you can only assist with 1TECHHUB services.
+- You do NOT provide coding help, personal advice, or answer general knowledge/political questions. If asked, politely decline and say you can only assist with 1TECHUB services.
 - If you don't know the answer, say "I don't have that information right now, but our team would be happy to discuss it with you." Do not invent services.
 - Keep it short yet informative, and always steer the conversation toward how our solutions can drive ROI and efficiency for their specific business needs.
 
@@ -132,7 +132,7 @@ const GeminiChatBot = ({ apiKey }) => {
 
       {/* Chat Window */}
       <div 
-        className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}
+        className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 lining-nums font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}
       >
         {/* Header */}
         <div className="px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0">
@@ -140,10 +140,10 @@ const GeminiChatBot = ({ apiKey }) => {
             🤖
           </div>
           <div className="flex-1">
-            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] font-['Syne',sans-serif]">
-              1TECHHUB Assistant
+            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">
+              1TECHUB Assistant
             </div>
-            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
+            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px] ">
               <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span>
               Online
             </div>
