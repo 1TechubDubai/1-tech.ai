@@ -351,12 +351,14 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
           </div>
 
           {/* Row 2: Phone Number (Full Row) */}
-          <div className="space-y-1.5">
+
+          <div className="space-y-1.5 w-full">
             <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Phone Number</label>
-            <div className="flex gap-2 relative">
+            <div className="flex gap-2 relative w-full">
               
               {/* Country Code Custom Searchable Dropdown */}
-              <div className="relative w-[120px] shrink-0" ref={countryDropdownRef}>
+              {/* FIX 1: Made width responsive (90px on mobile, 120px on desktop) */}
+              <div className="relative w-[90px] sm:w-[120px] shrink-0" ref={countryDropdownRef}>
                 <button
                   type="button"
                   onClick={() => {
@@ -364,13 +366,13 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                     setCountrySearch(""); // Reset search when opened
                   }}
                   disabled={status === 'loading'}
-                  className="w-full h-full bg-[#0d1425] border border-slate-800/60 text-slate-100 pl-4 pr-3 py-3.5 rounded-xl 
-                             focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
-                             disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
-                             flex items-center justify-between group"
+                  className="w-full h-full bg-[#0d1425] border border-slate-800/60 text-slate-100 pl-3 sm:pl-4 pr-2 sm:pr-3 py-3.5 rounded-xl 
+                            focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
+                            disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
+                            flex items-center justify-between group"
                 >
                   <span className="truncate">{formData.countryCode}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isCountryOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-300 ${isCountryOpen ? 'rotate-180 text-cyan-400' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu & Search Input */}
@@ -386,7 +388,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                       value={countrySearch}
                       onChange={(e) => setCountrySearch(e.target.value)}
                       className="w-full bg-slate-900/80 border border-slate-800 text-slate-100 px-3 py-2 rounded-lg text-xs 
-                                 focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-600"
+                                focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-600"
                       autoFocus={isCountryOpen} 
                     />
                   </div>
@@ -406,7 +408,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                           className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-slate-800/50 rounded-lg transition-colors group/item"
                         >
                           <span className="font-medium text-slate-200 group-hover/item:text-cyan-400 transition-colors">{c.code}</span>
-                          <span className="text-xs text-slate-500">{c.country}</span>
+                          <span className="text-xs text-slate-500 truncate ml-2">{c.country}</span>
                         </button>
                       ))
                     ) : (
@@ -424,10 +426,11 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 disabled={status === 'loading'}
-                className="flex-1 bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
-                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all placeholder:text-slate-600 text-sm"
+                // FIX 2: Added min-w-0 to allow the input to shrink properly, and adjusted padding for mobile
+                className="flex-1 min-w-0 bg-[#0d1425] border border-slate-800/60 text-slate-100 px-3 sm:px-4 py-3.5 rounded-xl 
+                          focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                          transition-all placeholder:text-slate-600 text-sm"
               />
             </div>
           </div>
