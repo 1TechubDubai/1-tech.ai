@@ -105,7 +105,7 @@ const GeminiChatBot = ({ apiKey }) => {
       
       if (container && messageElement) {
         container.scrollTo({
-          top: messageElement.offsetTop - 30, // <-- Change the '20' to adjust the spacing!
+          top: messageElement.offsetTop + 20, // <-- Change the '20' to adjust the spacing!
           behavior: 'smooth'
         });
       }
