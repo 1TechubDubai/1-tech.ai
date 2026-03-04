@@ -224,7 +224,7 @@ const Services = () => {
       }, 2000);
 
       // Offset of 300px helps trigger the active state a bit before the section hits the very top
-      const scrollPosition = container.scrollTop + 300; 
+      const scrollPosition = container.scrollTop + 15; 
       
       currentService.sections.forEach(section => {
         const element = document.getElementById(section.id);
@@ -252,10 +252,10 @@ const Services = () => {
     
     if (element && container) {
       // 100px offset for the fixed navbar
-      const offsetTop = element.offsetTop - 100; 
+      const offsetTop = element.offsetTop - 120; 
 
       container.scrollTo({
-        top: offsetTop + 300,
+        top: offsetTop,
         behavior: 'smooth'
       });
       
