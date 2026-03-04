@@ -223,20 +223,28 @@ const Services = () => {
         setIsMobileNavVisible(false);
       }, 2000);
 
-      // Offset of 300px helps trigger the active state a bit before the section hits the very top
-      const scrollPosition = container.scrollTop + 15; 
+      // Instead of relying on offsetTop, we check if the element's bounding rect has hit the trigger point (just below the navbar)
+      const triggerPoint = 150; // Adjust this number if it triggers too early/late
       
+      let currentActiveId = null;
+
       currentService.sections.forEach(section => {
         const element = document.getElementById(section.id);
         if (element) {
-             // Check if we are past the element
-             if (element.offsetTop <= scrollPosition) {
-                 setActiveSection(section.id);
+             const rect = element.getBoundingClientRect();
+             // If the top of the element is above our trigger line, mark it as the active one
+             if (rect.top <= triggerPoint) {
+                 currentActiveId = section.id;
              }
         }
       });
-    };
 
+      // Update state only if we found an active section
+      if (currentActiveId) {
+        setActiveSection(currentActiveId);
+      }
+    };
+    
     container.addEventListener('scroll', handleScroll);
     return () => {
       container.removeEventListener('scroll', handleScroll);
@@ -251,11 +259,15 @@ const Services = () => {
     const container = containerRef.current;
     
     if (element && container) {
-      // 100px offset for the fixed navbar
-      const offsetTop = element.offsetTop - 120; 
+      // Calculate precise distance using screen coordinates
+      const elementRect = element.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Target scroll = current scroll + (element's relative distance from container top) - navbar height offset
+      const targetPosition = container.scrollTop + (elementRect.top - containerRect.top) - 120; 
 
       container.scrollTo({
-        top: offsetTop,
+        top: targetPosition,
         behavior: 'smooth'
       });
       
