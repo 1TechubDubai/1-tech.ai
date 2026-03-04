@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle, CheckSquare2, Square } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+// Added query, where, getDocs to the firestore imports
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
-import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
+import emailjs from '@emailjs/browser'; 
 import { useLocation } from 'react-router-dom';
 
 // --- INTERNAL TOAST COMPONENT ---
 const Toast = ({ type, message, onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(() => onClose(), 5000); // Auto close after 5s
+    const timer = setTimeout(() => onClose(), 5000); 
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -37,7 +38,7 @@ const Toast = ({ type, message, onClose }) => {
 
 // --- MAIN FORM COMPONENT ---
 const MessageForm = ({ showTitle = true, className = "" }) => {
-  const formRef = useRef(); // Ref for EmailJS
+  const formRef = useRef(); 
   const dropdownRef = useRef(null);
   const location = useLocation();
   const countryDropdownRef = useRef(null);
@@ -48,7 +49,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     // North America
     { code: "+1", country: "US/CA" },
     { code: "+52", country: "MX" },
-
     // South America
     { code: "+55", country: "BR" },
     { code: "+54", country: "AR" },
@@ -56,7 +56,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+57", country: "CO" },
     { code: "+51", country: "PE" },
     { code: "+58", country: "VE" },
-
     // Europe
     { code: "+44", country: "UK" },
     { code: "+49", country: "DE" },
@@ -81,7 +80,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+359", country: "BG" },
     { code: "+380", country: "UA" },
     { code: "+7", country: "RU" },
-
     // Asia
     { code: "+91", country: "IN" },
     { code: "+81", country: "JP" },
@@ -100,7 +98,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+852", country: "HK" },
     { code: "+853", country: "MO" },
     { code: "+886", country: "TW" },
-
     // Middle East
     { code: "+971", country: "UAE" },
     { code: "+966", country: "SA" },
@@ -113,7 +110,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+98", country: "IR" },
     { code: "+964", country: "IQ" },
     { code: "+962", country: "JO" },
-
     // Africa
     { code: "+27", country: "ZA" },
     { code: "+20", country: "EG" },
@@ -126,12 +122,10 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { code: "+255", country: "TZ" },
     { code: "+256", country: "UG" },
     { code: "+251", country: "ET" },
-
     // Oceania
     { code: "+61", country: "AU" },
     { code: "+64", country: "NZ" },
     { code: "+675", country: "PG" },
-
     // Caribbean & Others
     { country: "JM", code: "+1-876" },
     { country: "TT", code: "+1-868" },
@@ -141,40 +135,22 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    countryCode: '+1', // <-- Add this line
+    countryCode: '+1', 
     phone: '',
     company: '',
     service: [],
     message: ''
   });
 
-  useEffect(() => {
-    // Check if we arrived here with a service in the state
-    if (location.state?.selectedService) {
-      const passedService = location.state.selectedService;
-      
-      setFormData(prev => ({
-        ...prev,
-        // Wrap in array because your form now supports multiple selections
-        service: [passedService] 
-      }));
-    }
-    
-    // Check if we arrived with pre-filled message and services
-    if (location.state?.prefilledMessage && location.state?.selectedServices) {
-      setFormData(prev => ({
-        ...prev,
-        message: location.state.prefilledMessage,
-        service: location.state.selectedServices
-      }));
-    }
-  }, [location.state]);
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
-  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: '' }
+  const [status, setStatus] = useState('idle'); 
+  const [toast, setToast] = useState(null); 
+  
+  // State for dynamic partner services
+  const [partnerServices, setPartnerServices] = useState([]);
 
-  const services = [
+  // Core static services
+  const coreServices = [
     { id: 'intelligent-systems', title: 'Intelligent Systems', sub: 'Autonomous workforce systems' },
     { id: 'gen-ai', title: 'Generative AI', sub: 'RAG & content engines' },
     { id: 'ml', title: 'Machine Learning', sub: 'Predictive analytics models' },
@@ -186,14 +162,62 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     { id: 'partner-integration', title: 'Partner Integration', sub: 'Custom API & system integration' },
   ];
 
+  // Fetch dynamic partner services from Firebase
+  useEffect(() => {
+    const fetchPartnerSolutions = async () => {
+      try {
+        const q = query(
+          collection(db, "service_listings"), 
+          where("status", "==", "active")
+        );
+        const querySnapshot = await getDocs(q);
+        
+        const fetchedServices = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.name || "Specialized Solution",
+            sub: data.sub || "Partner integration",
+            isPartner: true // Flag to differentiate UI
+          };
+        });
+        
+        setPartnerServices(fetchedServices);
+      } catch (error) {
+        console.error("Failed to fetch partner services:", error);
+      }
+    };
+
+    fetchPartnerSolutions();
+  }, []);
+
+  // Combine core and partner services
+  const allServices = [...coreServices, ...partnerServices];
+
+  useEffect(() => {
+    if (location.state?.selectedService) {
+      const passedService = location.state.selectedService;
+      setFormData(prev => ({
+        ...prev,
+        service: [passedService] 
+      }));
+    }
+    
+    if (location.state?.prefilledMessage && location.state?.selectedServices) {
+      setFormData(prev => ({
+        ...prev,
+        message: location.state.prefilledMessage,
+        service: location.state.selectedServices
+      }));
+    }
+  }, [location.state]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close Services Dropdown
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
-      // Close Country Dropdown
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
         setIsCountryOpen(false);
       }
@@ -210,22 +234,19 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
   const handleServiceSelect = (serviceTitle) => {
     setFormData(prev => {
       const currentServices = prev.service;
-      // Check if service is already selected
       const isSelected = currentServices.includes(serviceTitle);
       
       const updatedServices = isSelected
-        ? currentServices.filter(s => s !== serviceTitle) // Remove if already there
-        : [...currentServices, serviceTitle];            // Add if new
+        ? currentServices.filter(s => s !== serviceTitle) 
+        : [...currentServices, serviceTitle];            
         
       return { ...prev, service: updatedServices };
     });
-    // Note: Removed setIsDropdownOpen(false) so they can pick many at once
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Basic Validation
     if (!formData.fullName || !formData.email || !formData.message) {
       setToast({ type: 'error', message: 'Please fill in all required fields.' });
       return;
@@ -234,15 +255,11 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
     setStatus('loading');
 
     try {
-      // --- FIREBASE STRATEGY ---
-      // We create a reference to the 'messages' collection
       const messagesRef = collection(db, "messages");
 
-      // Add the new document with a server-side timestamp for accurate sorting
       await addDoc(messagesRef, {
         name: formData.fullName,
         email: formData.email,
-        // Combine the country code and phone number here:
         phone_number: formData.phone ? `${formData.countryCode} ${formData.phone}` : "", 
         company: formData.company,
         service_interest: formData.service,
@@ -251,14 +268,12 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
         status: "unread" 
       });
 
-      // Success Logic
       setStatus('success');
       setToast({ 
         type: 'success', 
         message: 'Message sent successfully! Our team will contact you soon.' 
       });
 
-      // Reset Form
       setFormData({ 
         fullName: '', 
         email: '', 
@@ -276,7 +291,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
         message: 'Failed to send message. Please check your connection and try again.' 
       });
     } finally {
-      // Reset status to idle after a delay if it wasn't a success
       setTimeout(() => {
         setStatus('idle');
       }, 3000);
@@ -350,37 +364,32 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             </div>
           </div>
 
-          {/* Row 2: Phone Number (Full Row) */}
-
+          {/* Row 2: Phone Number */}
           <div className="space-y-1.5 w-full">
             <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Phone Number</label>
             <div className="flex gap-2 relative w-full">
-              
-              {/* Country Code Custom Searchable Dropdown */}
-              {/* FIX 1: Made width responsive (90px on mobile, 120px on desktop) */}
               <div className="relative w-[90px] sm:w-[120px] shrink-0" ref={countryDropdownRef}>
                 <button
                   type="button"
                   onClick={() => {
                     setIsCountryOpen(!isCountryOpen);
-                    setCountrySearch(""); // Reset search when opened
+                    setCountrySearch(""); 
                   }}
                   disabled={status === 'loading'}
                   className="w-full h-full bg-[#0d1425] border border-slate-800/60 text-slate-100 pl-3 sm:pl-4 pr-2 sm:pr-3 py-3.5 rounded-xl 
-                            focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
-                            disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
-                            flex items-center justify-between group"
+                             focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
+                             disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
+                             flex items-center justify-between group"
                 >
                   <span className="truncate">{formData.countryCode}</span>
                   <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-300 ${isCountryOpen ? 'rotate-180 text-cyan-400' : ''}`} />
                 </button>
 
-                {/* Dropdown Menu & Search Input */}
+                {/* Country Dropdown */}
                 <div 
                   className={`absolute left-0 top-[calc(100%+8px)] z-50 w-[240px] bg-[#0d1425] border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top
                     ${isCountryOpen ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}`}
                 >
-                  {/* Search Input */}
                   <div className="p-2 border-b border-slate-800/60">
                     <input
                       type="text"
@@ -392,8 +401,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                       autoFocus={isCountryOpen} 
                     />
                   </div>
-
-                  {/* Filtered List */}
                   <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
                     {COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).length > 0 ? (
                       COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).map((c) => (
@@ -403,7 +410,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                           onClick={() => {
                             setFormData(prev => ({ ...prev, countryCode: c.code }));
                             setIsCountryOpen(false);
-                            setCountrySearch(""); // Reset for next time
+                            setCountrySearch(""); 
                           }}
                           className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-slate-800/50 rounded-lg transition-colors group/item"
                         >
@@ -418,7 +425,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                 </div>
               </div>
 
-              {/* Phone Number Input */}
               <input
                 type="tel"
                 name="phone"
@@ -426,7 +432,6 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 disabled={status === 'loading'}
-                // FIX 2: Added min-w-0 to allow the input to shrink properly, and adjusted padding for mobile
                 className="flex-1 min-w-0 bg-[#0d1425] border border-slate-800/60 text-slate-100 px-3 sm:px-4 py-3.5 rounded-xl 
                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
                           disabled:opacity-50 disabled:cursor-not-allowed
@@ -435,7 +440,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
             </div>
           </div>
 
-          {/* Row 3: Company (Full Row) */}
+          {/* Row 3: Company */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Company</label>
             <input
@@ -497,7 +502,7 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
               </div>
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu Mapping allServices */}
             <div 
               className={`
                 absolute left-0 right-0 top-[calc(100%+8px)] z-50 
@@ -507,22 +512,29 @@ const MessageForm = ({ showTitle = true, className = "" }) => {
               `}
             >
               <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                {services.map((service) => (
+                {allServices.map((service) => (
                   <button
                     key={service.id}
                     type="button"
                     onClick={() => handleServiceSelect(service.title)}
                     className="w-full px-4 py-3 text-left hover:bg-slate-800/50 transition-colors border-b border-slate-800/50 last:border-0 flex items-center justify-between group"
                   >
-                    <div className="flex-1">
-                      <div className="text-sm text-slate-100 font-medium group-hover:text-cyan-400 transition-colors">
-                        {service.title}
+                    <div className="flex-1 pr-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm text-slate-100 font-medium group-hover:text-cyan-400 transition-colors">
+                          {service.title}
+                        </span>
+                        {service.isPartner && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-widest font-bold whitespace-nowrap shrink-0">
+                            Partner Solution
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
+                      <div className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">
                         {service.sub}
                       </div>
                     </div>
-                    <div className="ml-3 text-cyan-500 shrink-0">
+                    <div className="ml-2 text-cyan-500 shrink-0">
                       {formData.service.includes(service.title) ? (
                         <CheckSquare2 className="w-5 h-5" />
                       ) : (
