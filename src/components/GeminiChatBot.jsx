@@ -12,7 +12,7 @@ const CORE_SERVICES = [
   "Strategic Consulting", "Voice AI", "Partner Integration"
 ];
 
-// Updated to accept the dynamic list of ALL available services (core + partner)
+// Updated prompt to force the AI to read the whole history and extract ALL discussed services
 const getSystemPrompt = (partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 Company Context & Tone:
@@ -53,9 +53,10 @@ Your JSON must match this structure exactly:
 RULES FOR ACTIONS & REDIRECTION:
 - If the user explicitly asks to schedule a call, book a meeting, talk to someone, or get on a call, set "shouldShowCalendar" to true.
 - If the user asks for pricing, wants to start a project, asks for a quote, or needs custom development, set "shouldRedirectToContact" to true. (Note: Both can be true if they ask for both).
-- If "shouldRedirectToContact" is true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: [${availableServicesList}].
-- If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
-- If false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
+- If "shouldRedirectToContact" is true, CAREFULLY REVIEW THE ENTIRE CONVERSATION HISTORY. Identify EVERY service or solution the user has asked about or shown interest in during the chat.
+- Populate the "selectedServices" array with ALL of those identified services. You must ONLY use exact names from this combined list: [${availableServicesList}]. 
+- If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing EVERYTHING they want to build based on the whole chat history (e.g., "Hi, I am looking to build a custom RAG solution for my HR data, and I also want to learn more about the Logistics IoT tracking system we discussed...").
+- If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
 
 const GeminiChatBot = ({ apiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -165,7 +166,7 @@ const GeminiChatBot = ({ apiKey }) => {
 
     const userMessage = { role: 'user', text: messageText.trim() };
     
-    // FIX: Removed .slice(-5) so it keeps the entire history
+    // Using full history
     let newHistory = [...messages, userMessage];
     setMessages(newHistory);
     setInput('');
@@ -215,7 +216,6 @@ const GeminiChatBot = ({ apiKey }) => {
         calendarRouting: responseData.shouldShowCalendar ? true : false
       };
 
-      // FIX: Ensure this also doesn't have a slice limit
       setMessages((prev) => [...prev, botMessage]);
       
     } catch (error) {
