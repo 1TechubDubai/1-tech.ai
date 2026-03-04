@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate } from 'react-router-dom';
+import { CalendarCheck } from 'lucide-react'; // <-- Added import for the calendar icon
 
 const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
@@ -26,14 +27,16 @@ Your JSON must match this structure exactly:
 {
   "text": "Your conversational response to the user here.",
   "shouldRedirectToContact": true or false,
+  "shouldShowCalendar": true or false,
   "selectedServices": ["Service 1", "Service 2"],
   "prefilledMessage": "string"
 }
 
-RULES FOR CONTACT REDIRECTION:
-- If the user asks for pricing, wants to schedule a meeting, asks how to start, or shows strong intent to build a project, set "shouldRedirectToContact" to true.
-- If true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: ["Intelligent Systems", "Generative AI", "Machine Learning", "Computer Vision", "NLP Solutions", "Data Engineering", "Strategic Consulting", "Voice AI", "Partner Integration"].
-- If true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
+RULES FOR ACTIONS & REDIRECTION:
+- If the user explicitly asks to schedule a call, book a meeting, talk to someone, or get on a call, set "shouldShowCalendar" to true.
+- If the user asks for pricing, wants to start a project, asks for a quote, or needs custom development, set "shouldRedirectToContact" to true. (Note: Both can be true if they ask for both).
+- If "shouldRedirectToContact" is true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: ["Intelligent Systems", "Generative AI", "Machine Learning", "Computer Vision", "NLP Solutions", "Data Engineering", "Strategic Consulting", "Voice AI", "Partner Integration"].
+- If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
 - If false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
 
 const GeminiChatBot = ({ apiKey }) => {
@@ -118,10 +121,13 @@ const GeminiChatBot = ({ apiKey }) => {
       const botMessage = { 
         role: 'model', 
         text: responseData.text,
+        // Map the contact routing logic
         contactRouting: responseData.shouldRedirectToContact ? {
           services: responseData.selectedServices || [],
           message: responseData.prefilledMessage || ""
-        } : null
+        } : null,
+        // Map the new calendar routing logic
+        calendarRouting: responseData.shouldShowCalendar ? true : false
       };
 
       setMessages((prev) => [...prev, botMessage].slice(-5));
@@ -189,8 +195,8 @@ const GeminiChatBot = ({ apiKey }) => {
                   <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Gen AI & NLP</button>
                   <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Data & ML</button>
                   <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
-                  <button onClick={() => triggerSend('I need strategic consulting to build an AI transformation roadmap.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Strategy</button>
                   <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Start a Project</button>
+                  <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Book a Meeting</button>
                 </div>
               </div>
             </div>
@@ -212,7 +218,25 @@ const GeminiChatBot = ({ apiKey }) => {
                   <div>{formatMarkdown(msg.text)}</div>
                 </div>
 
-                {/* --- SMART ROUTING BUTTON (REACT ROUTER) --- */}
+                {/* --- SMART CALENDAR ROUTING BUTTON --- */}
+                {msg.calendarRouting && (
+                  <div className="mt-2 w-full max-w-[240px]">
+                    <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)] flex flex-col gap-2">
+                      <p className="text-[11px] text-[#e8eaf0] text-center font-medium">Ready to dive deeper?</p>
+                      <a
+                        href="https://calendly.com/harish-krishnan1976"
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
+                      >
+                        <span>Book a Meeting</span>
+                        <CalendarCheck className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- SMART CONTACT ROUTING BUTTON (REACT ROUTER) --- */}
                 {msg.contactRouting && (
                   <div className="mt-2 w-full max-w-[240px]">
                     <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
@@ -226,7 +250,7 @@ const GeminiChatBot = ({ apiKey }) => {
                             selectedServices: msg.contactRouting.services
                           }
                         })}}
-                        className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
+                        className="block w-full py-1.5 px-3 border border-[#00e5ff] text-[#00e5ff] text-center rounded-lg text-[12px] font-bold hover:bg-[#00e5ff]/10 hover:scale-[1.02] transition-all"
                       >
                         Contact Our Experts
                       </button>
@@ -275,7 +299,7 @@ const GeminiChatBot = ({ apiKey }) => {
           </form>
           <div className="text-center text-[10px] text-[#6b7280] pb-2">
             Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
-           </div>
+             </div>
         </div>
       </div>
 
