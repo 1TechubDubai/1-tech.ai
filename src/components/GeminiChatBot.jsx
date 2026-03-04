@@ -43,7 +43,7 @@ const GeminiChatBot = ({ apiKey }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const messagesEndRef = useRef(null);
-  const navigate = useNavigate(); // Initialize React Router navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -178,17 +178,19 @@ const GeminiChatBot = ({ apiKey }) => {
         <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}>
           
           {messages.length === 0 && (
-            <div className="flex gap-2 max-w-[88%] self-start animate-[fadeUp_0.25s_ease]">
+            <div className="flex gap-2 max-w-[100%] self-start animate-[fadeUp_0.25s_ease]">
               <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
               <div>
                 <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
                   <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
-                  I'm here to help you learn about our AI & technology solutions. What can I assist you with today?
+                  I'm here to guide you through our enterprise AI and technology solutions. Select a topic below or type your question:
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  <button onClick={() => triggerSend('I need a custom AI solution.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Custom AI</button>
-                  <button onClick={() => triggerSend('Tell me about your Autonomous Agents.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
-                  <button onClick={() => triggerSend('I want to start a project. How much does it cost?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Get a Quote</button>
+                  <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Gen AI & NLP</button>
+                  <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Data & ML</button>
+                  <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
+                  <button onClick={() => triggerSend('I need strategic consulting to build an AI transformation roadmap.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Strategy</button>
+                  <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Start a Project</button>
                 </div>
               </div>
             </div>
@@ -217,14 +219,12 @@ const GeminiChatBot = ({ apiKey }) => {
                       <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
                       <button 
                         onClick={() => {
-                          
                           toggleChat()
                           navigate("/contact", { 
                           state: { 
                             prefilledMessage: msg.contactRouting.message,
                             selectedServices: msg.contactRouting.services
                           }
-
                         })}}
                         className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
                       >
@@ -275,7 +275,7 @@ const GeminiChatBot = ({ apiKey }) => {
           </form>
           <div className="text-center text-[10px] text-[#6b7280] pb-2">
             Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
-          </div>
+           </div>
         </div>
       </div>
 
