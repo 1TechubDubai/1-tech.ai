@@ -402,8 +402,7 @@ const GeminiChatBot = ({ apiKey }) => {
         </div>
 
         {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
-        <div className="bg-[#0f1117] border-t border-[#1f2333] p-4 flex flex-wrap gap-1.5 justify-center items-center shrink-0 w-full max-h-[110px] overflow-y-auto hide-scrollbar">
-          
+        <div className="bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar">
           <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
           {/* Dynamic Dropdown from Firebase - MADE SMALLER */}
           {parsedSolutions.length > 0 && (
