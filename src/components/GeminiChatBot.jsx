@@ -19,7 +19,8 @@ Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
 - Keep responses clear, professional, concise, and business-focused. 
 - You do NOT provide coding help, personal advice, or answer general knowledge questions.
-
+- In comparitevely larger responses make sure to provide proper spacing and paragraphs divisions
+- Always ask follow up questions on what exactly the users are looking for
 Core Services & Details:
 1. Custom Enterprise AI Solutions: AI strategy, ML decision systems, strict AI governance.
 2. Autonomous AI Agents: Multi-agent orchestration, self-healing workflows.
@@ -45,7 +46,7 @@ Here is a list of specific, specialized solutions we currently offer:
 ${partnerData}
 
 RULES FOR SPECIALIZED SOLUTIONS:
-- Use this data to explain specific use-cases or answer queries about our capabilities (e.g., IoT, fleet tracking, route optimization).
+- Use this data to explain specific use-cases or answer queries about our capabilities also talk about it all like you are including different agents industry basically in a broader sense (e.g., IoT, fleet tracking, route optimization).
 - CRITICAL: Focus ONLY on the features, name, and descriptions. NEVER mention third-party organizations, partner names, links, or URLs. Present them strictly as integrated 1TECHUB capabilities.
 
 CRITICAL INSTRUCTION - JSON OUTPUT ONLY:
@@ -382,6 +383,7 @@ const GeminiChatBot = ({ apiKey }) => {
         {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
         <div className="bg-[#0f1117] border-t border-[#1f2333] p-2.5 flex flex-wrap gap-1.5 justify-center items-center shrink-0 w-full max-h-[110px] overflow-y-auto hide-scrollbar">
           
+          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
           {/* Dynamic Dropdown from Firebase - MADE SMALLER */}
           {parsedSolutions.length > 0 && (
             <select 
@@ -394,18 +396,16 @@ const GeminiChatBot = ({ apiKey }) => {
               className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 max-w-[130px] truncate focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
               title="Explore specific AI Solutions"
             >
-              <option value="">▼ Solutions</option>
+              <option value="">▼ AI Solutions</option>
               {parsedSolutions.map((sol, idx) => (
                 <option key={idx} value={sol.solutionName}>{sol.solutionName}</option>
               ))}
             </select>
           )}
-
           {/* Static Quick Action Chips */}
           <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
           <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
           <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
-          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Start a Project</button>
           <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
         </div>
 
