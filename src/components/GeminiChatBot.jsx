@@ -30,6 +30,16 @@ Core Services & Details:
 7. Conversational Voice AI: STT, TTS, voice cloning, intelligent IVR.
 8. Software Development: End-to-end product engineering (React, Node, Go), SaaS platforms.
 
+STRATEGIC AI ADVISORY DATA (HOW WE WORK):
+If a user asks how to start a project, what our methodology is, or needs AI advisory/consulting, use this framework:
+Overview: We bridge the gap between technical potential and business execution. In the race for AI dominance, speed without direction is expensive chaos. We provide the architecture and roadmap.
+The Advisory Blueprint (Our 4 Phases):
+- Phase 01: Readiness Assessment & Strategy Session. We evaluate existing tech debt, audit infrastructure/data pipelines, and define scope and success metrics with stakeholders.
+- Phase 02: Opportunity Matrix & Deep-Dive Workshop. We use proprietary scoring to rank AI use cases by impact vs. implementation complexity (invest where it matters).
+- Phase 03: Strategic Roadmap. We define the tech stack, governance models, vendor landscape, and deliver a 12-month execution roadmap with clear KPIs.
+- Phase 04: Performance Audits & Handover. We provide embedded support during the first 90 days of execution and continuously monitor AI model drift, ROI, and alignment with core business KPIs.
+Impact Areas: Workflow Automation, Predictive Forecasting, Custom LLM Training, Data Modernization, AI Governance, and Global Scale.
+
 SPECIALIZED AI & IOT SOLUTIONS DATA:
 Here is a list of specific, specialized solutions we currently offer:
 ${partnerData}
@@ -369,10 +379,10 @@ const GeminiChatBot = ({ apiKey }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* --- PERSISTENT QUICK ACTIONS BAR --- */}
-        <div className="bg-[#0f1117] border-t border-[#1f2333] px-3.5 py-2 flex gap-2 overflow-x-auto hide-scrollbar items-center shrink-0 w-full">
+        {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
+        <div className="bg-[#0f1117] border-t border-[#1f2333] p-2.5 flex flex-wrap gap-1.5 justify-center items-center shrink-0 w-full max-h-[110px] overflow-y-auto hide-scrollbar">
           
-          {/* Dynamic Dropdown from Firebase */}
+          {/* Dynamic Dropdown from Firebase - MADE SMALLER */}
           {parsedSolutions.length > 0 && (
             <select 
               onChange={(e) => {
@@ -381,7 +391,7 @@ const GeminiChatBot = ({ apiKey }) => {
                   e.target.value = ""; // Reset dropdown after selection
                 }
               }}
-              className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
+              className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 max-w-[130px] truncate focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
               title="Explore specific AI Solutions"
             >
               <option value="">▼ Solutions</option>
@@ -392,11 +402,11 @@ const GeminiChatBot = ({ apiKey }) => {
           )}
 
           {/* Static Quick Action Chips */}
-          <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
-          <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
-          <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
-          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Start a Project</button>
-          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
+          <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
+          <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
+          <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
+          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Start a Project</button>
+          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
         </div>
 
         {/* Input Area */}
