@@ -81,7 +81,7 @@ const GeminiChatBot = ({ apiKey }) => {
     // Show the tooltip immediately when the route changes
     setShowTooltip(true);
     
-    // Hide it after 8 seconds (increased from 5)
+    // Hide it after 8 seconds
     const timer = setTimeout(() => {
       setShowTooltip(false);
     }, 8000); 
@@ -165,13 +165,15 @@ const GeminiChatBot = ({ apiKey }) => {
 
     const userMessage = { role: 'user', text: messageText.trim() };
     
-    let newHistory = [...messages, userMessage].slice(-5);
+    // FIX: Removed .slice(-5) so it keeps the entire history
+    let newHistory = [...messages, userMessage];
     setMessages(newHistory);
     setInput('');
     setIsLoading(true);
 
     try {
       let apiHistory = [...newHistory];
+      // This is required by Gemini API so it doesn't crash if the array starts with a model message
       if (apiHistory.length > 0 && apiHistory[0].role === 'model') {
         apiHistory = apiHistory.slice(1);
       }
@@ -213,12 +215,13 @@ const GeminiChatBot = ({ apiKey }) => {
         calendarRouting: responseData.shouldShowCalendar ? true : false
       };
 
+      // FIX: Ensure this also doesn't have a slice limit
       setMessages((prev) => [...prev, botMessage]);
       
     } catch (error) {
       console.error("Gemini API Error:", error);
       const errorMessage = { role: 'model', text: 'Sorry, I encountered an error. Please try again.' };
-      setMessages((prev) => [...prev, errorMessage].slice(-5));
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
