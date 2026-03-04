@@ -211,14 +211,13 @@ const Navbar = () => {
               <div className="flex flex-col gap-1.5 flex-shrink-0">
                 <Link to="/" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-white'}`}>Home</Link>
                 <Link to="/about" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/about' ? 'text-cyan-400' : 'text-white'}`}>About</Link>
-                
                 {/* Services Trigger */}
-                <button 
-                  onClick={() => setMobileView('services')}
-                  className={`text-md font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
-                >
-                  AI Solutions  →
-                </button>
+<button 
+  onClick={() => setMobileView('services')}
+  className={`text-lg font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
+>
+  AI Solutions  →
+</button>
                 <Link to="/ai-advisory" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/ai-advisory' ? 'text-cyan-400' : 'text-white'}`}>AI Advisory</Link>
                 <Link to="/solutions" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/solutions' ? 'text-cyan-400' : 'text-white'}`}>AI Solutions</Link>                
                 <Link to="/contact" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/contact' ? 'text-cyan-400' : 'text-white'}`}>Contact</Link>
