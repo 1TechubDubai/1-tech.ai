@@ -216,7 +216,7 @@ const Navbar = () => {
   onClick={() => setMobileView('services')}
   className={`text-lg font-bold block py-3 ml-5 border-b border-white/5 transition-colors ${location.pathname.startsWith('/services') ? 'text-cyan-400' : 'text-white'}`}
 >
-  AI Solutions  →
+  AI Services  →
 </button>
                 <Link to="/ai-advisory" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/ai-advisory' ? 'text-cyan-400' : 'text-white'}`}>AI Advisory</Link>
                 <Link to="/solutions" className={`text-lg font-bold block py-3 border-b border-white/5 transition-colors ${location.pathname === '/solutions' ? 'text-cyan-400' : 'text-white'}`}>AI Solutions</Link>                
@@ -226,10 +226,16 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom */}
               <div className="w-full pt-4 flex-shrink-0">
-                <Link to="/book" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg shadow-cyan-900/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-                  <span>Book a Meeting</span>
-                  <CalendarCheck className="w-4 h-4 ml-2" />
-                </Link>
+                                 <button 
+  onClick={(e) => {
+    e.preventDefault(); // Stops any form submissions or default link behaviors
+    e.stopPropagation(); // Stops the click from bubbling up to the mobile menu background
+    window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
+  }}
+  className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform"
+>
+  Book a Meeting
+</button>
               </div>
             </div>
           ) : (
