@@ -100,7 +100,15 @@ const GeminiChatBot = ({ apiKey }) => {
     } 
     // If the bot just replied, scroll to the TOP of its message so they can read it from the start
     else if (messages.length > 0 && messages[messages.length - 1].role === 'model') {
-      lastMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const container = chatContainerRef.current;
+      const messageElement = lastMessageRef.current;
+      
+      if (container && messageElement) {
+        container.scrollTo({
+          top: messageElement.offsetTop - 30, // <-- Change the '20' to adjust the spacing!
+          behavior: 'smooth'
+        });
+      }
     }
   }, [messages, isLoading]);
 
