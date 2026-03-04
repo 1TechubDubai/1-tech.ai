@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate } from 'react-router-dom';
-import { CalendarCheck } from 'lucide-react'; // <-- Added import for the calendar icon
+import { CalendarCheck } from 'lucide-react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
-const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+// Changed to a function so we can dynamically inject the sanitized Firebase data
+const getSystemPrompt = (partnerData) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
@@ -19,6 +22,14 @@ Core Services & Details:
 6. Natural Language Processing: Sentiment analysis, multilingual translation, semantic search.
 7. Conversational Voice AI: STT, TTS, voice cloning, intelligent IVR.
 8. Software Development: End-to-end product engineering (React, Node, Go), SaaS platforms.
+
+SPECIALIZED AI & IOT SOLUTIONS DATA:
+Here is a list of specific, specialized solutions we currently offer:
+${partnerData}
+
+RULES FOR SPECIALIZED SOLUTIONS:
+- Use this data to explain specific use-cases or answer queries about our capabilities (e.g., IoT, fleet tracking, route optimization).
+- CRITICAL: Focus ONLY on the features, name, and descriptions. NEVER mention third-party organizations, partner names, links, or URLs. Present them strictly as integrated 1TECHUB capabilities.
 
 CRITICAL INSTRUCTION - JSON OUTPUT ONLY:
 You must ALWAYS respond with a valid JSON object. Do NOT wrap it in markdown blockticks.
@@ -45,6 +56,7 @@ const GeminiChatBot = ({ apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+  const [solutionsData, setSolutionsData] = useState("Loading specialized solutions...");
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
@@ -57,6 +69,47 @@ const GeminiChatBot = ({ apiKey }) => {
       setShowTooltip(false);
     }, 5000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // --- FIRESTORE DATA FETCHING & SANITIZATION ---
+  useEffect(() => {
+    const fetchNodes = async () => {
+      try {
+        const q = query(
+          collection(db, "service_listings"), 
+          where("status", "==", "active"),
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        let firebaseData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        firebaseData.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis() || 0;
+          const timeB = b.createdAt?.toMillis() || 0;
+          return timeA - timeB; 
+        });
+
+        // SANITIZE DATA: We strictly cherry-pick ONLY safe fields.
+        // The AI cannot leak URLs or Organization names because they are not passed to it.
+        const sanitizedData = firebaseData.map(item => ({
+          solutionName: item.name || "",
+          category: item.sub || "",
+          description: item.desc || "",
+          keyFeatures: item.features ? item.features.map(f => f.label) : []
+        }));
+
+        setSolutionsData(JSON.stringify(sanitizedData, null, 2));
+      } catch (error) {
+        console.error("Firestore Fetch Error:", error);
+        setSolutionsData("No additional solutions loaded at this time.");
+      }
+    };
+
+    fetchNodes();
   }, []);
 
   const toggleChat = () => {
@@ -106,11 +159,14 @@ const GeminiChatBot = ({ apiKey }) => {
         parts: [{ text: msg.text }]
       }));
 
+      // Generate the prompt dynamically with the fetched, sanitized Firestore data
+      const currentSystemPrompt = getSystemPrompt(solutionsData);
+
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash", 
         contents: formattedContents,
         config: {
-          systemInstruction: SYSTEM_PROMPT,
+          systemInstruction: currentSystemPrompt,
           responseMimeType: "application/json", 
         }
       });
@@ -121,12 +177,10 @@ const GeminiChatBot = ({ apiKey }) => {
       const botMessage = { 
         role: 'model', 
         text: responseData.text,
-        // Map the contact routing logic
         contactRouting: responseData.shouldRedirectToContact ? {
           services: responseData.selectedServices || [],
           message: responseData.prefilledMessage || ""
         } : null,
-        // Map the new calendar routing logic
         calendarRouting: responseData.shouldShowCalendar ? true : false
       };
 
@@ -223,15 +277,17 @@ const GeminiChatBot = ({ apiKey }) => {
                   <div className="mt-2 w-full max-w-[240px]">
                     <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)] flex flex-col gap-2">
                       <p className="text-[11px] text-[#e8eaf0] text-center font-medium">Ready to dive deeper?</p>
-                      <a
-                        href="https://calendly.com/harish-krishnan1976"
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
+                        }}
                         className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
                       >
                         <span>Book a Meeting</span>
                         <CalendarCheck className="w-4 h-4" />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -299,7 +355,7 @@ const GeminiChatBot = ({ apiKey }) => {
           </form>
           <div className="text-center text-[10px] text-[#6b7280] pb-2">
             Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
-             </div>
+          </div>
         </div>
       </div>
 
