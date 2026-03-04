@@ -105,7 +105,7 @@ const GeminiChatBot = ({ apiKey }) => {
       
       if (container && messageElement) {
         container.scrollTo({
-          top: messageElement.offsetTop - 100, // <-- Change the '20' to adjust the spacing!
+          top: messageElement.offsetTop - 24, // <-- Change the '20' to adjust the spacing!
           behavior: 'smooth'
         });
       }
@@ -333,7 +333,7 @@ const GeminiChatBot = ({ apiKey }) => {
         <div 
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" 
+          className="relative flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" 
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
         >
           
