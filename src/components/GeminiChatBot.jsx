@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { useNavigate } from 'react-router-dom';
-import { CalendarCheck } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom'; // <-- Added useLocation
+import { CalendarCheck, Trash2 } from 'lucide-react'; 
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-// Changed to a function so we can dynamically inject the sanitized Firebase data
 const getSystemPrompt = (partnerData) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 Company Context & Tone:
@@ -56,20 +55,32 @@ const GeminiChatBot = ({ apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+  
+  // States for storing our solutions data
   const [solutionsData, setSolutionsData] = useState("Loading specialized solutions...");
+  const [parsedSolutions, setParsedSolutions] = useState([]); 
+  
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation(); // <-- Track current route
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // --- NEW ROUTE TRACKING TOOLTIP LOGIC ---
   useEffect(() => {
+    // Show the tooltip immediately when the route changes
+    setShowTooltip(true);
+    
+    // Hide it after 8 seconds (increased from 5)
     const timer = setTimeout(() => {
       setShowTooltip(false);
-    }, 5000);
+    }, 8000); 
+    
+    // Clean up the timer if the user leaves the page before 8 seconds are up
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.pathname]); // <-- Re-run this effect every time the path changes
 
   // --- FIRESTORE DATA FETCHING & SANITIZATION ---
   useEffect(() => {
@@ -93,8 +104,7 @@ const GeminiChatBot = ({ apiKey }) => {
           return timeA - timeB; 
         });
 
-        // SANITIZE DATA: We strictly cherry-pick ONLY safe fields.
-        // The AI cannot leak URLs or Organization names because they are not passed to it.
+        // SANITIZE DATA
         const sanitizedData = firebaseData.map(item => ({
           solutionName: item.name || "",
           category: item.sub || "",
@@ -102,7 +112,8 @@ const GeminiChatBot = ({ apiKey }) => {
           keyFeatures: item.features ? item.features.map(f => f.label) : []
         }));
 
-        setSolutionsData(JSON.stringify(sanitizedData, null, 2));
+        setParsedSolutions(sanitizedData); 
+        setSolutionsData(JSON.stringify(sanitizedData, null, 2)); 
       } catch (error) {
         console.error("Firestore Fetch Error:", error);
         setSolutionsData("No additional solutions loaded at this time.");
@@ -115,6 +126,10 @@ const GeminiChatBot = ({ apiKey }) => {
   const toggleChat = () => {
     setIsOpen(!isOpen);
     if (showTooltip) setShowTooltip(false);
+  };
+
+  const clearHistory = () => {
+    setMessages([]);
   };
 
   const formatMarkdown = (text) => {
@@ -159,7 +174,6 @@ const GeminiChatBot = ({ apiKey }) => {
         parts: [{ text: msg.text }]
       }));
 
-      // Generate the prompt dynamically with the fetched, sanitized Firestore data
       const currentSystemPrompt = getSystemPrompt(solutionsData);
 
       const response = await ai.models.generateContent({
@@ -227,6 +241,19 @@ const GeminiChatBot = ({ apiKey }) => {
               <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
             </div>
           </div>
+          
+          {/* Clear History Button */}
+          {messages.length > 0 && (
+            <button 
+              onClick={clearHistory} 
+              title="Clear Chat" 
+              className="text-[#6b7280] hover:text-[#ff4d4d] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center mr-1"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+
+          {/* Close Button */}
           <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -243,14 +270,7 @@ const GeminiChatBot = ({ apiKey }) => {
               <div>
                 <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
                   <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
-                  I'm here to guide you through our enterprise AI and technology solutions. Select a topic below or type your question:
-                </div>
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Gen AI & NLP</button>
-                  <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Data & ML</button>
-                  <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
-                  <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Start a Project</button>
-                  <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Book a Meeting</button>
+                  I'm here to guide you through our enterprise AI and technology solutions. Select a topic below or type your question!
                 </div>
               </div>
             </div>
@@ -292,7 +312,7 @@ const GeminiChatBot = ({ apiKey }) => {
                   </div>
                 )}
 
-                {/* --- SMART CONTACT ROUTING BUTTON (REACT ROUTER) --- */}
+                {/* --- SMART CONTACT ROUTING BUTTON --- */}
                 {msg.contactRouting && (
                   <div className="mt-2 w-full max-w-[240px]">
                     <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
@@ -331,6 +351,36 @@ const GeminiChatBot = ({ apiKey }) => {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* --- PERSISTENT QUICK ACTIONS BAR --- */}
+        <div className="bg-[#0f1117] border-t border-[#1f2333] px-3.5 py-2 flex gap-2 overflow-x-auto hide-scrollbar items-center shrink-0 w-full">
+          
+          {/* Dynamic Dropdown from Firebase */}
+          {parsedSolutions.length > 0 && (
+            <select 
+              onChange={(e) => {
+                if(e.target.value) {
+                  triggerSend(`Can you tell me more about the ${e.target.value} solution?`);
+                  e.target.value = ""; // Reset dropdown after selection
+                }
+              }}
+              className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
+              title="Explore specific AI Solutions"
+            >
+              <option value="">▼ Solutions</option>
+              {parsedSolutions.map((sol, idx) => (
+                <option key={idx} value={sol.solutionName}>{sol.solutionName}</option>
+              ))}
+            </select>
+          )}
+
+          {/* Static Quick Action Chips */}
+          <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
+          <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
+          <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
+          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Start a Project</button>
+          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
+        </div>
+
         {/* Input Area */}
         <div className="bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0">
           <form onSubmit={handleFormSubmit} className="p-3.5 flex gap-2 items-center">
@@ -363,6 +413,15 @@ const GeminiChatBot = ({ apiKey }) => {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hide scrollbar for the quick actions bar but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </>
