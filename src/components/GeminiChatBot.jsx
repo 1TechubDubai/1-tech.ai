@@ -1,11 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { useNavigate, useLocation } from 'react-router-dom'; // <-- Added useLocation
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CalendarCheck, Trash2 } from 'lucide-react'; 
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-const getSystemPrompt = (partnerData) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+// Core services defined outside so they can be easily referenced
+const CORE_SERVICES = [
+  "Intelligent Systems", "Generative AI", "Machine Learning", 
+  "Computer Vision", "NLP Solutions", "Data Engineering", 
+  "Strategic Consulting", "Voice AI", "Partner Integration"
+];
+
+// Updated to accept the dynamic list of ALL available services (core + partner)
+const getSystemPrompt = (partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
@@ -45,7 +53,7 @@ Your JSON must match this structure exactly:
 RULES FOR ACTIONS & REDIRECTION:
 - If the user explicitly asks to schedule a call, book a meeting, talk to someone, or get on a call, set "shouldShowCalendar" to true.
 - If the user asks for pricing, wants to start a project, asks for a quote, or needs custom development, set "shouldRedirectToContact" to true. (Note: Both can be true if they ask for both).
-- If "shouldRedirectToContact" is true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: ["Intelligent Systems", "Generative AI", "Machine Learning", "Computer Vision", "NLP Solutions", "Data Engineering", "Strategic Consulting", "Voice AI", "Partner Integration"].
+- If "shouldRedirectToContact" is true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: [${availableServicesList}].
 - If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
 - If false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
 
@@ -62,7 +70,7 @@ const GeminiChatBot = ({ apiKey }) => {
   
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation(); // <-- Track current route
+  const location = useLocation();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -80,7 +88,7 @@ const GeminiChatBot = ({ apiKey }) => {
     
     // Clean up the timer if the user leaves the page before 8 seconds are up
     return () => clearTimeout(timer);
-  }, [location.pathname]); // <-- Re-run this effect every time the path changes
+  }, [location.pathname]);
 
   // --- FIRESTORE DATA FETCHING & SANITIZATION ---
   useEffect(() => {
@@ -174,7 +182,14 @@ const GeminiChatBot = ({ apiKey }) => {
         parts: [{ text: msg.text }]
       }));
 
-      const currentSystemPrompt = getSystemPrompt(solutionsData);
+      // Combine core services + fetched partner services for the AI to choose from
+      const partnerServiceNames = parsedSolutions.map(s => s.solutionName);
+      const allAvailableServices = [...CORE_SERVICES, ...partnerServiceNames]
+        .map(name => `"${name}"`)
+        .join(', ');
+
+      // Inject both the data and the combined list into the prompt
+      const currentSystemPrompt = getSystemPrompt(solutionsData, allAvailableServices);
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash", 
