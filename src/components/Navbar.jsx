@@ -287,12 +287,16 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom, always visible */}
               <div className="w-full pt-4 mt-auto flex-shrink-0">
-                 <a href="https://calendly.com/harish-krishnan1976" className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform"
-target="_blank" 
-              rel="noopener noreferrer"
+                 <button 
+  onClick={(e) => {
+    e.preventDefault(); // Stops any form submissions or default link behaviors
+    e.stopPropagation(); // Stops the click from bubbling up to the mobile menu background
+    window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
+  }}
+  className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform"
 >
-                  Book a Meeting
-                 </a>
+  Book a Meeting
+</button>
               </div>
             </div>
           )}
