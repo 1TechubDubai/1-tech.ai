@@ -213,7 +213,7 @@ const GeminiChatBot = ({ apiKey }) => {
         calendarRouting: responseData.shouldShowCalendar ? true : false
       };
 
-      setMessages((prev) => [...prev, botMessage].slice(-5));
+      setMessages((prev) => [...prev, botMessage]);
       
     } catch (error) {
       console.error("Gemini API Error:", error);
