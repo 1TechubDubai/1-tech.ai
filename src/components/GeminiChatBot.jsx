@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarCheck, Trash2 } from 'lucide-react'; 
+import { CalendarCheck, Trash2, ArrowDown } from 'lucide-react'; // <-- Added ArrowDown
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -78,30 +78,38 @@ const GeminiChatBot = ({ apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+  const [showScrollBottom, setShowScrollBottom] = useState(false); // <-- Scroll button state
   
   // States for storing our solutions data
   const [solutionsData, setSolutionsData] = useState("Loading specialized solutions...");
   const [parsedSolutions, setParsedSolutions] = useState([]); 
   
+  // Refs
   const messagesEndRef = useRef(null);
+  const lastMessageRef = useRef(null); // <-- Ref for scrolling to the top of latest bot message
+  const chatContainerRef = useRef(null); // <-- Ref for checking scroll position
+  
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- UPDATED SCROLL LOGIC ---
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // If loading (typing indicator) or user just sent a message, scroll to bottom
+    if (isLoading || (messages.length > 0 && messages[messages.length - 1].role === 'user')) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } 
+    // If the bot just replied, scroll to the TOP of its message so they can read it from the start
+    else if (messages.length > 0 && messages[messages.length - 1].role === 'model') {
+      lastMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [messages, isLoading]);
 
   // --- NEW ROUTE TRACKING TOOLTIP LOGIC ---
   useEffect(() => {
-    // Show the tooltip immediately when the route changes
     setShowTooltip(true);
-    
-    // Hide it after 8 seconds
     const timer = setTimeout(() => {
       setShowTooltip(false);
     }, 8000); 
-    
-    // Clean up the timer if the user leaves the page before 8 seconds are up
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
@@ -155,6 +163,15 @@ const GeminiChatBot = ({ apiKey }) => {
     setMessages([]);
   };
 
+  // --- SCROLL HANDLER TO SHOW/HIDE DOWN ARROW ---
+  const handleScroll = () => {
+    if (!chatContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    // If the user scrolled up more than 50px from the bottom, show the button
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+    setShowScrollBottom(!isNearBottom);
+  };
+
   const formatMarkdown = (text) => {
     if (!text) return null;
     return text.split('\n').map((line, index) => {
@@ -188,7 +205,6 @@ const GeminiChatBot = ({ apiKey }) => {
 
     try {
       let apiHistory = [...newHistory];
-      // This is required by Gemini API so it doesn't crash if the array starts with a model message
       if (apiHistory.length > 0 && apiHistory[0].role === 'model') {
         apiHistory = apiHistory.slice(1);
       }
@@ -199,13 +215,11 @@ const GeminiChatBot = ({ apiKey }) => {
         parts: [{ text: msg.text }]
       }));
 
-      // Combine core services + fetched partner services for the AI to choose from
       const partnerServiceNames = parsedSolutions.map(s => s.solutionName);
       const allAvailableServices = [...CORE_SERVICES, ...partnerServiceNames]
         .map(name => `"${name}"`)
         .join(', ');
 
-      // Inject both the data and the combined list into the prompt
       const currentSystemPrompt = getSystemPrompt(solutionsData, allAvailableServices);
 
       const response = await ai.models.generateContent({
@@ -228,7 +242,7 @@ const GeminiChatBot = ({ apiKey }) => {
           message: responseData.prefilledMessage || ""
         } : null,
         calendarRouting: responseData.shouldShowCalendar ? true : false,
-        suggestedFollowUps: responseData.suggestedFollowUps || [] // <-- Capturing the new suggestions
+        suggestedFollowUps: responseData.suggestedFollowUps || [] 
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -294,8 +308,26 @@ const GeminiChatBot = ({ apiKey }) => {
           </button>
         </div>
 
+        {/* Scroll To Bottom Button (Floating) */}
+        {showScrollBottom && (
+          <div className="absolute bottom-[170px] left-0 right-0 flex justify-center z-40 pointer-events-none transition-all duration-300">
+            <button
+              onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto bg-[#171a24]/95 backdrop-blur-sm border border-[#1f2333] text-[#00e5ff] p-2 rounded-full shadow-[0_4px_12px_rgba(0,229,255,0.15)] hover:bg-[#1f2333] hover:scale-105 hover:border-[#00e5ff]/50 transition-all duration-300 animate-in fade-in zoom-in-95"
+              title="Scroll to bottom"
+            >
+              <ArrowDown size={16} />
+            </button>
+          </div>
+        )}
+
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}>
+        <div 
+          ref={chatContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" 
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
+        >
           
           {messages.length === 0 && (
             <div className="flex gap-2 max-w-[100%] self-start animate-[fadeUp_0.25s_ease]">
@@ -311,7 +343,11 @@ const GeminiChatBot = ({ apiKey }) => {
 
           {/* Chat History */}
           {messages.map((msg, index) => (
-            <div key={index} className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
+            <div 
+              key={index} 
+              ref={index === messages.length - 1 ? lastMessageRef : null} // <-- Attached ref for scrolling to the top of the message
+              className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
+            >
               <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
                 {msg.role === 'user' ? '👤' : '🤖'}
               </div>
@@ -403,7 +439,9 @@ const GeminiChatBot = ({ apiKey }) => {
 
         {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
         <div className="bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar">
+          
           <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
+          
           {/* Dynamic Dropdown from Firebase - MADE SMALLER */}
           {parsedSolutions.length > 0 && (
             <select 
@@ -422,6 +460,7 @@ const GeminiChatBot = ({ apiKey }) => {
               ))}
             </select>
           )}
+          
           {/* Static Quick Action Chips */}
           <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
           <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
