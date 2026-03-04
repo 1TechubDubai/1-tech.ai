@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarCheck, Trash2, ArrowDown } from 'lucide-react'; // <-- Added ArrowDown
+import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'; // <-- Added new icons
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -19,7 +19,7 @@ Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
 - Keep responses clear, professional, concise, and business-focused. 
 - You do NOT provide coding help, personal advice, or answer general knowledge questions.
-- Make sure to provide proper spacing and paragraphs divisions especially between phases explanation or steps etc space it out always
+- In comparitevely larger responses make sure to provide proper spacing and paragraphs divisions
 - Always ask follow up questions on what exactly the users are looking for
 
 Core Services & Details:
@@ -78,7 +78,12 @@ const GeminiChatBot = ({ apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
-  const [showScrollBottom, setShowScrollBottom] = useState(false); // <-- Scroll button state
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  
+  // --- NEW STATES FOR VOICE FEATURES ---
+  const [isListening, setIsListening] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const recognitionRef = useRef(null);
   
   // States for storing our solutions data
   const [solutionsData, setSolutionsData] = useState("Loading specialized solutions...");
@@ -86,33 +91,107 @@ const GeminiChatBot = ({ apiKey }) => {
   
   // Refs
   const messagesEndRef = useRef(null);
-  const lastMessageRef = useRef(null); // <-- Ref for scrolling to the top of latest bot message
-  const chatContainerRef = useRef(null); // <-- Ref for checking scroll position
+  const lastMessageRef = useRef(null); 
+  const chatContainerRef = useRef(null); 
   
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- INITIALIZE SPEECH RECOGNITION ---
+  useEffect(() => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+
+      recognitionRef.current.onresult = (event) => {
+        let currentTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
+        }
+        // Replace current input with the recognized text (or append if you prefer)
+        setInput(prev => {
+          // If we want to append, we'd need more complex state management for interim results. 
+          // For simplicity, we just set the input to the transcript.
+          return currentTranscript;
+        });
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  // Stop any ongoing speech when component unmounts or chat closes
+  useEffect(() => {
+    if (!isOpen) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      if (isListening && recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      }
+    }
+  }, [isOpen, isListening]);
+
+  const toggleListen = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      setInput(''); // Clear input when starting a new voice command
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
+  };
+
+  const handleSpeak = (text, index) => {
+    // If clicking the currently speaking message, stop it
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+    
+    window.speechSynthesis.cancel(); // Stop any previous speech
+    
+    // Clean markdown symbols for cleaner speech
+    const cleanText = text.replace(/[*_~`#]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    utterance.onend = () => setSpeakingIndex(null);
+    utterance.onerror = () => setSpeakingIndex(null);
+    
+    setSpeakingIndex(index);
+    window.speechSynthesis.speak(utterance);
+  };
+
   // --- UPDATED SCROLL LOGIC ---
   useEffect(() => {
-    // If loading (typing indicator) or user just sent a message, scroll to bottom
     if (isLoading || (messages.length > 0 && messages[messages.length - 1].role === 'user')) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     } 
-    // If the bot just replied, scroll to the TOP of its message so they can read it from the start
     else if (messages.length > 0 && messages[messages.length - 1].role === 'model') {
       const container = chatContainerRef.current;
       const messageElement = lastMessageRef.current;
       
       if (container && messageElement) {
         container.scrollTo({
-          top: messageElement.offsetTop - 18, // <-- Change the '20' to adjust the spacing!
+          top: messageElement.offsetTop - 18, 
           behavior: 'smooth'
         });
       }
     }
   }, [messages, isLoading]);
 
-  // --- NEW ROUTE TRACKING TOOLTIP LOGIC ---
+  // --- ROUTE TRACKING TOOLTIP LOGIC ---
   useEffect(() => {
     setShowTooltip(true);
     const timer = setTimeout(() => {
@@ -143,7 +222,6 @@ const GeminiChatBot = ({ apiKey }) => {
           return timeA - timeB; 
         });
 
-        // SANITIZE DATA
         const sanitizedData = firebaseData.map(item => ({
           solutionName: item.name || "",
           category: item.sub || "",
@@ -169,13 +247,14 @@ const GeminiChatBot = ({ apiKey }) => {
 
   const clearHistory = () => {
     setMessages([]);
+    window.speechSynthesis.cancel();
+    setSpeakingIndex(null);
   };
 
   // --- SCROLL HANDLER TO SHOW/HIDE DOWN ARROW ---
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-    // If the user scrolled up more than 50px from the bottom, show the button
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
     setShowScrollBottom(!isNearBottom);
   };
@@ -202,10 +281,14 @@ const GeminiChatBot = ({ apiKey }) => {
 
   const triggerSend = async (messageText) => {
     if (!messageText.trim() || isLoading) return;
+    
+    // Stop listening/speaking if starting a text request
+    if (isListening) toggleListen();
+    window.speechSynthesis.cancel();
+    setSpeakingIndex(null);
 
     const userMessage = { role: 'user', text: messageText.trim() };
     
-    // Using full history
     let newHistory = [...messages, userMessage];
     setMessages(newHistory);
     setInput('');
@@ -353,7 +436,7 @@ const GeminiChatBot = ({ apiKey }) => {
           {messages.map((msg, index) => (
             <div 
               key={index} 
-              ref={index === messages.length - 1 ? lastMessageRef : null} // <-- Attached ref for scrolling to the top of the message
+              ref={index === messages.length - 1 ? lastMessageRef : null} 
               className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
             >
               <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
@@ -361,12 +444,30 @@ const GeminiChatBot = ({ apiKey }) => {
               </div>
               
               <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words ${
+                <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words relative ${
                   msg.role === 'user'
                     ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
                     : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
                 }`}>
                   <div>{formatMarkdown(msg.text)}</div>
+                  
+                  {/* --- TEXT-TO-SPEECH BUTTON (For Bot Only) --- */}
+                  {msg.role === 'model' && (
+                    <div className="mt-2 pt-2 border-t border-[#1f2333]/50 flex justify-end">
+                      <button
+                        onClick={() => handleSpeak(msg.text, index)}
+                        className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                          speakingIndex === index 
+                            ? 'text-cyan-400 bg-cyan-400/10' 
+                            : 'text-slate-500 hover:text-cyan-400 hover:bg-[#1f2333]'
+                        }`}
+                        title={speakingIndex === index ? "Stop speaking" : "Read aloud"}
+                      >
+                        {speakingIndex === index ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                        {speakingIndex === index ? 'Stop' : 'Listen'}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* --- DYNAMIC FOLLOW-UP SUGGESTIONS --- */}
@@ -476,17 +577,34 @@ const GeminiChatBot = ({ apiKey }) => {
           <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
         </div>
 
-        {/* Input Area */}
+        {/* Input Area with MIC BUTTON */}
         <div className="bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0">
           <form onSubmit={handleFormSubmit} className="p-3.5 flex gap-2 items-center">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything about our services…"
-              disabled={isLoading}
-              className="flex-1 bg-[#07080d] border border-[#1f2333] rounded-lg text-[#e8eaf0] text-[13.5px] px-3.5 py-2.5 focus:outline-none focus:border-[#00e5ff]/40 transition-colors placeholder-[#6b7280] disabled:opacity-50"
-            />
+            <div className="flex-1 relative flex items-center">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={isListening ? "Listening..." : "Ask me anything about our services…"}
+                disabled={isLoading}
+                className={`w-full bg-[#07080d] border border-[#1f2333] rounded-lg text-[#e8eaf0] text-[13.5px] pl-3.5 pr-10 py-2.5 focus:outline-none focus:border-[#00e5ff]/40 transition-colors placeholder-[#6b7280] disabled:opacity-50 ${isListening ? 'border-red-400/50 shadow-[0_0_10px_rgba(248,113,113,0.2)]' : ''}`}
+              />
+              
+              {/* Mic Button positioned absolutely inside the input */}
+              <button
+                type="button"
+                onClick={toggleListen}
+                className={`absolute right-2 p-1.5 rounded-md transition-colors ${
+                  isListening 
+                    ? 'text-red-400 bg-red-400/10 animate-pulse' 
+                    : 'text-slate-400 hover:text-[#00e5ff] hover:bg-[#1f2333]'
+                }`}
+                title={isListening ? "Stop listening" : "Voice input"}
+              >
+                {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
