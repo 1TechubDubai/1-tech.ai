@@ -21,6 +21,7 @@ Company Context & Tone:
 - You do NOT provide coding help, personal advice, or answer general knowledge questions.
 - In comparitevely larger responses make sure to provide proper spacing and paragraphs divisions
 - Always ask follow up questions on what exactly the users are looking for
+
 Core Services & Details:
 1. Custom Enterprise AI Solutions: AI strategy, ML decision systems, strict AI governance.
 2. Autonomous AI Agents: Multi-agent orchestration, self-healing workflows.
@@ -58,7 +59,8 @@ Your JSON must match this structure exactly:
   "shouldRedirectToContact": true or false,
   "shouldShowCalendar": true or false,
   "selectedServices": ["Service 1", "Service 2"],
-  "prefilledMessage": "string"
+  "prefilledMessage": "string",
+  "suggestedFollowUps": ["Follow up question 1?", "Follow up question 2?", "Follow up question 3?"]
 }
 
 RULES FOR ACTIONS & REDIRECTION:
@@ -67,7 +69,8 @@ RULES FOR ACTIONS & REDIRECTION:
 - If "shouldRedirectToContact" is true, CAREFULLY REVIEW THE ENTIRE CONVERSATION HISTORY. Identify EVERY service or solution the user has asked about or shown interest in during the chat.
 - Populate the "selectedServices" array with ALL of those identified services. You must ONLY use exact names from this combined list: [${availableServicesList}]. 
 - If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing EVERYTHING they want to build based on the whole chat history (e.g., "Hi, I am looking to build a custom RAG solution for my HR data, and I also want to learn more about the Logistics IoT tracking system we discussed...").
-- If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
+- If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".
+- ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array.`;
 
 const GeminiChatBot = ({ apiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -165,7 +168,7 @@ const GeminiChatBot = ({ apiKey }) => {
         );
       }
       return (
-        <p key={index} className="mb-2 last:mb-0">
+        <p key={index} className="mb-2 last:mb-0 min-h-[1em]">
           <span dangerouslySetInnerHTML={{ __html: line.replace(boldRegex, '<strong>$1</strong>') }} />
         </p>
       );
@@ -224,7 +227,8 @@ const GeminiChatBot = ({ apiKey }) => {
           services: responseData.selectedServices || [],
           message: responseData.prefilledMessage || ""
         } : null,
-        calendarRouting: responseData.shouldShowCalendar ? true : false
+        calendarRouting: responseData.shouldShowCalendar ? true : false,
+        suggestedFollowUps: responseData.suggestedFollowUps || [] // <-- Capturing the new suggestions
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -320,6 +324,23 @@ const GeminiChatBot = ({ apiKey }) => {
                 }`}>
                   <div>{formatMarkdown(msg.text)}</div>
                 </div>
+
+                {/* --- DYNAMIC FOLLOW-UP SUGGESTIONS --- */}
+                {msg.role === 'model' && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && index === messages.length - 1 && !isLoading && (
+                  <div className="mt-2.5 flex flex-col gap-1.5 w-full">
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.suggestedFollowUps.map((suggestion, idx) => (
+                        <button 
+                          key={idx}
+                          onClick={() => triggerSend(suggestion)}
+                          className="text-left text-[11px] leading-tight px-3 py-1.5 rounded-lg border border-[#00e5ff]/20 text-[#00e5ff] bg-[#00e5ff]/5 hover:bg-[#00e5ff]/15 hover:border-[#00e5ff]/40 transition-all"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* --- SMART CALENDAR ROUTING BUTTON --- */}
                 {msg.calendarRouting && (
