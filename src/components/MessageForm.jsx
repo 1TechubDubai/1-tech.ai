@@ -1,633 +1,292 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Loader2, Send, X, CheckCircle2, AlertCircle, CheckSquare2, Square } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebaseConfig.js";
-import emailjs from '@emailjs/browser'; // Ensure you install: npm install @emailjs/browser
-import { useLocation } from 'react-router-dom';
+import { GoogleGenAI } from "@google/genai";
+import { useNavigate } from 'react-router-dom';
 
-// --- INTERNAL TOAST COMPONENT ---
-const Toast = ({ type, message, onClose }) => {
+const SYSTEM_PROMPT = `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+
+Company Context & Tone:
+- We provide industrial-scale, secure, and highly strategic AI and software solutions.
+- Keep responses clear, professional, concise, and business-focused. 
+- You do NOT provide coding help, personal advice, or answer general knowledge questions.
+
+Core Services & Details:
+1. Custom Enterprise AI Solutions: AI strategy, ML decision systems, strict AI governance.
+2. Autonomous AI Agents: Multi-agent orchestration, self-healing workflows.
+3. LLM Integration: RAG, prompt engineering, custom fine-tuning (PEFT/LoRA).
+4. Advanced Machine Learning: Predictive analytics, MLOps, drift detection.
+5. Data Science & Big Data: Petabyte-scale infra, Kafka streaming, BI dashboards.
+6. Natural Language Processing: Sentiment analysis, multilingual translation, semantic search.
+7. Conversational Voice AI: STT, TTS, voice cloning, intelligent IVR.
+8. Software Development: End-to-end product engineering (React, Node, Go), SaaS platforms.
+
+CRITICAL INSTRUCTION - JSON OUTPUT ONLY:
+You must ALWAYS respond with a valid JSON object. Do NOT wrap it in markdown blockticks.
+
+Your JSON must match this structure exactly:
+{
+  "text": "Your conversational response to the user here.",
+  "shouldRedirectToContact": true or false,
+  "selectedServices": ["Service 1", "Service 2"],
+  "prefilledMessage": "string"
+}
+
+RULES FOR CONTACT REDIRECTION:
+- If the user asks for pricing, wants to schedule a meeting, asks how to start, or shows strong intent to build a project, set "shouldRedirectToContact" to true.
+- If true, select 1 to 4 relevant services from this exact list to populate the "selectedServices" array: ["Intelligent Systems", "Generative AI", "Machine Learning", "Computer Vision", "NLP Solutions", "Data Engineering", "Strategic Consulting", "Voice AI", "Partner Integration"].
+- If true, write a brief "prefilledMessage" written from the USER'S perspective summarizing what they want to build (e.g., "Hi, I am looking to build a custom RAG solution for my HR data...").
+- If false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".`;
+
+const GeminiChatBot = ({ apiKey }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true);
+  const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const timer = setTimeout(() => onClose(), 5000); // Auto close after 5s
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 5000);
     return () => clearTimeout(timer);
-  }, [onClose]);
-
-  const isSuccess = type === 'success';
-
-  return (
-    <div className={`
-      fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[100]
-      flex items-start gap-3 p-4 pr-10 rounded-xl border backdrop-blur-md shadow-2xl
-      transform transition-all duration-500 animate-slide-in-up
-      ${isSuccess 
-        ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-100 shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)]' 
-        : 'bg-red-950/80 border-red-500/50 text-red-100 shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)]'}
-    `}>
-      {isSuccess ? <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />}
-      <div className="flex flex-col gap-1">
-        <h4 className="text-sm font-bold">{isSuccess ? 'Message Sent!' : 'Error'}</h4>
-        <p className="text-xs opacity-90 leading-relaxed">{message}</p>
-      </div>
-      <button onClick={onClose} className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded-full transition-colors">
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  );
-};
-
-// --- MAIN FORM COMPONENT ---
-const MessageForm = ({ showTitle = true, className = "" }) => {
-  const formRef = useRef(); // Ref for EmailJS
-  const dropdownRef = useRef(null);
-  const location = useLocation();
-  const countryDropdownRef = useRef(null);
-  const [isCountryOpen, setIsCountryOpen] = useState(false);
-  const [countrySearch, setCountrySearch] = useState("");
-
-  const COUNTRY_CODES = [
-    // North America
-    { code: "+1", country: "US/CA" },
-    { code: "+52", country: "MX" },
-
-    // South America
-    { code: "+55", country: "BR" },
-    { code: "+54", country: "AR" },
-    { code: "+56", country: "CL" },
-    { code: "+57", country: "CO" },
-    { code: "+51", country: "PE" },
-    { code: "+58", country: "VE" },
-
-    // Europe
-    { code: "+44", country: "UK" },
-    { code: "+49", country: "DE" },
-    { code: "+33", country: "FR" },
-    { code: "+39", country: "IT" },
-    { code: "+34", country: "ES" },
-    { code: "+31", country: "NL" },
-    { code: "+32", country: "BE" },
-    { code: "+41", country: "CH" },
-    { code: "+43", country: "AT" },
-    { code: "+46", country: "SE" },
-    { code: "+47", country: "NO" },
-    { code: "+45", country: "DK" },
-    { code: "+358", country: "FI" },
-    { code: "+48", country: "PL" },
-    { code: "+420", country: "CZ" },
-    { code: "+36", country: "HU" },
-    { code: "+30", country: "GR" },
-    { code: "+351", country: "PT" },
-    { code: "+353", country: "IE" },
-    { code: "+40", country: "RO" },
-    { code: "+359", country: "BG" },
-    { code: "+380", country: "UA" },
-    { code: "+7", country: "RU" },
-
-    // Asia
-    { code: "+91", country: "IN" },
-    { code: "+81", country: "JP" },
-    { code: "+86", country: "CN" },
-    { code: "+82", country: "KR" },
-    { code: "+65", country: "SG" },
-    { code: "+60", country: "MY" },
-    { code: "+62", country: "ID" },
-    { code: "+63", country: "PH" },
-    { code: "+66", country: "TH" },
-    { code: "+84", country: "VN" },
-    { code: "+92", country: "PK" },
-    { code: "+880", country: "BD" },
-    { code: "+94", country: "LK" },
-    { code: "+977", country: "NP" },
-    { code: "+852", country: "HK" },
-    { code: "+853", country: "MO" },
-    { code: "+886", country: "TW" },
-
-    // Middle East
-    { code: "+971", country: "UAE" },
-    { code: "+966", country: "SA" },
-    { code: "+974", country: "QA" },
-    { code: "+973", country: "BH" },
-    { code: "+968", country: "OM" },
-    { code: "+965", country: "KW" },
-    { code: "+972", country: "IL" },
-    { code: "+90", country: "TR" },
-    { code: "+98", country: "IR" },
-    { code: "+964", country: "IQ" },
-    { code: "+962", country: "JO" },
-
-    // Africa
-    { code: "+27", country: "ZA" },
-    { code: "+20", country: "EG" },
-    { code: "+212", country: "MA" },
-    { code: "+216", country: "TN" },
-    { code: "+213", country: "DZ" },
-    { code: "+234", country: "NG" },
-    { code: "+233", country: "GH" },
-    { code: "+254", country: "KE" },
-    { code: "+255", country: "TZ" },
-    { code: "+256", country: "UG" },
-    { code: "+251", country: "ET" },
-
-    // Oceania
-    { code: "+61", country: "AU" },
-    { code: "+64", country: "NZ" },
-    { code: "+675", country: "PG" },
-
-    // Caribbean & Others
-    { country: "JM", code: "+1-876" },
-    { country: "TT", code: "+1-868" },
-    { country: "BS", code: "+1-242" }
-  ];
-
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    countryCode: '+1', // <-- Add this line
-    phone: '',
-    company: '',
-    service: [],
-    message: ''
-  });
-
-  useEffect(() => {
-    // Check if we arrived here with a service in the state
-    if (location.state?.selectedService) {
-      const passedService = location.state.selectedService;
-      
-      setFormData(prev => ({
-        ...prev,
-        // Wrap in array because your form now supports multiple selections
-        service: [passedService] 
-      }));
-    }
-    
-    // Check if we arrived with pre-filled message and services
-    if (location.state?.prefilledMessage && location.state?.selectedServices) {
-      setFormData(prev => ({
-        ...prev,
-        message: location.state.prefilledMessage,
-        service: location.state.selectedServices
-      }));
-    }
-  }, [location.state]);
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
-  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: '' }
-
-  const services = [
-    { id: 'intelligent-systems', title: 'Intelligent Systems', sub: 'Autonomous workforce systems' },
-    { id: 'gen-ai', title: 'Generative AI', sub: 'RAG & content engines' },
-    { id: 'ml', title: 'Machine Learning', sub: 'Predictive analytics models' },
-    { id: 'computer-vision', title: 'Computer Vision', sub: 'Image & video recognition' },
-    { id: 'nlp', title: 'NLP Solutions', sub: 'Text analysis & processing' },
-    { id: 'data-eng', title: 'Data Engineering', sub: 'Big data & warehousing' },
-    { id: 'strategy', title: 'Strategic Consulting', sub: 'AI transformation roadmap' },
-    { id: 'voice-ai', title: 'Voice AI', sub: 'Conversational intelligence' },
-    { id: 'partner-integration', title: 'Partner Integration', sub: 'Custom API & system integration' },
-  ];
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close Services Dropdown
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-      // Close Country Dropdown
-      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
-        setIsCountryOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const toggleChat = () => {
+    setIsOpen(!isOpen);
+    if (showTooltip) setShowTooltip(false);
   };
 
-  const handleServiceSelect = (serviceTitle) => {
-    setFormData(prev => {
-      const currentServices = prev.service;
-      // Check if service is already selected
-      const isSelected = currentServices.includes(serviceTitle);
-      
-      const updatedServices = isSelected
-        ? currentServices.filter(s => s !== serviceTitle) // Remove if already there
-        : [...currentServices, serviceTitle];            // Add if new
-        
-      return { ...prev, service: updatedServices };
+  const formatMarkdown = (text) => {
+    if (!text) return null;
+    return text.split('\n').map((line, index) => {
+      const boldRegex = /\*\*(.*?)\*\*/g;
+      if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
+        const cleanLine = line.trim().substring(2);
+        return (
+          <li key={index} className="ml-4 list-disc mb-1">
+            <span dangerouslySetInnerHTML={{ __html: cleanLine.replace(boldRegex, '<strong>$1</strong>') }} />
+          </li>
+        );
+      }
+      return (
+        <p key={index} className="mb-2 last:mb-0">
+          <span dangerouslySetInnerHTML={{ __html: line.replace(boldRegex, '<strong>$1</strong>') }} />
+        </p>
+      );
     });
-    // Note: Removed setIsDropdownOpen(false) so they can pick many at once
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const triggerSend = async (messageText) => {
+    if (!messageText.trim() || isLoading) return;
 
-    // 1. Basic Validation
-    if (!formData.fullName || !formData.email || !formData.message) {
-      setToast({ type: 'error', message: 'Please fill in all required fields.' });
-      return;
-    }
-
-    setStatus('loading');
+    const userMessage = { role: 'user', text: messageText.trim() };
+    
+    let newHistory = [...messages, userMessage].slice(-5);
+    setMessages(newHistory);
+    setInput('');
+    setIsLoading(true);
 
     try {
-      // --- FIREBASE STRATEGY ---
-      // We create a reference to the 'messages' collection
-      const messagesRef = collection(db, "messages");
+      let apiHistory = [...newHistory];
+      if (apiHistory.length > 0 && apiHistory[0].role === 'model') {
+        apiHistory = apiHistory.slice(1);
+      }
 
-      // Add the new document with a server-side timestamp for accurate sorting
-      await addDoc(messagesRef, {
-        name: formData.fullName,
-        email: formData.email,
-        // Combine the country code and phone number here:
-        phone_number: formData.phone ? `${formData.countryCode} ${formData.phone}` : "", 
-        company: formData.company,
-        service_interest: formData.service,
-        message: formData.message,
-        timestamp: serverTimestamp(),
-        status: "unread" 
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+      const formattedContents = apiHistory.map(msg => ({
+        role: msg.role,
+        parts: [{ text: msg.text }]
+      }));
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash", 
+        contents: formattedContents,
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          responseMimeType: "application/json", 
+        }
       });
 
-      // Success Logic
-      setStatus('success');
-      setToast({ 
-        type: 'success', 
-        message: 'Message sent successfully! Our team will contact you soon.' 
-      });
+      const rawText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const responseData = JSON.parse(rawText);
 
-      // Reset Form
-      setFormData({ 
-        fullName: '', 
-        email: '', 
-        phone: '', 
-        company: '', 
-        service: [], 
-        message: '' 
-      });
+      const botMessage = { 
+        role: 'model', 
+        text: responseData.text,
+        contactRouting: responseData.shouldRedirectToContact ? {
+          services: responseData.selectedServices || [],
+          message: responseData.prefilledMessage || ""
+        } : null
+      };
 
+      setMessages((prev) => [...prev, botMessage].slice(-5));
+      
     } catch (error) {
-      console.error('Firebase Submission Error:', error);
-      setStatus('error');
-      setToast({ 
-        type: 'error', 
-        message: 'Failed to send message. Please check your connection and try again.' 
-      });
+      console.error("Gemini API Error:", error);
+      const errorMessage = { role: 'model', text: 'Sorry, I encountered an error. Please try again.' };
+      setMessages((prev) => [...prev, errorMessage].slice(-5));
     } finally {
-      // Reset status to idle after a delay if it wasn't a success
-      setTimeout(() => {
-        setStatus('idle');
-      }, 3000);
+      setIsLoading(false);
     }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    triggerSend(input);
   };
 
   return (
-    <div className={`w-full font-sans relative ${className}`}>
-      
-      {/* Toast Notification Container */}
-      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+    <>
+      {/* Tooltip Popup */}
+      <div className={`fixed bottom-[96px] right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        Need AI assistance? Chat with us! 👋
+        <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-[#171a24] border-b border-r border-[#1f2333] transform rotate-45"></div>
+      </div>
 
-      {/* Background Glow Effect behind the form */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-cyan-500/5 blur-[80px] rounded-full pointer-events-none" />
+      {/* Launcher Button */}
+      <button onClick={toggleChat} title="Chat with us" className={`fixed bottom-7 right-7 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] border-none cursor-pointer flex items-center justify-center shadow-[0_4px_24px_rgba(0,229,255,0.35)] hover:scale-105 hover:shadow-[0_6px_32px_rgba(0,229,255,0.5)] transition-all z-[9999] ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px]">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </button>
 
-      {/* Card Container */}
-      <div className="relative w-full bg-[#0a0f1d]/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-5 sm:p-8 shadow-2xl overflow-visible">
+      {/* Chat Window */}
+      <div className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 lining-nums font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}>
         
         {/* Header */}
-        {showTitle && (
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-slate-900/50 border border-slate-700/50">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-              <span className="text-[10px] font-bold tracking-widest text-slate-300 uppercase">Contact Us</span>
+        <div className="px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
+          <div className="flex-1">
+            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
+            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
+              <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
-              Ready to lead the <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">AI revolution?</span>
-            </h1>
-            <p className="text-slate-400 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-              Let's discuss how we can transform your business with intelligent automation.
-            </p>
           </div>
-        )}
+          <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
 
-        {/* Form */}
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}>
           
-          {/* Row 1: Name & Email */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Full Name *</label>
-              <input
-                type="text"
-                name="fullName"
-                required
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleChange}
-                disabled={status === 'loading'}
-                className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
-                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all placeholder:text-slate-600 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Email *</label>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="john@company.com"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={status === 'loading'}
-                className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
-                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all placeholder:text-slate-600 text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Row 2: Phone Number (Full Row) */}
-
-          <div className="space-y-1.5 w-full">
-            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Phone Number</label>
-            <div className="flex gap-2 relative w-full">
-              
-              {/* Country Code Custom Searchable Dropdown */}
-              {/* FIX 1: Made width responsive (90px on mobile, 120px on desktop) */}
-              <div className="relative w-[90px] sm:w-[120px] shrink-0" ref={countryDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCountryOpen(!isCountryOpen);
-                    setCountrySearch(""); // Reset search when opened
-                  }}
-                  disabled={status === 'loading'}
-                  className="w-full h-full bg-[#0d1425] border border-slate-800/60 text-slate-100 pl-3 sm:pl-4 pr-2 sm:pr-3 py-3.5 rounded-xl 
-                            focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 
-                            disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm
-                            flex items-center justify-between group"
-                >
-                  <span className="truncate">{formData.countryCode}</span>
-                  <ChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform duration-300 ${isCountryOpen ? 'rotate-180 text-cyan-400' : ''}`} />
-                </button>
-
-                {/* Dropdown Menu & Search Input */}
-                <div 
-                  className={`absolute left-0 top-[calc(100%+8px)] z-50 w-[240px] bg-[#0d1425] border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden transition-all duration-200 origin-top
-                    ${isCountryOpen ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}`}
-                >
-                  {/* Search Input */}
-                  <div className="p-2 border-b border-slate-800/60">
-                    <input
-                      type="text"
-                      placeholder="Search code or country..."
-                      value={countrySearch}
-                      onChange={(e) => setCountrySearch(e.target.value)}
-                      className="w-full bg-slate-900/80 border border-slate-800 text-slate-100 px-3 py-2 rounded-lg text-xs 
-                                focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-600"
-                      autoFocus={isCountryOpen} 
-                    />
-                  </div>
-
-                  {/* Filtered List */}
-                  <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
-                    {COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).length > 0 ? (
-                      COUNTRY_CODES.filter(c => c.country.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.includes(countrySearch)).map((c) => (
-                        <button
-                          key={c.code + c.country}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, countryCode: c.code }));
-                            setIsCountryOpen(false);
-                            setCountrySearch(""); // Reset for next time
-                          }}
-                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-slate-800/50 rounded-lg transition-colors group/item"
-                        >
-                          <span className="font-medium text-slate-200 group-hover/item:text-cyan-400 transition-colors">{c.code}</span>
-                          <span className="text-xs text-slate-500 truncate ml-2">{c.country}</span>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-3 py-4 text-center text-xs text-slate-500">No results found</div>
-                    )}
-                  </div>
+          {messages.length === 0 && (
+            <div className="flex gap-2 max-w-[100%] self-start animate-[fadeUp_0.25s_ease]">
+              <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
+              <div>
+                <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
+                  <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
+                  I'm here to guide you through our enterprise AI and technology solutions. Select a topic below or type your question:
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Gen AI & NLP</button>
+                  <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Data & ML</button>
+                  <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Agents</button>
+                  <button onClick={() => triggerSend('I need strategic consulting to build an AI transformation roadmap.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">AI Strategy</button>
+                  <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11.5px] px-2.5 py-1 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors">Start a Project</button>
                 </div>
               </div>
-
-              {/* Phone Number Input */}
-              <input
-                type="tel"
-                name="phone"
-                placeholder="(555) 000-0000"
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={status === 'loading'}
-                // FIX 2: Added min-w-0 to allow the input to shrink properly, and adjusted padding for mobile
-                className="flex-1 min-w-0 bg-[#0d1425] border border-slate-800/60 text-slate-100 px-3 sm:px-4 py-3.5 rounded-xl 
-                          focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                          disabled:opacity-50 disabled:cursor-not-allowed
-                          transition-all placeholder:text-slate-600 text-sm"
-              />
             </div>
-          </div>
+          )}
 
-          {/* Row 3: Company (Full Row) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Company</label>
+          {/* Chat History */}
+          {messages.map((msg, index) => (
+            <div key={index} className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
+              <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
+                {msg.role === 'user' ? '👤' : '🤖'}
+              </div>
+              
+              <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words ${
+                  msg.role === 'user'
+                    ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
+                    : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
+                }`}>
+                  <div>{formatMarkdown(msg.text)}</div>
+                </div>
+
+                {/* --- SMART ROUTING BUTTON (REACT ROUTER) --- */}
+                {msg.contactRouting && (
+                  <div className="mt-2 w-full max-w-[240px]">
+                    <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
+                      <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
+                      <button 
+                        onClick={() => {
+                          toggleChat()
+                          navigate("/contact", { 
+                          state: { 
+                            prefilledMessage: msg.contactRouting.message,
+                            selectedServices: msg.contactRouting.services
+                          }
+                        })}}
+                        className="block w-full py-1.5 px-3 bg-[#00e5ff] text-[#07080d] text-center rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all"
+                      >
+                        Contact Our Experts
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* Loading Indicator */}
+          {isLoading && (
+            <div className="flex gap-2 max-w-[88%] self-start animate-[fadeUp_0.25s_ease]">
+              <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
+              <div className="px-4 py-3 bg-[#0f1117] border border-[#1f2333] rounded-xl rounded-tl-sm flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce"></div>
+                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className="bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0">
+          <form onSubmit={handleFormSubmit} className="p-3.5 flex gap-2 items-center">
             <input
               type="text"
-              name="company"
-              placeholder="Your Company"
-              value={formData.company}
-              onChange={handleChange}
-              disabled={status === 'loading'}
-              className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3.5 rounded-xl 
-                         focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-all placeholder:text-slate-600 text-sm"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask me anything about our services…"
+              disabled={isLoading}
+              className="flex-1 bg-[#07080d] border border-[#1f2333] rounded-lg text-[#e8eaf0] text-[13.5px] px-3.5 py-2.5 focus:outline-none focus:border-[#00e5ff]/40 transition-colors placeholder-[#6b7280] disabled:opacity-50"
             />
-          </div>
-
-          {/* Row 4: Custom Services Select */}
-          <div className="space-y-1.5 relative" ref={dropdownRef}>
-            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">AI Solution Needed</label>
-            
-            {/* Selected Services Tags */}
-            {formData.service.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {formData.service.map((service, idx) => (
-                  <div key={idx} className="inline-flex items-center gap-2 bg-cyan-600/20 border border-cyan-500/50 rounded-full px-3 py-1.5 text-xs font-medium text-cyan-300">
-                    <span>{service}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleServiceSelect(service)}
-                      className="hover:text-cyan-200 transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <button
-              type="button"
-              disabled={status === 'loading'}
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className={`w-full bg-[#0d1425] border text-left px-4 py-3.5 rounded-xl flex items-center justify-between 
-                        focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all 
-                        ${isDropdownOpen ? 'border-cyan-500/50 ring-1 ring-cyan-500/50' : 'border-slate-800/60'}`}
-            >
-              <span className={`text-sm truncate pr-4 ${formData.service.length > 0 ? "text-slate-100 font-medium" : "text-slate-600"}`}>
-                {formData.service.length > 0 
-                  ? `${formData.service.length} service${formData.service.length !== 1 ? 's' : ''} selected` 
-                  : "Select services..."}
-              </span>
-              <div className="flex items-center gap-2">
-                {formData.service.length > 0 && (
-                  <span className="bg-cyan-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md">
-                    {formData.service.length}
-                  </span>
-                )}
-                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
-              </div>
-            </button>
-
-            {/* Dropdown Menu */}
-            <div 
-              className={`
-                absolute left-0 right-0 top-[calc(100%+8px)] z-50 
-                bg-[#0d1425] border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 
-                overflow-hidden transition-all duration-200 origin-top
-                ${isDropdownOpen ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'}
-              `}
-            >
-              <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                {services.map((service) => (
-                  <button
-                    key={service.id}
-                    type="button"
-                    onClick={() => handleServiceSelect(service.title)}
-                    className="w-full px-4 py-3 text-left hover:bg-slate-800/50 transition-colors border-b border-slate-800/50 last:border-0 flex items-center justify-between group"
-                  >
-                    <div className="flex-1">
-                      <div className="text-sm text-slate-100 font-medium group-hover:text-cyan-400 transition-colors">
-                        {service.title}
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {service.sub}
-                      </div>
-                    </div>
-                    <div className="ml-3 text-cyan-500 shrink-0">
-                      {formData.service.includes(service.title) ? (
-                        <CheckSquare2 className="w-5 h-5" />
-                      ) : (
-                        <Square className="w-5 h-5 text-slate-600 group-hover:text-slate-500" />
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Row 4: Message */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 ml-1 uppercase tracking-wider">Message *</label>
-            <textarea
-              name="message"
-              required
-              rows={4}
-              placeholder="Tell us about your AI needs..."
-              value={formData.message}
-              onChange={handleChange}
-              disabled={status === 'loading'}
-              className="w-full bg-[#0d1425] border border-slate-800/60 text-slate-100 px-4 py-3 rounded-xl 
-                         focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-all placeholder:text-slate-600 resize-none text-sm"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-4">
             <button
               type="submit"
-              disabled={status === 'loading'}
-              className="
-                w-full 
-                bg-gradient-to-r from-cyan-500 to-blue-600 
-                hover:from-cyan-400 hover:to-blue-500 
-                text-white font-bold py-4 rounded-xl 
-                
-                /* Shadows & Glow */
-                shadow-[0_0_20px_-5px_rgba(6,182,212,0.5)] 
-                hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.7)] 
-                hover:-translate-y-0.5
-                
-                /* Disabled State */
-                disabled:opacity-70 disabled:cursor-not-allowed 
-                disabled:hover:translate-y-0 disabled:hover:shadow-none
-                
-                /* Transitions */
-                transition-all duration-300 
-                flex items-center justify-center gap-2 group 
-                text-sm sm:text-base relative overflow-hidden
-              "
+              disabled={isLoading || !input.trim()}
+              className="w-[38px] h-[38px] rounded-lg bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center shrink-0 transition-all hover:scale-105 hover:opacity-90 disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed text-[#07080d]"
+              title="Send"
             >
-              {/* Text Label */}
-              <span>{status === 'loading' ? 'Sending...' : 'Send Message'}</span>
-
-              {/* Paper Rocket Icon */}
-              <Send 
-                className={`
-                  w-5 h-5 
-                  transition-all duration-500 ease-in-out
-                  ${status === 'loading' 
-                    ? 'translate-x-8 -translate-y-8 opacity-0' /* FLY AWAY ANIMATION */
-                    : 'group-hover:translate-x-1 group-hover:-translate-y-1' /* HOVER WIGGLE */
-                  }
-                `} 
-              />
-
-              {/* Optional: Subtle Spinner that fades in behind the rocket */}
-              {status === 'loading' && (
-                <Loader2 className="absolute right-6 w-5 h-5 animate-spin opacity-50" />
-              )}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
             </button>
-          </div>
-        </form>
+          </form>
+          <div className="text-center text-[10px] text-[#6b7280] pb-2">
+            Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
+           </div>
+        </div>
       </div>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #0d1425;
-          border-radius: 0 0 12px 0;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1e293b;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #334155;
-        }
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(20px); }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .animate-slide-in-up {
-          animation: slideInUp 0.3s ease-out forwards;
-        }
       `}</style>
-    </div>
+    </>
   );
 };
 
-export default MessageForm;
+export default GeminiChatBot;
