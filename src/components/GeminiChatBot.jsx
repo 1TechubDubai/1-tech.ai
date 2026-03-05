@@ -184,7 +184,7 @@ const GeminiChatBot = ({ apiKey }) => {
       
       if (container && messageElement) {
         container.scrollTo({
-          top: messageElement.offsetTop - 18, 
+          top: messageElement.offsetTop - 10, 
           behavior: 'smooth'
         });
       }
