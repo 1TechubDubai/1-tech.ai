@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, FileText, Mail, Globe, UserCheck, Bell } from 'lucide-react';
+import { Shield, Lock, Eye, FileText, Mail, Globe, UserCheck, Bell, Users, Archive, ShieldAlert, MessageSquare } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -24,6 +24,14 @@ const PrivacyPolicy = () => {
               When you visit our website, we may automatically collect your IP address, browser type and version, pages visited, time spent, and device/operating system information to help us understand user interaction.
             </p>
           </div>
+          <div>
+            <h4 className="text-white font-medium mb-2 flex items-center gap-2">
+              <MessageSquare size={14} className="text-cyan-500"/> c. Chat and Automated Interactions
+            </h4>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              When you interact with our automated assistants or AI-powered chat tools, we collect the contents of your conversations to provide relevant support and improve our services. Please refrain from sharing highly sensitive personal or financial information within these chat interfaces.
+            </p>
+          </div>
         </div>
       )
     },
@@ -34,7 +42,7 @@ const PrivacyPolicy = () => {
       content: (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-400 text-sm">
           <li className="flex items-start gap-2"><div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" /> Operate and maintain our website</li>
-          <li className="flex items-start gap-2"><div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" /> Improve content and user experience</li>
+          <li className="flex items-start gap-2"><div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" /> Improve content, AI accuracy, and user experience</li>
           <li className="flex items-start gap-2"><div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" /> Respond to inquiries and support</li>
           <li className="flex items-start gap-2"><div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" /> Prevent fraud and ensure security</li>
         </ul>
@@ -51,12 +59,22 @@ const PrivacyPolicy = () => {
       )
     },
     {
+      id: "sharing",
+      icon: <Users className="text-purple-400" />,
+      title: "4. Data Sharing and Third Parties",
+      content: (
+        <p className="text-slate-400 text-sm leading-relaxed">
+          We do not sell your personal information. We may share your data with trusted third-party service providers who assist us in operating our website, conducting our business, or servicing you. This includes cloud hosting providers, analytics services, and automated artificial intelligence processing tools used to power our customer support features. These third parties are bound by strict confidentiality and data protection obligations.
+        </p>
+      )
+    },
+    {
       id: "security",
       icon: <Lock className="text-cyan-400" />,
       title: "5. Data Security",
       content: (
         <p className="text-slate-400 text-sm leading-relaxed">
-          We take reasonable technical and organizational measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.
+          We take reasonable technical and organizational measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security against unauthorized access or breaches.
         </p>
       )
     },
@@ -66,17 +84,37 @@ const PrivacyPolicy = () => {
       title: "6. Your Privacy Rights",
       content: (
         <p className="text-slate-400 text-sm leading-relaxed">
-          Depending on your location, you may have the right to access, correct, or delete your data, withdraw consent, or object to certain processing activities.
+          Depending on your location (such as under GDPR or CCPA), you may have the right to access, correct, or delete your data, withdraw consent, restrict processing, or request data portability. To exercise these rights, please contact us using the details below.
+        </p>
+      )
+    },
+    {
+      id: "retention",
+      icon: <Archive className="text-indigo-400" />,
+      title: "7. Data Retention & Transfers",
+      content: (
+        <p className="text-slate-400 text-sm leading-relaxed">
+          We retain your personal information only for as long as necessary to fulfill the purposes outlined in this policy or as required by law. As an international entity, your data may be transferred to, and processed in, countries outside of your jurisdiction. We ensure appropriate safeguards are in place for such cross-border transfers.
+        </p>
+      )
+    },
+    {
+      id: "children",
+      icon: <ShieldAlert className="text-purple-400" />,
+      title: "8. Children's Privacy",
+      content: (
+        <p className="text-slate-400 text-sm leading-relaxed">
+          Our services are intended for a general business audience and are not directed to individuals under the age of 16. We do not knowingly collect personal information from children. If we become aware that we have collected such data, we will take steps to delete it promptly.
         </p>
       )
     },
     {
       id: "updates",
-      icon: <Bell className="text-indigo-400" />,
-      title: "8. Changes to This Policy",
+      icon: <Bell className="text-cyan-400" />,
+      title: "9. Changes to This Policy",
       content: (
         <p className="text-slate-400 text-sm leading-relaxed">
-          We may update this Privacy Policy from time to time. Any changes will be posted on this page, and the updated date will be reflected at the top of the document.
+          We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. Any changes will be posted on this page, and the "Effective Date" will be updated accordingly.
         </p>
       )
     }
@@ -131,6 +169,7 @@ const PrivacyPolicy = () => {
                   href={`#${section.id}`}
                   className="block text-sm text-slate-400 hover:text-cyan-400 transition-colors border-l border-slate-800 pl-4 py-1 hover:border-cyan-500"
                 >
+                  {/* Safely splits the title to remove the number for the sidebar menu */}
                   {section.title.split('. ')[1]}
                 </a>
               ))}
@@ -171,7 +210,7 @@ const PrivacyPolicy = () => {
                <div className="absolute top-0 right-0 p-8 text-cyan-500/5 rotate-12">
                 <Mail size={120} />
                </div>
-               <h2 className="text-3xl font-bold text-white mb-6 relative z-10">9. Contact Us</h2>
+               <h2 className="text-3xl font-bold text-white mb-6 relative z-10">10. Contact Us</h2>
                <p className="text-slate-400 mb-8 relative z-10">If you have questions or concerns about this Privacy Policy, our team is here to help.</p>
                <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                   <a href="mailto:contactus@1techub.com" className="flex items-center gap-3 text-cyan-400 hover:text-cyan-300 transition-colors lining-nums">
