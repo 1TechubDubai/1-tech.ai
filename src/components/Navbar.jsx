@@ -170,22 +170,6 @@ const Navbar = () => {
 
           {/* CTA & Mobile Toggle */}
           <div className="flex items-center gap-3">
-            <a
-              href="https://calendly.com/harish-krishnan1976"
-              className="
-                hidden sm:flex items-center gap-2 /* Added alignment and spacing */
-                px-5 py-2 rounded-full text-sm font-semibold
-                bg-cyan-500 text-black
-                transition-all duration-300
-                hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]
-                hover:-translate-y-0.5
-              "
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <span>Book a Meeting</span>
-              <CalendarCheck className="w-4 h-4" />
-            </a>
 
             {/* Hamburger Button */}
             <button 
@@ -226,7 +210,7 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom */}
               <div className="w-full pt-4 flex-shrink-0">
-                                 <button 
+                                 {/* <button 
   onClick={(e) => {
     e.preventDefault(); // Stops any form submissions or default link behaviors
     e.stopPropagation(); // Stops the click from bubbling up to the mobile menu background
@@ -235,7 +219,7 @@ const Navbar = () => {
   className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform"
 >
   Book a Meeting
-</button>
+</button> */}
               </div>
             </div>
           ) : (
@@ -293,7 +277,7 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom, always visible */}
               <div className="w-full pt-4 mt-auto flex-shrink-0">
-                 <button 
+                 {/* <button 
   onClick={(e) => {
     e.preventDefault(); // Stops any form submissions or default link behaviors
     e.stopPropagation(); // Stops the click from bubbling up to the mobile menu background
@@ -302,7 +286,7 @@ const Navbar = () => {
   className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-center font-bold text-white shadow-lg active:scale-[0.98] transition-transform"
 >
   Book a Meeting
-</button>
+</button> */}
               </div>
             </div>
           )}
