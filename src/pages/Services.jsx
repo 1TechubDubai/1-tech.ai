@@ -461,7 +461,12 @@ const Services = () => {
               
               <div className="w-[85%] sm:w-auto mx-auto mb-2 flex justify-center">
                 <button 
-                  onClick={() => navigate('/contact', { state: { selectedService: currentService.title } })}
+                  onClick={() => navigate('/contact', { 
+                    state: { 
+                      selectedServices: [currentService.title], 
+                      prefilledMessage: `Hi team,\n\nI am interested in learning more about your ${currentService.title} services. Please let me know the best time to schedule a call.\n\nLooking forward to connecting!` 
+                    } 
+                  })}
                   className="w-full sm:w-auto text-center px-6 py-3 md:px-8 md:py-4 rounded-full font-bold text-sm md:text-lg text-white bg-transparent border-cyan-400 border hover:bg-cyan-950/60 hover:border-cyan-300 flex items-center justify-center gap-2 group transition-all duration-300 hover:scale-105 active:scale-95"
                   style={{
                     boxShadow: '0 10px 30px rgba(34,211,238,0.12)',

@@ -487,9 +487,15 @@ const AIAdvisoryPage = () => {
 
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center px-4">
-              <Link to="/contact"
+              <Link 
+                to="/contact"
+                state={{
+                  selectedServices: [],
+                  prefilledMessage: "Hi Team,\n\nWe are looking to architect a strategic AI roadmap for our business. We are interested in your AI Advisory services to assess our readiness, map out high-impact use cases, and integrate scalable AI workflows.\n\nPlease let us know the best time to schedule a strategy session."
+                }}
                 className="group relative inline-flex items-center justify-center px-8 py-4 md:px-10 md:py-5 rounded-2xl font-bold text-base md:text-lg text-black overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #22d3ee, #6366f1)' }}>
+                style={{ background: 'linear-gradient(135deg, #22d3ee, #6366f1)' }}
+              >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   style={{ background: 'linear-gradient(135deg, #38bdf8, #818cf8)' }} />
                 <span className="relative z-10 flex items-center justify-center gap-2 md:gap-3">
@@ -763,6 +769,10 @@ const AIAdvisoryPage = () => {
             >
               <Link 
                 to="/contact"
+                state={{
+                  selectedServices: [],
+                  prefilledMessage: "Hi Team,\n\nI would like to book a strategy call to discuss integrating AI into our enterprise. We are interested in exploring your AI Advisory services to build a secure, scalable, and ROI-focused roadmap for our business.\n\nPlease let me know the best time to connect."
+                }}
                 className="w-full text-center px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full font-bold text-sm md:text-lg text-white bg-transparent border-cyan-300 border-2 hover:bg-cyan-300 flex items-center justify-center gap-2 group transition-colors"
                 style={{
                   boxShadow: '0 10px 30px rgba(34,211,238,0.12)',

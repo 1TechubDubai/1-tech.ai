@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import MessageForm from "../components/MessageForm";
-import Footer from "../components/Footer"; // Assuming you have this from previous steps
+import Footer from "../components/Footer"; 
 import { 
   Phone, 
   Mail, 
@@ -9,6 +9,7 @@ import {
   FileText, 
   Rocket 
 } from 'lucide-react';
+import { BrandWhatsapp } from 'tabler-icons-react';
 
 const Contact = () => {
   return (
@@ -47,14 +48,21 @@ const Contact = () => {
             {/* Contact Details List */}
             <div className="space-y-8">
               
-              {/* Phone */}
+              {/* WhatsApp */}
               <div className="flex items-start gap-5 group">
                 <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.3)] transition-all">
-                  <Phone size={24} />
+                  <BrandWhatsapp size={24} />
                 </div>
                 <div>
-                  <h4 className="text-xs text-left font-bold text-slate-500 uppercase tracking-wider mb-1">Phone</h4>
-                  <p className="text-lg font-medium text-white">+971 56 800 1040</p>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 text-left">WhatsApp</h4>
+                  <a 
+                    href="https://wa.me/971568001040" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-lg font-medium text-white hover:text-cyan-400 transition-colors text-left inline-block"
+                  >
+                    Message Support
+                  </a>
                 </div>
               </div>
 
@@ -76,13 +84,13 @@ const Contact = () => {
 
               {/* Headquarters */}
               <div className="flex items-start gap-5 group">
-                <div className="p-3 w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.3)] transition-all">
+                <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.3)] transition-all">
                   <MapPin size={24} />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 text-left">Headquarters</h4>
                   <p className="text-lg font-medium text-white leading-snug text-left">
-                    Meydan Grand Stand, 6th Floor,
+                    Meydan Grand Stand, 6th Floor,<br />
                     Meydan Road, Dubai, UAE
                   </p>
                 </div>
