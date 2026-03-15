@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'; // <-- Added new icons
+import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react'; // <-- Added Loader2
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -80,9 +80,9 @@ const GeminiChatBot = ({ apiKey }) => {
   const [showTooltip, setShowTooltip] = useState(true);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   
-  // --- NEW STATES FOR VOICE FEATURES ---
+  // --- STATES FOR VOICE FEATURES ---
   const [isListening, setIsListening] = useState(false);
-  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [speakingId, setSpeakingId] = useState(null); 
   const recognitionRef = useRef(null);
   
   // States for storing our solutions data
@@ -93,9 +93,28 @@ const GeminiChatBot = ({ apiKey }) => {
   const messagesEndRef = useRef(null);
   const lastMessageRef = useRef(null); 
   const chatContainerRef = useRef(null); 
+  const currentAudioRef = useRef(null); 
+  const audioContextRef = useRef(null); 
   
   const navigate = useNavigate();
   const location = useLocation();
+
+  // --- AUDIO HELPER ---
+  const stopAudio = () => {
+    if (currentAudioRef.current) {
+      try {
+        if (typeof currentAudioRef.current.stop === 'function') {
+          currentAudioRef.current.stop(); 
+          currentAudioRef.current.disconnect(); 
+        } else if (typeof currentAudioRef.current.pause === 'function') {
+          currentAudioRef.current.pause(); 
+        }
+      } catch(e) {
+        console.error("Error stopping audio", e);
+      }
+      currentAudioRef.current = null;
+    }
+  };
 
   // --- INITIALIZE SPEECH RECOGNITION ---
   useEffect(() => {
@@ -110,12 +129,7 @@ const GeminiChatBot = ({ apiKey }) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           currentTranscript += event.results[i][0].transcript;
         }
-        // Replace current input with the recognized text (or append if you prefer)
-        setInput(prev => {
-          // If we want to append, we'd need more complex state management for interim results. 
-          // For simplicity, we just set the input to the transcript.
-          return currentTranscript;
-        });
+        setInput(currentTranscript);
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -132,8 +146,8 @@ const GeminiChatBot = ({ apiKey }) => {
   // Stop any ongoing speech when component unmounts or chat closes
   useEffect(() => {
     if (!isOpen) {
-      window.speechSynthesis.cancel();
-      setSpeakingIndex(null);
+      stopAudio();
+      setSpeakingId(null);
       if (isListening && recognitionRef.current) {
         recognitionRef.current.stop();
         setIsListening(false);
@@ -146,31 +160,100 @@ const GeminiChatBot = ({ apiKey }) => {
       recognitionRef.current?.stop();
       setIsListening(false);
     } else {
-      setInput(''); // Clear input when starting a new voice command
+      setInput(''); 
       recognitionRef.current?.start();
       setIsListening(true);
     }
   };
 
-  const handleSpeak = (text, index) => {
-    // If clicking the currently speaking message, stop it
-    if (speakingIndex === index) {
-      window.speechSynthesis.cancel();
-      setSpeakingIndex(null);
+  // --- BACKGROUND AUDIO PRE-FETCHER ---
+  const fetchAudioInBackground = async (messageId, text) => {
+    try {
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+      const cleanText = text.replace(/[*_~`#]/g, '');
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: `Please read the following text aloud exactly as written: ${cleanText}`,
+        config: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: "Aoede" }
+            }
+          }
+        }
+      });
+
+      const parts = response.candidates?.[0]?.content?.parts || [];
+      const audioPart = parts.find(part => part.inlineData && part.inlineData.mimeType.startsWith('audio/'));
+
+      if (!audioPart) throw new Error('No audio returned');
+
+      const base64Data = audioPart.inlineData.data;
+      const binaryString = window.atob(base64Data);
+      
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const int16Array = new Int16Array(bytes.buffer);
+      const float32Array = new Float32Array(int16Array.length);
+      for (let i = 0; i < int16Array.length; i++) {
+        float32Array[i] = int16Array[i] / 32768.0; 
+      }
+
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const audioBuffer = audioContextRef.current.createBuffer(1, float32Array.length, 24000);
+      audioBuffer.getChannelData(0).set(float32Array);
+
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, audioBuffer: audioBuffer, audioLoading: false } : msg
+      ));
+
+    } catch (error) {
+      console.error("Background TTS Error:", error);
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, audioLoading: false, audioError: true } : msg
+      ));
+    }
+  };
+
+  // --- INSTANT AUDIO PLAYER ---
+  const handleSpeak = (msg) => {
+    if (speakingId === msg.id) {
+      stopAudio();
+      setSpeakingId(null);
       return;
     }
     
-    window.speechSynthesis.cancel(); // Stop any previous speech
-    
-    // Clean markdown symbols for cleaner speech
-    const cleanText = text.replace(/[*_~`#]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    utterance.onend = () => setSpeakingIndex(null);
-    utterance.onerror = () => setSpeakingIndex(null);
-    
-    setSpeakingIndex(index);
-    window.speechSynthesis.speak(utterance);
+    stopAudio();
+    setSpeakingId(msg.id); 
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = msg.audioBuffer; 
+    source.connect(audioContextRef.current.destination);
+    currentAudioRef.current = source;
+
+    source.onended = () => {
+      setSpeakingId(null);
+      currentAudioRef.current = null;
+    };
+
+    source.start(); 
   };
 
   // --- UPDATED SCROLL LOGIC ---
@@ -247,8 +330,8 @@ const GeminiChatBot = ({ apiKey }) => {
 
   const clearHistory = () => {
     setMessages([]);
-    window.speechSynthesis.cancel();
-    setSpeakingIndex(null);
+    stopAudio();
+    setSpeakingId(null);
   };
 
   // --- SCROLL HANDLER TO SHOW/HIDE DOWN ARROW ---
@@ -284,10 +367,11 @@ const GeminiChatBot = ({ apiKey }) => {
     
     // Stop listening/speaking if starting a text request
     if (isListening) toggleListen();
-    window.speechSynthesis.cancel();
-    setSpeakingIndex(null);
+    stopAudio();
+    setSpeakingId(null);
 
-    const userMessage = { role: 'user', text: messageText.trim() };
+    const userMessageId = Date.now().toString();
+    const userMessage = { id: userMessageId, role: 'user', text: messageText.trim() };
     
     let newHistory = [...messages, userMessage];
     setMessages(newHistory);
@@ -324,10 +408,15 @@ const GeminiChatBot = ({ apiKey }) => {
 
       const rawText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
       const responseData = JSON.parse(rawText);
+      const botMessageId = (Date.now() + 1).toString();
 
       const botMessage = { 
+        id: botMessageId,
         role: 'model', 
         text: responseData.text,
+        audioBuffer: null,      
+        audioLoading: true,     
+        audioError: false,
         contactRouting: responseData.shouldRedirectToContact ? {
           services: responseData.selectedServices || [],
           message: responseData.prefilledMessage || ""
@@ -338,9 +427,12 @@ const GeminiChatBot = ({ apiKey }) => {
 
       setMessages((prev) => [...prev, botMessage]);
       
+      // Fetch audio in background
+      fetchAudioInBackground(botMessageId, responseData.text);
+
     } catch (error) {
       console.error("Gemini API Error:", error);
-      const errorMessage = { role: 'model', text: 'Sorry, I encountered an error. Please try again.' };
+      const errorMessage = { id: Date.now().toString(), role: 'model', text: 'Sorry, I encountered an error. Please try again.', audioLoading: false };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -435,7 +527,7 @@ const GeminiChatBot = ({ apiKey }) => {
           {/* Chat History */}
           {messages.map((msg, index) => (
             <div 
-              key={index} 
+              key={msg.id || index} 
               ref={index === messages.length - 1 ? lastMessageRef : null} 
               className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
             >
@@ -451,21 +543,31 @@ const GeminiChatBot = ({ apiKey }) => {
                 }`}>
                   <div>{formatMarkdown(msg.text)}</div>
                   
-                  {/* --- TEXT-TO-SPEECH BUTTON (For Bot Only) --- */}
-                  {msg.role === 'model' && (
+                  {/* --- TEXT-TO-SPEECH BUTTON WITH LOADING STATES --- */}
+                  {msg.role === 'model' && msg.id && (
                     <div className="mt-2 pt-2 border-t border-[#1f2333]/50 flex justify-end">
-                      <button
-                        onClick={() => handleSpeak(msg.text, index)}
-                        className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
-                          speakingIndex === index 
-                            ? 'text-cyan-400 bg-cyan-400/10' 
-                            : 'text-slate-500 hover:text-cyan-400 hover:bg-[#1f2333]'
-                        }`}
-                        title={speakingIndex === index ? "Stop speaking" : "Read aloud"}
-                      >
-                        {speakingIndex === index ? <VolumeX size={12} /> : <Volume2 size={12} />}
-                        {speakingIndex === index ? 'Stop' : 'Listen'}
-                      </button>
+                      {msg.audioLoading ? (
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium px-1.5 py-0.5 text-[#6b7280]">
+                          <Loader2 size={12} className="animate-spin text-[#00e5ff]" /> Preparing Audio...
+                        </div>
+                      ) : msg.audioError ? (
+                        <div className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 text-red-400">
+                          Audio Unavailable
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleSpeak(msg)}
+                          className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                            speakingId === msg.id 
+                              ? 'text-cyan-400 bg-cyan-400/10' 
+                              : 'text-[#6b7280] hover:text-[#00e5ff] hover:bg-[#1f2333]'
+                          }`}
+                          title={speakingId === msg.id ? "Stop speaking" : "Read aloud"}
+                        >
+                          {speakingId === msg.id ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                          {speakingId === msg.id ? 'Stop' : 'Listen'}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
