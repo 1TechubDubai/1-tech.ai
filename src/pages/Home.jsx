@@ -1042,11 +1042,11 @@ const EnterpriseDivisionCTA = () => {
               </div>
 
               {/* Main Headline */}
-              <h2 className="ent-headline text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight mb-2">
-                SCALE BEYOND AI.
+              <h2 className="ent-headline text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold mb-2">
+                AI AT THE CORE.
               </h2>
-              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold text-blue-600 leading-[1.1] tracking-tight mb-8" style={{ fontFamily: "'Syne', sans-serif" }}>
-                EXECUTE GLOBALLY.
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold text-blue-600 mb-8" style={{ fontFamily: "'Syne', sans-serif" }}>
+                ENTERPRISE AT SCALE.
               </h2>
 
               {/* Description */}
