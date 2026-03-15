@@ -874,6 +874,221 @@ const CombinedWhyChooseUs = () => {
   );
 };
 
+const EnterpriseDivisionCTA = () => {
+  const enterpriseWebsiteUrl = "https://1techub.com";
+
+  return (
+    <>
+      <style>{`
+        .enterprise-cta-section {
+          font-family: 'Inter', system-ui, sans-serif; /* Clean enterprise font */
+        }
+
+        @keyframes softFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-8px) scale(1.02); }
+        }
+        @keyframes subtlePulse {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        @keyframes shimmerLine {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes textShine {
+          0%, 100% { background-position: 0% center; }
+          50% { background-position: 100% center; }
+        }
+        @keyframes ringExpand {
+          0% { transform: scale(0.8); opacity: 0.8; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* Bright, airy glassmorphism card */
+        .enterprise-portal-card {
+          position: relative;
+          background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,247,255,0.9) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.05), 0 0 80px rgba(59, 130, 246, 0.05);
+          overflow: hidden;
+        }
+
+        /* Subtle glowing orbs in the background */
+        .enterprise-portal-card::before {
+          content: '';
+          position: absolute;
+          top: -20%;
+          left: -10%;
+          width: 50%;
+          height: 60%;
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+          filter: blur(40px);
+          animation: softFloat 10s ease-in-out infinite alternate;
+        }
+        .enterprise-portal-card::after {
+          content: '';
+          position: absolute;
+          bottom: -20%;
+          right: -10%;
+          width: 60%;
+          height: 60%;
+          background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+          filter: blur(40px);
+          animation: softFloat 12s ease-in-out infinite alternate-reverse;
+        }
+
+        .ent-node { animation: softFloat var(--dur, 8s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+        .ent-line { stroke-dasharray: 4 4; animation: subtlePulse var(--dur, 4s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+
+        .ent-headline {
+          font-family: 'Syne', sans-serif;
+          background: linear-gradient(to right, #0f172a, #1e3a8a, #0f172a);
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: textShine 8s linear infinite;
+        }
+
+        .ent-cta-btn {
+          position: relative;
+          background: #2563eb; /* Solid enterprise blue */
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+        .ent-cta-btn::before {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%; width: 50%; height: 100%;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+          transform: skewX(-20deg);
+          transition: all 0.5s ease;
+        }
+        .ent-cta-btn:hover {
+          background: #1d4ed8;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+        }
+        .ent-cta-btn:hover::before {
+          left: 200%;
+        }
+        .ent-cta-btn:active { transform: scale(0.98); }
+
+        .status-dot::after {
+          content: ''; position: absolute; inset: -2px; border-radius: 9999px; border: 1px solid #3b82f6;
+          animation: ringExpand 2s cubic-bezier(0,0,0.2,1) infinite;
+        }
+
+        .ent-tag { 
+          animation: softFloat 5s ease-in-out infinite; 
+          background: rgba(255,255,255,0.8);
+          backdrop-filter: blur(4px);
+        }
+        .ent-tag:nth-child(2) { animation-delay: 0.7s; }
+        .ent-tag:nth-child(3) { animation-delay: 1.4s; }
+        .ent-tag:nth-child(4) { animation-delay: 2.1s; }
+
+        /* Tech grid background */
+        .tech-grid {
+          background-size: 30px 30px;
+          background-image: 
+            linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+          mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+          -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+      `}</style>
+
+      {/* Note: Added a dark background wrapper assuming the .ai site is dark. 
+          This card will pop beautifully against a dark background. */}
+      <section className="enterprise-cta-section relative py-20 px-4 sm:px-6 overflow-hidden bg-[#030b18]">
+        <div className="max-w-6xl mx-auto">
+          
+          <div className="enterprise-portal-card rounded-[2.5rem] sm:rounded-[3rem] py-16 sm:py-24 px-6 sm:px-12 md:px-20 z-10">
+            
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 tech-grid pointer-events-none z-0"></div>
+
+            {/* Connecting Lines & Nodes (Clean Enterprise Style) */}
+            <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+              <line x1="15%" y1="20%" x2="30%" y2="35%" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="1.5" className="ent-line" style={{ '--dur': '5s' }} />
+              <line x1="30%" y1="35%" x2="60%" y2="25%" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="1.5" className="ent-line" style={{ '--dur': '6s', '--delay': '1s' }} />
+              <line x1="85%" y1="40%" x2="70%" y2="65%" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="1.5" className="ent-line" style={{ '--dur': '4s', '--delay': '0.5s' }} />
+              <line x1="15%" y1="70%" x2="40%" y2="60%" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="1.5" className="ent-line" style={{ '--dur': '7s', '--delay': '2s' }} />
+              {[
+                { cx: "15%", cy: "20%", r: 4, dur: "6s", delay: "0s" },
+                { cx: "30%", cy: "35%", r: 5, dur: "8s", delay: "1s" },
+                { cx: "60%", cy: "25%", r: 3.5, dur: "5s", delay: "2s" },
+                { cx: "85%", cy: "40%", r: 4.5, dur: "7s", delay: "0.5s" },
+                { cx: "70%", cy: "65%", r: 4, dur: "9s", delay: "1.5s" },
+                { cx: "40%", cy: "60%", r: 3, dur: "6s", delay: "3s" },
+                { cx: "15%", cy: "70%", r: 5, dur: "8s", delay: "0.8s" },
+              ].map((n, i) => (
+                <circle key={i} className="ent-node" cx={n.cx} cy={n.cy} r={n.r} fill="#3b82f6" style={{ '--dur': n.dur, '--delay': n.delay }} />
+              ))}
+            </svg>
+
+            <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
+              
+              {/* Eyebrow */}
+              <div className="relative flex items-center gap-2.5 mb-8 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
+                <span className="status-dot relative flex h-2 w-2">
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+                </span>
+                <span className="font-bold text-[10px] sm:text-xs tracking-[0.2em] uppercase text-blue-700">
+                  1TecHub · Core Enterprise Division
+                </span>
+              </div>
+
+              {/* Main Headline */}
+              <h2 className="ent-headline text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight mb-2">
+                SCALE BEYOND AI.
+              </h2>
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold text-blue-600 leading-[1.1] tracking-tight mb-8" style={{ fontFamily: "'Syne', sans-serif" }}>
+                EXECUTE GLOBALLY.
+              </h2>
+
+              {/* Description */}
+              <p className="text-slate-600 text-sm sm:text-base md:text-xl font-medium leading-relaxed max-w-2xl mb-8 sm:mb-12">
+                Transition from AI innovation to full-scale enterprise execution. Explore our core division for end-to-end IT managed services, cybersecurity, and cloud modernization.
+              </p>
+
+              {/* Core Services Tags */}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10 sm:mb-12">
+                {["IT Managed Services", "Cybersecurity", "Cloud Architecture", "App Modernization"].map((tag, i) => (
+                  <span key={tag} className="ent-tag px-4 py-2 rounded-xl text-[11px] sm:text-sm font-bold tracking-wide text-slate-700 border border-slate-200 shadow-sm"
+                    style={{ animationDelay: `${i * 0.4}s` }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Call to Action Button */}
+              <div className="flex flex-col items-center gap-4">
+                <a href={enterpriseWebsiteUrl} target="_blank" rel="noopener noreferrer"
+                  className="ent-cta-btn group px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-base font-bold text-white tracking-wide flex items-center gap-3 shadow-lg shadow-blue-500/30">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  Explore Enterprise Services
+                  <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+                <span className="text-slate-400 hover:text-slate-300 transition-colors text-[10px] sm:text-xs tracking-widest uppercase font-semibold mt-2">
+                  1techub.com ↗
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
 // Testimonials Section
 
 const testimonials = [
@@ -1295,6 +1510,8 @@ const Home = () => {
       <CapabilitiesSection />
 
       <CombinedWhyChooseUs />
+
+      <EnterpriseDivisionCTA />
 
       {/* <TestimonialsSection /> */}
 
