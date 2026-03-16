@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react'; // <-- Added Loader2
+import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX, Loader2, ChevronDown, Search } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -12,8 +12,28 @@ const CORE_SERVICES = [
   "Strategic Consulting", "Voice AI", "Partner Integration"
 ];
 
-// Updated prompt to force the AI to read the whole history and extract ALL discussed services
-const getSystemPrompt = (partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+// List of supported languages for speech and bot responses
+const SUPPORTED_LANGUAGES = [
+  { code: 'en-US', name: 'English' },
+  { code: 'es-ES', name: 'Spanish' },
+  { code: 'fr-FR', name: 'French' },
+  { code: 'de-DE', name: 'German' },
+  { code: 'ar-SA', name: 'Arabic' },
+  { code: 'zh-CN', name: 'Mandarin' },
+  { code: 'hi-IN', name: 'Hindi' },
+  { code: 'ja-JP', name: 'Japanese' },
+  { code: 'pt-BR', name: 'Portuguese' },
+  { code: 'ru-RU', name: 'Russian' },
+  { code: 'it-IT', name: 'Italian' },
+  { code: 'nl-NL', name: 'Dutch' },
+  { code: 'ko-KR', name: 'Korean' },
+  { code: 'tr-TR', name: 'Turkish' }
+].sort((a, b) => a.name.localeCompare(b.name));
+
+// Updated prompt to force the AI to read the whole history, extract ALL discussed services, and use the selected language
+const getSystemPrompt = (languageName, partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+
+CRITICAL INSTRUCTION: You MUST communicate and respond to the user entirely in the following language: ${languageName}.
 
 Company Context & Tone:
 - We provide industrial-scale, secure, and highly strategic AI and software solutions.
@@ -70,7 +90,7 @@ RULES FOR ACTIONS & REDIRECTION:
 - Populate the "selectedServices" array with ALL of those identified services. You must ONLY use exact names from this combined list: [${availableServicesList}]. 
 - If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing EVERYTHING they want to build based on the whole chat history (e.g., "Hi, I am looking to build a custom RAG solution for my HR data, and I also want to learn more about the Logistics IoT tracking system we discussed...").
 - If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".
-- ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array.`;
+- ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array. All suggestedFollowUps MUST also be in ${languageName}.`;
 
 const GeminiChatBot = ({ apiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,6 +100,12 @@ const GeminiChatBot = ({ apiKey }) => {
   const [showTooltip, setShowTooltip] = useState(true);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   
+  // --- LANGUAGE STATES ---
+  const [selectedLanguage, setSelectedLanguage] = useState(SUPPORTED_LANGUAGES.find(l => l.code === 'en-US'));
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [langSearch, setLangSearch] = useState('');
+  const langDropdownRef = useRef(null);
+
   // --- STATES FOR VOICE FEATURES ---
   const [isListening, setIsListening] = useState(false);
   const [speakingId, setSpeakingId] = useState(null); 
@@ -98,6 +124,17 @@ const GeminiChatBot = ({ apiKey }) => {
   
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle clicking outside the language dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // --- AUDIO HELPER ---
   const stopAudio = () => {
@@ -152,6 +189,7 @@ const GeminiChatBot = ({ apiKey }) => {
         recognitionRef.current.stop();
         setIsListening(false);
       }
+      setIsLangDropdownOpen(false);
     }
   }, [isOpen, isListening]);
 
@@ -161,8 +199,12 @@ const GeminiChatBot = ({ apiKey }) => {
       setIsListening(false);
     } else {
       setInput(''); 
-      recognitionRef.current?.start();
-      setIsListening(true);
+      if (recognitionRef.current) {
+        // Set the recognition language dynamically before starting
+        recognitionRef.current.lang = selectedLanguage.code;
+        recognitionRef.current?.start();
+        setIsListening(true);
+      }
     }
   };
 
@@ -177,11 +219,7 @@ const GeminiChatBot = ({ apiKey }) => {
         contents: `Please read the following text aloud exactly as written: ${cleanText}`,
         config: {
           responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: "Aoede" }
-            }
-          }
+          // Voice config omitted to allow the API to use its natural dialect mappings
         }
       });
 
@@ -369,6 +407,7 @@ const GeminiChatBot = ({ apiKey }) => {
     if (isListening) toggleListen();
     stopAudio();
     setSpeakingId(null);
+    setIsLangDropdownOpen(false);
 
     const userMessageId = Date.now().toString();
     const userMessage = { id: userMessageId, role: 'user', text: messageText.trim() };
@@ -395,7 +434,7 @@ const GeminiChatBot = ({ apiKey }) => {
         .map(name => `"${name}"`)
         .join(', ');
 
-      const currentSystemPrompt = getSystemPrompt(solutionsData, allAvailableServices);
+      const currentSystemPrompt = getSystemPrompt(selectedLanguage.name, solutionsData, allAvailableServices);
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash", 
@@ -472,6 +511,52 @@ const GeminiChatBot = ({ apiKey }) => {
             </div>
           </div>
           
+          {/* LANGUAGE SELECTOR DROPDOWN (Dark Theme) */}
+          <div className="relative" ref={langDropdownRef}>
+            <button 
+              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)} 
+              className="text-[11px] font-bold text-[#6b7280] flex items-center gap-1 bg-[#171a24] border border-[#1f2333] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30 px-2 py-1.5 rounded-lg transition-colors mr-1 shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
+              title="Select Language"
+            >
+              {selectedLanguage.name} <ChevronDown size={12} className={`transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`}/>
+            </button>
+
+            {isLangDropdownOpen && (
+              <div className="absolute top-full right-0 mt-2 w-44 bg-[#0f1117] border border-[#1f2333] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 flex flex-col overflow-hidden">
+                <div className="p-2 border-b border-[#1f2333] bg-[#171a24] flex items-center gap-2">
+                  <Search size={14} className="text-[#6b7280]" />
+                  <input 
+                    type="text" 
+                    placeholder="Search language..." 
+                    value={langSearch}
+                    onChange={(e) => setLangSearch(e.target.value)}
+                    className="text-[11px] font-medium bg-transparent focus:outline-none w-full text-[#e8eaf0] placeholder-[#6b7280]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                  {SUPPORTED_LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase())).map(lang => (
+                    <button 
+                      key={lang.code}
+                      onClick={() => { 
+                        setSelectedLanguage(lang); 
+                        setIsLangDropdownOpen(false); 
+                        setLangSearch('');
+                        // NO AUTO MESSAGE HERE
+                      }}
+                      className={`w-full text-left px-3 py-2 text-[11px] font-bold rounded-lg transition-colors ${selectedLanguage.code === lang.code ? 'bg-gradient-to-r from-[#00e5ff] to-[#00b3cc] text-[#07080d]' : 'text-[#e8eaf0] hover:bg-[#1f2333] hover:text-[#00e5ff]'}`}
+                    >
+                      {lang.name}
+                    </button>
+                  ))}
+                  {SUPPORTED_LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase())).length === 0 && (
+                    <div className="px-3 py-2 text-[11px] text-[#6b7280] text-center">No results found</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Clear History Button */}
           {messages.length > 0 && (
             <button 
@@ -597,8 +682,12 @@ const GeminiChatBot = ({ apiKey }) => {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
-                          window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
+                          toggleChat();
+                          navigate("/contact", { 
+                            state: { 
+                              prefilledMessage: "Hi team,\n\nI would like to schedule a strategic meeting with your experts to discuss a digital transformation roadmap for our enterprise.\n\nPlease let me know the best times to connect."
+                            }
+                          });
                         }}
                         className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
                       >
@@ -738,6 +827,11 @@ const GeminiChatBot = ({ apiKey }) => {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
       `}</style>
     </>
   );
