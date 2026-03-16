@@ -30,8 +30,24 @@ const SUPPORTED_LANGUAGES = [
   { code: 'tr-TR', name: 'Turkish' }
 ].sort((a, b) => a.name.localeCompare(b.name));
 
+const BEST_VOICES = {
+  'en-US': 'en-US-Neural2-F',
+  'es-ES': 'es-ES-Neural2-A',
+  'fr-FR': 'fr-FR-Neural2-A',
+  'de-DE': 'de-DE-Neural2-F',
+  'ar-SA': 'ar-SA-Wavenet-A', // Arabic's best stable model
+  'zh-CN': 'cmn-CN-Wavenet-A', // Mandarin requires the cmn-CN code
+  'hi-IN': 'hi-IN-Neural2-A',
+  'ja-JP': 'ja-JP-Neural2-A',
+  'pt-BR': 'pt-BR-Neural2-A',
+  'ru-RU': 'ru-RU-Wavenet-A',
+  'it-IT': 'it-IT-Neural2-A',
+  'nl-NL': 'nl-NL-Wavenet-A',
+  'ko-KR': 'ko-KR-Neural2-A',
+  'tr-TR': 'tr-TR-Wavenet-A'
+};
 // Updated prompt to force the AI to read the whole history, extract ALL discussed services, and use the selected language
-const getSystemPrompt = (languageName, partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TECHUB. Your job is to help visitors understand our enterprise AI and technology solutions.
+const getSystemPrompt = (languageName, partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TecHub. Your job is to help visitors understand our enterprise AI and technology solutions.
 
 CRITICAL INSTRUCTION: You MUST communicate and respond to the user entirely in the following language: ${languageName}.
 
@@ -140,12 +156,8 @@ const GeminiChatBot = ({ apiKey }) => {
   const stopAudio = () => {
     if (currentAudioRef.current) {
       try {
-        if (typeof currentAudioRef.current.stop === 'function') {
-          currentAudioRef.current.stop(); 
-          currentAudioRef.current.disconnect(); 
-        } else if (typeof currentAudioRef.current.pause === 'function') {
-          currentAudioRef.current.pause(); 
-        }
+        currentAudioRef.current.pause(); 
+        currentAudioRef.current.currentTime = 0; // Reset audio to start
       } catch(e) {
         console.error("Error stopping audio", e);
       }
@@ -211,47 +223,53 @@ const GeminiChatBot = ({ apiKey }) => {
   // --- BACKGROUND AUDIO PRE-FETCHER ---
   const fetchAudioInBackground = async (messageId, text) => {
     try {
-      const ai = new GoogleGenAI({ apiKey: apiKey });
       const cleanText = text.replace(/[*_~`#]/g, '');
+      const targetVoiceName = BEST_VOICES[selectedLanguage.code];
+      const targetLangCode = selectedLanguage.code === 'zh-CN' ? 'cmn-CN' : selectedLanguage.code;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
-        contents: `Please read the following text aloud exactly as written: ${cleanText}`,
-        config: {
-          responseModalities: ["AUDIO"],
-          // Voice config omitted to allow the API to use its natural dialect mappings
-        }
-      });
+      // Helper function to keep the fetch request clean
+      const fetchTTS = async (voiceConfig) => {
+        return await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            input: { text: cleanText },
+            voice: voiceConfig,
+            audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0.0 }
+          })
+        });
+      };
 
-      const parts = response.candidates?.[0]?.content?.parts || [];
-      const audioPart = parts.find(part => part.inlineData && part.inlineData.mimeType.startsWith('audio/'));
+      // ATTEMPT 1: Try Premium Voice (if we mapped one)
+      let voiceConfig = targetVoiceName 
+        ? { languageCode: targetLangCode, name: targetVoiceName }
+        : { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
 
-      if (!audioPart) throw new Error('No audio returned');
+      let response = await fetchTTS(voiceConfig);
 
-      const base64Data = audioPart.inlineData.data;
-      const binaryString = window.atob(base64Data);
-      
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      
-      const int16Array = new Int16Array(bytes.buffer);
-      const float32Array = new Float32Array(int16Array.length);
-      for (let i = 0; i < int16Array.length; i++) {
-        float32Array[i] = int16Array[i] / 32768.0; 
-      }
-
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      // ATTEMPT 2: If Premium fails (400 Bad Request), instantly fallback to Standard Female
+      if (!response.ok) {
+        console.warn(`Premium voice failed or unavailable for ${selectedLanguage.code}. Falling back to standard female voice.`);
+        
+        // Strip the name and just ask for the best available female voice
+        voiceConfig = { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
+        response = await fetchTTS(voiceConfig);
       }
 
-      const audioBuffer = audioContextRef.current.createBuffer(1, float32Array.length, 24000);
-      audioBuffer.getChannelData(0).set(float32Array);
+      // If it still fails, throw the error
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Google Cloud TTS Error Details:', errorData);
+        throw new Error('TTS Fetch failed after fallback');
+      }
 
+      const data = await response.json();
+      const audioSrc = `data:audio/mp3;base64,${data.audioContent}`;
+      const audioElement = new Audio(audioSrc);
+
+      // Success! Update UI
       setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, audioBuffer: audioBuffer, audioLoading: false } : msg
+        msg.id === messageId ? { ...msg, audioElement: audioElement, audioLoading: false } : msg
       ));
 
     } catch (error) {
@@ -273,27 +291,20 @@ const GeminiChatBot = ({ apiKey }) => {
     stopAudio();
     setSpeakingId(msg.id); 
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (msg.audioElement) {
+      currentAudioRef.current = msg.audioElement;
+      
+      msg.audioElement.onended = () => {
+        setSpeakingId(null);
+        currentAudioRef.current = null;
+      };
+
+      msg.audioElement.play().catch(e => {
+        console.error("Audio playback error:", e);
+        setSpeakingId(null);
+      });
     }
-
-    if (audioContextRef.current.state === 'suspended') {
-      audioContextRef.current.resume();
-    }
-
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = msg.audioBuffer; 
-    source.connect(audioContextRef.current.destination);
-    currentAudioRef.current = source;
-
-    source.onended = () => {
-      setSpeakingId(null);
-      currentAudioRef.current = null;
-    };
-
-    source.start(); 
   };
-
   // --- UPDATED SCROLL LOGIC ---
   useEffect(() => {
     if (isLoading || (messages.length > 0 && messages[messages.length - 1].role === 'user')) {
@@ -453,7 +464,7 @@ const GeminiChatBot = ({ apiKey }) => {
         id: botMessageId,
         role: 'model', 
         text: responseData.text,
-        audioBuffer: null,      
+        audioElement: null,      
         audioLoading: true,     
         audioError: false,
         contactRouting: responseData.shouldRedirectToContact ? {
