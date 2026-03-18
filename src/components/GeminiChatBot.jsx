@@ -321,7 +321,7 @@ const GeminiChatBot = ({ apiKey }) => {
         });
       }
     }
-  }, [messages, isLoading]);
+  }, [messages.length, isLoading]);
 
   // --- ROUTE TRACKING TOOLTIP LOGIC ---
   useEffect(() => {
@@ -619,7 +619,6 @@ const GeminiChatBot = ({ apiKey }) => {
               </div>
             </div>
           )}
-
           {/* Chat History */}
           {messages.map((msg, index) => (
             <div 
@@ -637,11 +636,10 @@ const GeminiChatBot = ({ apiKey }) => {
                     ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
                     : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
                 }`}>
-                  <div>{formatMarkdown(msg.text)}</div>
                   
-                  {/* --- TEXT-TO-SPEECH BUTTON WITH LOADING STATES --- */}
+                  {/* --- TEXT-TO-SPEECH BUTTON MOVED TO TOP --- */}
                   {msg.role === 'model' && msg.id && (
-                    <div className="mt-2 pt-2 border-t border-[#1f2333]/50 flex justify-end">
+                    <div className="mb-2 flex justify-end">
                       {msg.audioLoading ? (
                         <div className="flex items-center gap-1.5 text-[10px] font-medium px-1.5 py-0.5 text-[#6b7280]">
                           <Loader2 size={12} className="animate-spin text-[#00e5ff]" /> Preparing Audio...
@@ -666,6 +664,10 @@ const GeminiChatBot = ({ apiKey }) => {
                       )}
                     </div>
                   )}
+
+                  {/* Chat Text now renders below the button */}
+                  <div>{formatMarkdown(msg.text)}</div>
+                  
                 </div>
 
                 {/* --- DYNAMIC FOLLOW-UP SUGGESTIONS --- */}
@@ -693,12 +695,8 @@ const GeminiChatBot = ({ apiKey }) => {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          toggleChat();
-                          navigate("/contact", { 
-                            state: { 
-                              prefilledMessage: "Hi team,\n\nI would like to schedule a strategic meeting with your experts to discuss a digital transformation roadmap for our enterprise.\n\nPlease let me know the best times to connect."
-                            }
-                          });
+                          e.stopPropagation();
+                          window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
                         }}
                         className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
                       >
