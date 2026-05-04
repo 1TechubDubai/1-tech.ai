@@ -108,7 +108,7 @@ RULES FOR ACTIONS & REDIRECTION:
 - If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".
 - ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array. All suggestedFollowUps MUST also be in ${languageName}.`;
 
-const GeminiChatBot = ({ apiKey }) => {
+const GeminiChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -227,15 +227,14 @@ const GeminiChatBot = ({ apiKey }) => {
       const targetVoiceName = BEST_VOICES[selectedLanguage.code];
       const targetLangCode = selectedLanguage.code === 'zh-CN' ? 'cmn-CN' : selectedLanguage.code;
 
-      // Helper function to keep the fetch request clean
+      //Point to your EC2 backend instead of Google
       const fetchTTS = async (voiceConfig) => {
-        return await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`, {
+        return await fetch('https://1techub.ai/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            input: { text: cleanText },
-            voice: voiceConfig,
-            audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0.0 }
+            text: cleanText,
+            voice: voiceConfig
           })
         });
       };
@@ -258,8 +257,6 @@ const GeminiChatBot = ({ apiKey }) => {
 
       // If it still fails, throw the error
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Google Cloud TTS Error Details:', errorData);
         throw new Error('TTS Fetch failed after fallback');
       }
 
@@ -434,7 +431,6 @@ const GeminiChatBot = ({ apiKey }) => {
         apiHistory = apiHistory.slice(1);
       }
 
-      const ai = new GoogleGenAI({ apiKey: apiKey });
       const formattedContents = apiHistory.map(msg => ({
         role: msg.role,
         parts: [{ text: msg.text }]
@@ -447,17 +443,23 @@ const GeminiChatBot = ({ apiKey }) => {
 
       const currentSystemPrompt = getSystemPrompt(selectedLanguage.name, solutionsData, allAvailableServices);
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash", 
-        contents: formattedContents,
-        config: {
-          systemInstruction: currentSystemPrompt,
-          responseMimeType: "application/json", 
-        }
+      const serverResponse = await fetch('https://1techub.ai/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: formattedContents,
+          systemInstruction: currentSystemPrompt
+        })
       });
 
-      const rawText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const responseData = JSON.parse(rawText);
+      if (!serverResponse.ok) {
+        throw new Error(`Server responded with status: ${serverResponse.status}`);
+      }
+
+      // Your backend already cleaned up the JSON, so we just read it directly!
+      const responseData = await serverResponse.json();
       const botMessageId = (Date.now() + 1).toString();
 
       const botMessage = { 
@@ -639,27 +641,29 @@ const GeminiChatBot = ({ apiKey }) => {
                   
                   {/* --- TEXT-TO-SPEECH BUTTON MOVED TO TOP --- */}
                   {msg.role === 'model' && msg.id && (
-                    <div className="mb-2 flex justify-end">
+                    <div className="mb-3 flex justify-end">
                       {msg.audioLoading ? (
-                        <div className="flex items-center gap-1.5 text-[10px] font-medium px-1.5 py-0.5 text-[#6b7280]">
-                          <Loader2 size={12} className="animate-spin text-[#00e5ff]" /> Preparing Audio...
+                        <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-[#00e5ff]/20 bg-[#00e5ff]/5 text-[#00e5ff] shadow-sm">
+                          <Loader2 size={14} className="animate-spin text-[#00e5ff]" /> 
+                          <span>Preparing Audio...</span>
                         </div>
                       ) : msg.audioError ? (
-                        <div className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 text-red-400">
-                          Audio Unavailable
+                        <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm">
+                          <VolumeX size={14} />
+                          <span>Audio Unavailable</span>
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSpeak(msg)}
-                          className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                          className={`flex items-center gap-2 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all duration-300 shadow-sm ${
                             speakingId === msg.id 
-                              ? 'text-cyan-400 bg-cyan-400/10' 
-                              : 'text-[#6b7280] hover:text-[#00e5ff] hover:bg-[#1f2333]'
+                              ? 'bg-[#00e5ff]/15 border-[#00e5ff]/40 text-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.2)] scale-[1.02]' 
+                              : 'bg-[#171a24] border-[#2a2f45] text-[#a1a1aa] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30'
                           }`}
                           title={speakingId === msg.id ? "Stop speaking" : "Read aloud"}
                         >
-                          {speakingId === msg.id ? <VolumeX size={12} /> : <Volume2 size={12} />}
-                          {speakingId === msg.id ? 'Stop' : 'Listen'}
+                          {speakingId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                          <span className="tracking-wide">{speakingId === msg.id ? 'STOP' : 'LISTEN'}</span>
                         </button>
                       )}
                     </div>

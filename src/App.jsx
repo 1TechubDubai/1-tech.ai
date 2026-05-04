@@ -15,15 +15,13 @@ import { Gem } from 'lucide-react';
 import GeminiChatbot from './components/GeminiChatBot.jsx';
 import {useEffect} from 'react'
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
 function App() {
   // useEffect(()=>{
   //   console.log("Gemini API Key:", apiKey);
   // },[])
   return (
     <BrowserRouter>
-      <GeminiChatbot apiKey={apiKey} />
+      <GeminiChatbot />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
