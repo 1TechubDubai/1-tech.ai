@@ -512,10 +512,9 @@ const GeminiChatBot = () => {
       </button>
 
       {/* Chat Window */}
-      <div className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] transition-all duration-250 lining-nums font-sans ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-4 scale-95 opacity-0 pointer-events-none'}`}>
-        
+      <div className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] lining-nums font-sans origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-12 scale-[0.85] opacity-0 pointer-events-none'}`}>
         {/* Header */}
-        <div className="px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0">
+        <div className={`px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0 transition-all duration-500 delay-100 ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
           <div className="flex-1">
             <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
@@ -606,7 +605,7 @@ const GeminiChatBot = () => {
         <div 
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className="relative flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]" 
+          className={`relative flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d] transition-all duration-500 delay-[150ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} 
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
         >
           
@@ -704,7 +703,7 @@ const GeminiChatBot = () => {
                         }}
                         className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
                       >
-                        <span>Book a Meeting</span>
+                        <span>Schedule a Consultation</span>
                         <CalendarCheck className="w-4 h-4" />
                       </button>
                     </div>
@@ -751,7 +750,7 @@ const GeminiChatBot = () => {
         </div>
 
         {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
-        <div className="bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar">
+        <div className={`bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar transition-all duration-500 delay-[200ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           
           <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
           
@@ -778,11 +777,11 @@ const GeminiChatBot = () => {
           <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
           <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
           <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
-          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Book a Meeting</button>
+          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Schedule a Consultation</button>
         </div>
 
         {/* Input Area with MIC BUTTON */}
-        <div className="bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0">
+        <div className={`bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0 transition-all duration-500 delay-[250ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <form onSubmit={handleFormSubmit} className="p-3.5 flex gap-2 items-center">
             <div className="flex-1 relative flex items-center">
               <input
