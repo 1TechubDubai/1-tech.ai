@@ -108,7 +108,7 @@ RULES FOR ACTIONS & REDIRECTION:
 - If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".
 - ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array. All suggestedFollowUps MUST also be in ${languageName}.`;
 
-const GeminiChatBot = () => {
+const GeminiChatBot = ({apiKey, ttsApiKey}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -221,62 +221,76 @@ const GeminiChatBot = () => {
   };
 
   // --- BACKGROUND AUDIO PRE-FETCHER ---
-  const fetchAudioInBackground = async (messageId, text) => {
-    try {
-      const cleanText = text.replace(/[*_~`#]/g, '');
-      const targetVoiceName = BEST_VOICES[selectedLanguage.code];
-      const targetLangCode = selectedLanguage.code === 'zh-CN' ? 'cmn-CN' : selectedLanguage.code;
+  const fetchAudioInBackground = async (messageId, text, ttsApiKey) => {
+      // 1. SAFETY CHECK: Prevent the crash if text is missing or undefined
+      if (!text || typeof text !== 'string') {
+        console.warn("fetchAudioInBackground: 'text' is undefined or empty. Skipping TTS.");
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId ? { ...msg, audioLoading: false, audioError: true } : msg
+        ));
+        return; 
+      }
 
-      //Point to your EC2 backend instead of Google
-      const fetchTTS = async (voiceConfig) => {
-        return await fetch('https://1techub.ai/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: cleanText,
-            voice: voiceConfig
-          })
-        });
-      };
+      try {
+        const cleanText = text.replace(/[*_~`#]/g, '');
+        const targetVoiceName = BEST_VOICES[selectedLanguage.code];
+        const targetLangCode = selectedLanguage.code === 'zh-CN' ? 'cmn-CN' : selectedLanguage.code;
 
-      // ATTEMPT 1: Try Premium Voice (if we mapped one)
-      let voiceConfig = targetVoiceName 
-        ? { languageCode: targetLangCode, name: targetVoiceName }
-        : { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
+        // Point directly to Google Cloud TTS API instead of your backend
+        const fetchTTS = async (voiceConfig) => {
+          return await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${ttsApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // Note the new structure required by Google's API:
+            body: JSON.stringify({
+              input: { text: cleanText },
+              voice: voiceConfig,
+              audioConfig: { audioEncoding: 'MP3' }
+            })
+          });
+        };
 
-      let response = await fetchTTS(voiceConfig);
+        // ATTEMPT 1: Try Premium Voice (if we mapped one)
+        let voiceConfig = targetVoiceName 
+          ? { languageCode: targetLangCode, name: targetVoiceName }
+          : { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
 
-      // ATTEMPT 2: If Premium fails (400 Bad Request), instantly fallback to Standard Female
-      if (!response.ok) {
-        console.warn(`Premium voice failed or unavailable for ${selectedLanguage.code}. Falling back to standard female voice.`);
+        let response = await fetchTTS(voiceConfig);
+
+        // ATTEMPT 2: If Premium fails (400 Bad Request), instantly fallback to Standard Female
+        if (!response.ok) {
+          console.warn(`Premium voice failed or unavailable for ${selectedLanguage.code}. Falling back to standard female voice.`);
+          
+          // Strip the name and just ask for the best available female voice
+          voiceConfig = { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
+          response = await fetchTTS(voiceConfig);
+        }
+
+        // If it still fails, throw the error
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Google Cloud TTS Error Details:', errorData);
+          throw new Error('TTS Fetch failed after fallback');
+        }
+
+        const data = await response.json();
         
-        // Strip the name and just ask for the best available female voice
-        voiceConfig = { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
-        response = await fetchTTS(voiceConfig);
+        // Google returns the base64 string directly in audioContent
+        const audioSrc = `data:audio/mp3;base64,${data.audioContent}`;
+        const audioElement = new Audio(audioSrc);
+
+        // Success! Update UI
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId ? { ...msg, audioElement: audioElement, audioLoading: false } : msg
+        ));
+
+      } catch (error) {
+        console.error("Background TTS Error:", error);
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId ? { ...msg, audioLoading: false, audioError: true } : msg
+        ));
       }
-
-      // If it still fails, throw the error
-      if (!response.ok) {
-        throw new Error('TTS Fetch failed after fallback');
-      }
-
-      const data = await response.json();
-      const audioSrc = `data:audio/mp3;base64,${data.audioContent}`;
-      const audioElement = new Audio(audioSrc);
-
-      // Success! Update UI
-      setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, audioElement: audioElement, audioLoading: false } : msg
-      ));
-
-    } catch (error) {
-      console.error("Background TTS Error:", error);
-      setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, audioLoading: false, audioError: true } : msg
-      ));
-    }
-  };
-
+    };
   // --- INSTANT AUDIO PLAYER ---
   const handleSpeak = (msg) => {
     if (speakingId === msg.id) {
@@ -408,13 +422,14 @@ const GeminiChatBot = () => {
     });
   };
 
-  const triggerSend = async (messageText) => {
+const triggerSend = async (messageText) => {
     if (!messageText.trim() || isLoading) return;
     
     // Stop listening/speaking if starting a text request
     if (isListening) toggleListen();
     stopAudio();
     setSpeakingId(null);
+    if (typeof setShowServicesMenu === 'function') setShowServicesMenu(false); 
     setIsLangDropdownOpen(false);
 
     const userMessageId = Date.now().toString();
@@ -426,65 +441,177 @@ const GeminiChatBot = () => {
     setIsLoading(true);
 
     try {
+      // 1. Initialize the Google Gen AI SDK directly on the frontend
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+
+      // 2. Format history for Gemini API
       let apiHistory = [...newHistory];
       if (apiHistory.length > 0 && apiHistory[0].role === 'model') {
         apiHistory = apiHistory.slice(1);
       }
 
       const formattedContents = apiHistory.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.text }]
+        role: msg.role === 'model' ? 'model' : 'user',
+        parts: [{ text: msg.text || "" }]
       }));
 
-      const partnerServiceNames = parsedSolutions.map(s => s.solutionName);
+      // 3. Build Dynamic Variables for System Prompt
+      const partnerServiceNames = parsedSolutions ? parsedSolutions.map(s => s.solutionName) : [];
       const allAvailableServices = [...CORE_SERVICES, ...partnerServiceNames]
         .map(name => `"${name}"`)
         .join(', ');
 
       const currentSystemPrompt = getSystemPrompt(selectedLanguage.name, solutionsData, allAvailableServices);
 
-      const serverResponse = await fetch('https://1techub.ai/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: formattedContents,
-          systemInstruction: currentSystemPrompt
-        })
-      });
+      // --- MODEL FALLBACK PIPELINE ---
+      // Ordered from least cost to most cost
+      const fallbackModels = [
+        'gemini-3.1-flash-lite',
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-3.0-pro',
+        'gemini-3.1-pro'
+      ];
 
-      if (!serverResponse.ok) {
-        throw new Error(`Server responded with status: ${serverResponse.status}`);
+      let response = null;
+      let apiSuccess = false;
+      let lastError = null;
+
+      // 4. Iterate through models until one succeeds
+      for (const modelName of fallbackModels) {
+        try {
+          console.log(`[Gemini API] Attempting generation with model: ${modelName}`);
+          
+          response = await ai.models.generateContent({
+            model: modelName,
+            contents: formattedContents,
+            config: {
+              systemInstruction: currentSystemPrompt,
+              responseMimeType: "application/json",
+              // Enforce the exact structure your previous backend provided
+              responseSchema: {
+                type: "OBJECT",
+                properties: {
+                  text: { 
+                    type: "STRING", 
+                    description: "The main conversational response formatted in markdown." 
+                  },
+                  suggestedFollowUps: { 
+                    type: "ARRAY", 
+                    items: { type: "STRING" }, 
+                    description: "Exactly 3 short follow-up questions." 
+                  },
+                  shouldShowCalendar: { 
+                    type: "BOOLEAN", 
+                    description: "True ONLY if the user explicitly asks for a meeting, call, or calendar link." 
+                  },
+                  shouldRedirectToContact: { 
+                    type: "BOOLEAN", 
+                    description: "True ONLY if the user asks for pricing, quotes, or to start a project." 
+                  },
+                  selectedServices: { 
+                    type: "ARRAY", 
+                    items: { type: "STRING" }, 
+                    description: "Map to the EXACT names from the capabilities if implied." 
+                  },
+                  prefilledMessage: { 
+                    type: "STRING", 
+                    description: "Provide a short 1st-person summary if redirecting to contact." 
+                  }
+                },
+                required: ["text"]
+              }
+            }
+          });
+
+          // If we reach this line, the API call succeeded!
+          apiSuccess = true;
+          console.log(`[Gemini API] Success using: ${modelName}`);
+          break; // Exit the loop
+          
+        } catch (err) {
+          console.warn(`[Gemini API] Model ${modelName} failed. Falling back... Error:`, err.message);
+          lastError = err;
+          // Loop continues to the next model in the array
+        }
       }
 
-      // Your backend already cleaned up the JSON, so we just read it directly!
-      const responseData = await serverResponse.json();
+      // If the loop finished and ALL models failed, throw to the outer catch block
+      if (!apiSuccess || !response) {
+        throw new Error(`All fallback models failed. Last error: ${lastError?.message}`);
+      }
+      // -------------------------------
+
+      // 5. Parse the direct JSON response
+      const responseText = response.text;
+      const payload = JSON.parse(responseText);
+
+      let finalBotText = payload.text || "";
+
+      // Fallback: Dynamically extract nested Objects/Arrays just in case
+      for (const key in payload) {
+        const isNotRoutingKey = !['text', 'response', 'message', 'content', 'suggestedFollowUps', 'selectedServices', 'prefilledMessage', 'shouldShowCalendar', 'shouldRedirectToContact'].includes(key);
+        
+        if (isNotRoutingKey && typeof payload[key] === 'object' && payload[key] !== null) {
+          if (Array.isArray(payload[key])) {
+            const formattedBullets = payload[key].map(item => {
+              if (typeof item === 'string') return `* ${item}`;
+              if (typeof item === 'object' && item !== null) return `* ${Object.values(item).filter(v => typeof v === 'string').join(': ')}`;
+              return '';
+            }).filter(Boolean).join('\n');
+            
+            if (formattedBullets) finalBotText += (finalBotText ? '\n\n' : '') + formattedBullets;
+          } else {
+            const formattedObject = Object.entries(payload[key]).map(([k, v]) => {
+              if (typeof v === 'string') {
+                const cleanTitle = k.replace(/_/g, ' '); 
+                return `* **${cleanTitle}**: ${v}`;
+              }
+              return '';
+            }).filter(Boolean).join('\n');
+
+            if (formattedObject) finalBotText += (finalBotText ? '\n\n' : '') + formattedObject;
+          }
+        }
+      }
+
+      // 6. Final Safety Check
+      if (!finalBotText) {
+        console.error("Gemini returned an unexpected payload:", payload);
+        throw new Error("Missing text content in AI response");
+      }
+
       const botMessageId = (Date.now() + 1).toString();
 
+      // 7. Map the payload to your UI state exactly as before
       const botMessage = { 
         id: botMessageId,
         role: 'model', 
-        text: responseData.text,
+        text: finalBotText, 
         audioElement: null,      
         audioLoading: true,     
         audioError: false,
-        contactRouting: responseData.shouldRedirectToContact ? {
-          services: responseData.selectedServices || [],
-          message: responseData.prefilledMessage || ""
+        contactRouting: payload.shouldRedirectToContact ? {
+          services: payload.selectedServices || [],
+          message: payload.prefilledMessage || ""
         } : null,
-        calendarRouting: responseData.shouldShowCalendar ? true : false,
-        suggestedFollowUps: responseData.suggestedFollowUps || [] 
+        calendarRouting: payload.shouldShowCalendar ? true : false,
+        suggestedFollowUps: payload.suggestedFollowUps || [] 
       };
 
       setMessages((prev) => [...prev, botMessage]);
       
-      // Fetch audio in background
-      fetchAudioInBackground(botMessageId, responseData.text);
-
+      // 8. Fetch audio in background using the new TTS API key from props
+      fetchAudioInBackground(botMessageId, finalBotText, ttsApiKey);
+      
     } catch (error) {
-      console.error("Gemini API Error:", error);
-      const errorMessage = { id: Date.now().toString(), role: 'model', text: 'Sorry, I encountered an error. Please try again.', audioLoading: false };
+      console.error("Direct Gemini API Fetch Error:", error);
+      const errorMessage = { 
+        id: Date.now().toString(), 
+        role: 'model', 
+        text: 'Sorry, I encountered an error generating a response. Please try again.', 
+        audioLoading: false 
+      };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
