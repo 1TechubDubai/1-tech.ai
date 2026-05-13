@@ -100,8 +100,8 @@ Your JSON must match this structure exactly:
 }
 
 RULES FOR ACTIONS & REDIRECTION:
-- If the user explicitly asks to schedule a call, book a meeting, talk to someone, or get on a call, set "shouldShowCalendar" to true.
-- If the user asks for pricing, wants to start a project, asks for a quote, or needs custom development, set "shouldRedirectToContact" to true. (Note: Both can be true if they ask for both).
+- Always set "shouldRedirectToContact" to true.
+- Never set "shouldShowCalendar" to true. (We don't show the calendar button anymore)
 - If "shouldRedirectToContact" is true, CAREFULLY REVIEW THE ENTIRE CONVERSATION HISTORY. Identify EVERY service or solution the user has asked about or shown interest in during the chat.
 - Populate the "selectedServices" array with ALL of those identified services. You must ONLY use exact names from this combined list: [${availableServicesList}]. 
 - If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing EVERYTHING they want to build based on the whole chat history (e.g., "Hi, I am looking to build a custom RAG solution for my HR data, and I also want to learn more about the Logistics IoT tracking system we discussed...").
@@ -503,11 +503,11 @@ const triggerSend = async (messageText) => {
                   },
                   shouldShowCalendar: { 
                     type: "BOOLEAN", 
-                    description: "True ONLY if the user explicitly asks for a meeting, call, or calendar link." 
+                    description: "Always false since we don't show the calendar button." 
                   },
                   shouldRedirectToContact: { 
                     type: "BOOLEAN", 
-                    description: "True ONLY if the user asks for pricing, quotes, or to start a project." 
+                    description: "Always true to show the contact button." 
                   },
                   selectedServices: { 
                     type: "ARRAY", 
@@ -591,11 +591,11 @@ const triggerSend = async (messageText) => {
         audioElement: null,      
         audioLoading: true,     
         audioError: false,
-        contactRouting: payload.shouldRedirectToContact ? {
+        contactRouting: {
           services: payload.selectedServices || [],
           message: payload.prefilledMessage || ""
-        } : null,
-        calendarRouting: payload.shouldShowCalendar ? true : false,
+        },
+        calendarRouting: false, // Always false since we removed the calendar button
         suggestedFollowUps: payload.suggestedFollowUps || [] 
       };
 
@@ -813,26 +813,6 @@ const triggerSend = async (messageText) => {
                           {suggestion}
                         </button>
                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* --- SMART CALENDAR ROUTING BUTTON --- */}
-                {msg.calendarRouting && (
-                  <div className="mt-2 w-full max-w-[240px]">
-                    <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)] flex flex-col gap-2">
-                      <p className="text-[11px] text-[#e8eaf0] text-center font-medium">Ready to dive deeper?</p>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          window.open("https://calendly.com/harish-krishnan1976", "_blank", "noopener,noreferrer");
-                        }}
-                        className="flex items-center justify-center gap-2 py-1.5 px-3 bg-[#00e5ff] text-[#07080d] rounded-lg text-[12px] font-bold hover:bg-[#00cce6] hover:scale-[1.02] transition-all w-full"
-                      >
-                        <span>Schedule a Consultation</span>
-                        <CalendarCheck className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 )}
