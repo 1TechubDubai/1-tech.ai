@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX, Loader2, ChevronDown, Search } from 'lucide-react';
+import { CalendarCheck, Trash2, ArrowDown, Mic, MicOff, Volume2, VolumeX, Loader2, ChevronDown, Search, Paperclip, X, Maximize2, Minimize2, Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
@@ -14,104 +14,115 @@ const CORE_SERVICES = [
 
 // List of supported languages for speech and bot responses
 const SUPPORTED_LANGUAGES = [
-  { code: 'en-US', name: 'English' },
-  { code: 'es-ES', name: 'Spanish' },
-  { code: 'fr-FR', name: 'French' },
-  { code: 'de-DE', name: 'German' },
-  { code: 'ar-SA', name: 'Arabic' },
-  { code: 'zh-CN', name: 'Mandarin' },
-  { code: 'hi-IN', name: 'Hindi' },
-  { code: 'ja-JP', name: 'Japanese' },
-  { code: 'pt-BR', name: 'Portuguese' },
-  { code: 'ru-RU', name: 'Russian' },
-  { code: 'it-IT', name: 'Italian' },
-  { code: 'nl-NL', name: 'Dutch' },
-  { code: 'ko-KR', name: 'Korean' },
-  { code: 'tr-TR', name: 'Turkish' }
+  { code: 'en-US', name: 'English' }, { code: 'es-ES', name: 'Spanish' },
+  { code: 'fr-FR', name: 'French' }, { code: 'de-DE', name: 'German' },
+  { code: 'ar-SA', name: 'Arabic' }, { code: 'zh-CN', name: 'Mandarin' },
+  { code: 'hi-IN', name: 'Hindi' }, { code: 'ja-JP', name: 'Japanese' },
+  { code: 'pt-BR', name: 'Portuguese' }, { code: 'ru-RU', name: 'Russian' },
+  { code: 'it-IT', name: 'Italian' }, { code: 'nl-NL', name: 'Dutch' },
+  { code: 'ko-KR', name: 'Korean' }, { code: 'tr-TR', name: 'Turkish' }
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 const BEST_VOICES = {
-  'en-US': 'en-US-Neural2-F',
-  'es-ES': 'es-ES-Neural2-A',
-  'fr-FR': 'fr-FR-Neural2-A',
-  'de-DE': 'de-DE-Neural2-F',
-  'ar-SA': 'ar-SA-Wavenet-A', // Arabic's best stable model
-  'zh-CN': 'cmn-CN-Wavenet-A', // Mandarin requires the cmn-CN code
-  'hi-IN': 'hi-IN-Neural2-A',
-  'ja-JP': 'ja-JP-Neural2-A',
-  'pt-BR': 'pt-BR-Neural2-A',
-  'ru-RU': 'ru-RU-Wavenet-A',
-  'it-IT': 'it-IT-Neural2-A',
-  'nl-NL': 'nl-NL-Wavenet-A',
-  'ko-KR': 'ko-KR-Neural2-A',
-  'tr-TR': 'tr-TR-Wavenet-A'
+  'en-US': 'en-US-Neural2-F', 'es-ES': 'es-ES-Neural2-A',
+  'fr-FR': 'fr-FR-Neural2-A', 'de-DE': 'de-DE-Neural2-F',
+  'ar-SA': 'ar-SA-Wavenet-A', 'zh-CN': 'cmn-CN-Wavenet-A',
+  'hi-IN': 'hi-IN-Neural2-A', 'ja-JP': 'ja-JP-Neural2-A',
+  'pt-BR': 'pt-BR-Neural2-A', 'ru-RU': 'ru-RU-Wavenet-A',
+  'it-IT': 'it-IT-Neural2-A', 'nl-NL': 'nl-NL-Wavenet-A',
+  'ko-KR': 'ko-KR-Neural2-A', 'tr-TR': 'tr-TR-Wavenet-A'
 };
-// Updated prompt to force the AI to read the whole history, extract ALL discussed services, and use the selected language
-const getSystemPrompt = (languageName, partnerData, availableServicesList) => `You are the official, professional AI assistant for 1TecHub. Your job is to help visitors understand our enterprise AI and technology solutions.
 
-CRITICAL INSTRUCTION: You MUST communicate and respond to the user entirely in the following language: ${languageName}.
+const getSystemPrompt = (languageName, partnerData, availableServicesList) => `
+You are the official AI Lead Qualification Agent for 1TecHub.
 
-Company Context & Tone:
-- We provide industrial-scale, secure, and highly strategic AI and software solutions.
-- Keep responses clear, professional, concise, and business-focused. 
-- You do NOT provide coding help, personal advice, or answer general knowledge questions.
-- In comparitevely larger responses make sure to provide proper spacing and paragraphs divisions
-- Always ask follow up questions on what exactly the users are looking for
+[DIRECTIVES]
+1. Respond entirely in ${languageName}.
+2. Tone: Professional, concise, business-focused.
+3. Governance: Expose only high-level advisory phases. Do NOT reveal internal architecture, execution pathways, or proprietary methods.
+4. Scope Control: DO NOT provide generic coding tutorials or general knowledge assistance. HOWEVER, you MUST actively analyze uploaded documents, specifications, requirements, and business improvement suggestions as valid inputs for strategic discovery and proposal development.
 
-Core Services & Details:
-1. Custom Enterprise AI Solutions: AI strategy, ML decision systems, strict AI governance.
-2. Autonomous AI Agents: Multi-agent orchestration, self-healing workflows.
-3. LLM Integration: RAG, prompt engineering, custom fine-tuning (PEFT/LoRA).
-4. Advanced Machine Learning: Predictive analytics, MLOps, drift detection.
-5. Data Science & Big Data: Petabyte-scale infra, Kafka streaming, BI dashboards.
-6. Natural Language Processing: Sentiment analysis, multilingual translation, semantic search.
-7. Conversational Voice AI: STT, TTS, voice cloning, intelligent IVR.
-8. Software Development: End-to-end product engineering (React, Node, Go), SaaS platforms.
+[CORE CAPABILITIES]
+- Enterprise AI Strategy & Governance
+- Autonomous AI Agents
+- LLM / RAG / Fine-Tuning Solutions
+- ML, Data Science & MLOps
+- NLP & Voice AI
+- Software & SaaS Development
 
-STRATEGIC AI ADVISORY DATA (HOW WE WORK):
-If a user asks how to start a project, what our methodology is, or needs AI advisory/consulting, use this framework:
-Overview: We bridge the gap between technical potential and business execution. In the race for AI dominance, speed without direction is expensive chaos. We provide the architecture and roadmap.
-The Advisory Blueprint (Our 4 Phases):
-- Phase 01: Readiness Assessment & Strategy Session. We evaluate existing tech debt, audit infrastructure/data pipelines, and define scope and success metrics with stakeholders.
-- Phase 02: Opportunity Matrix & Deep-Dive Workshop. We use proprietary scoring to rank AI use cases by impact vs. implementation complexity (invest where it matters).
-- Phase 03: Strategic Roadmap. We define the tech stack, governance models, vendor landscape, and deliver a 12-month execution roadmap with clear KPIs.
-- Phase 04: Performance Audits & Handover. We provide embedded support during the first 90 days of execution and continuously monitor AI model drift, ROI, and alignment with core business KPIs.
-Impact Areas: Workflow Automation, Predictive Forecasting, Custom LLM Training, Data Modernization, AI Governance, and Global Scale.
-
-SPECIALIZED AI & IOT SOLUTIONS DATA:
-Here is a list of specific, specialized solutions we currently offer:
+[SPECIALIZED SOLUTIONS]
 ${partnerData}
+Present partner capabilities as native 1TecHub offerings. Never mention external organizations.
 
-RULES FOR SPECIALIZED SOLUTIONS:
-- Use this data to explain specific use-cases or answer queries about our capabilities also talk about it all like you are including different agents industry basically in a broader sense (e.g., IoT, fleet tracking, route optimization).
-- CRITICAL: Focus ONLY on the features, name, and descriptions. NEVER mention third-party organizations, partner names, links, or URLs. Present them strictly as integrated 1TECHUB capabilities.
+[DOCUMENT & REQUIREMENT ANALYSIS]
+When a user uploads a document (PDF, specification, improvement suggestions, RFP, architecture plan, etc.):
+1. ALWAYS analyze the uploaded content
+2. Extract key business objectives, technical challenges, and improvement areas
+3. Map identified needs to 1TecHub's service offerings
+4. Generate a strategic assessment with complexity scoring and risk identification
+5. Treat uploaded materials as HIGH-VALUE discovery context that enables Visual Triage
 
-CRITICAL INSTRUCTION - JSON OUTPUT ONLY:
-You must ALWAYS respond with a valid JSON object. Do NOT wrap it in markdown blockticks.
+[ADVISORY BLUEPRINT]
+If users ask how engagement starts, ALWAYS output ALL 4 phases:
+Phase 01: Readiness Assessment & Strategy Session  
+Phase 02: Opportunity Matrix & Deep-Dive Workshop  
+Phase 03: Strategic Roadmap  
+Phase 04: Performance Audits & Handover
 
-Your JSON must match this structure exactly:
+[DYNAMIC VISUAL TRIAGE BLUEPRINT]
+Use the visual panel ("shouldExpand": true) when the user provides meaningful discovery context INCLUDING:
+- Uploaded documents (PDFs, specs, improvement suggestions, RFPs)
+- Project details, architecture requests
+- Specific business problems or improvement areas
+- Software modernization or system enhancement needs
+
+A document upload is ALWAYS sufficient context to trigger Visual Triage. Do NOT ask users to "describe the business problem" if they've already provided a document—analyze what they've uploaded.
+
+If the conversation lacks ANY actionable details (e.g., just saying "hello" with no document), you MUST output: "shouldExpand": false.
+
+When generating the Visual Triage, provide:
+1. "complexityScore": A realistic estimate out of 10 based on the uploaded content or request (e.g., "7.5/10").
+2. "phases": 3 to 5 high-level delivery stages tailored to their documented needs. Set status to "gated" to show we protect IP.
+3. "criticalRisks": Identify 2 to 3 HIGHLY SPECIFIC bottlenecks or threats based on the uploaded materials or prompt to prove expertise (e.g., "Latency during real-time DB sync", "Compliance gap in PII handling"). Do not invent numbers.
+
+[OUTPUT RULES]
+Always output STRICT JSON.
+Always set "shouldRedirectToContact": true and "shouldShowCalendar": false.
+selectedServices MUST use exact matches from: [${availableServicesList}]
+
 {
-  "text": "Your conversational response to the user here.",
-  "shouldRedirectToContact": true or false,
-  "shouldShowCalendar": true or false,
-  "selectedServices": ["Service 1", "Service 2"],
-  "prefilledMessage": "string",
-  "suggestedFollowUps": ["Follow up question 1?", "Follow up question 2?", "Follow up question 3?"]
+  "text": "Main conversational response.",
+  "shouldRedirectToContact": true,
+  "shouldShowCalendar": false,
+  "selectedServices": ["Service 1"],
+  "prefilledMessage": "1st-person project summary.",
+  "suggestedFollowUps": ["Q1?", "Q2?", "Q3?"],
+  "visualStage": {
+    "shouldExpand": true,
+    "type": "blueprint",
+    "title": "Project Triage Blueprint",
+    "description": "Initial complexity and risk assessment.",
+    "complexityScore": "8.5",
+    "phases": [
+      {"step": 1, "name": "Legacy Data Audit", "status": "gated"},
+      {"step": 2, "name": "Architecture Scoping", "status": "gated"}
+    ],
+    "criticalRisks": [
+      {"risk": "Data migration latency bottlenecks", "impact": "High"},
+      {"risk": "Role-based access control compliance", "impact": "Critical"}
+    ]
+  }
 }
-
-RULES FOR ACTIONS & REDIRECTION:
-- Always set "shouldRedirectToContact" to true.
-- Never set "shouldShowCalendar" to true. (We don't show the calendar button anymore)
-- If "shouldRedirectToContact" is true, CAREFULLY REVIEW THE ENTIRE CONVERSATION HISTORY. Identify EVERY service or solution the user has asked about or shown interest in during the chat.
-- Populate the "selectedServices" array with ALL of those identified services. You must ONLY use exact names from this combined list: [${availableServicesList}]. 
-- If "shouldRedirectToContact" is true, write a brief "prefilledMessage" written from the USER'S perspective summarizing EVERYTHING they want to build based on the whole chat history (e.g., "Hi, I am looking to build a custom RAG solution for my HR data, and I also want to learn more about the Logistics IoT tracking system we discussed...").
-- If "shouldRedirectToContact" is false, leave selectedServices as an empty array [] and prefilledMessage as an empty string "".
-- ALWAYS generate exactly 3 short, relevant follow-up questions the user could ask next based on your current response, and place them in the "suggestedFollowUps" array. All suggestedFollowUps MUST also be in ${languageName}.`;
+`;
 
 const GeminiChatBot = ({apiKey, ttsApiKey}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // New Phase 1 UI state
+  const [currentVisual, setCurrentVisual] = useState(null); // New Phase 1 UI state
+  
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [attachedFile, setAttachedFile] = useState(null); // New Phase 1 file state
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -120,28 +131,26 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
   const [selectedLanguage, setSelectedLanguage] = useState(SUPPORTED_LANGUAGES.find(l => l.code === 'en-US'));
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [langSearch, setLangSearch] = useState('');
-  const langDropdownRef = useRef(null);
-
+  
   // --- STATES FOR VOICE FEATURES ---
   const [isListening, setIsListening] = useState(false);
   const [speakingId, setSpeakingId] = useState(null); 
   const recognitionRef = useRef(null);
   
-  // States for storing our solutions data
   const [solutionsData, setSolutionsData] = useState("Loading specialized solutions...");
   const [parsedSolutions, setParsedSolutions] = useState([]); 
   
   // Refs
+  const fileInputRef = useRef(null); // New ref for file uploads
+  const langDropdownRef = useRef(null);
   const messagesEndRef = useRef(null);
   const lastMessageRef = useRef(null); 
   const chatContainerRef = useRef(null); 
   const currentAudioRef = useRef(null); 
-  const audioContextRef = useRef(null); 
   
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle clicking outside the language dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
@@ -152,12 +161,11 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // --- AUDIO HELPER ---
   const stopAudio = () => {
     if (currentAudioRef.current) {
       try {
         currentAudioRef.current.pause(); 
-        currentAudioRef.current.currentTime = 0; // Reset audio to start
+        currentAudioRef.current.currentTime = 0; 
       } catch(e) {
         console.error("Error stopping audio", e);
       }
@@ -165,7 +173,6 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     }
   };
 
-  // --- INITIALIZE SPEECH RECOGNITION ---
   useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -192,7 +199,6 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     }
   }, []);
 
-  // Stop any ongoing speech when component unmounts or chat closes
   useEffect(() => {
     if (!isOpen) {
       stopAudio();
@@ -212,7 +218,6 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     } else {
       setInput(''); 
       if (recognitionRef.current) {
-        // Set the recognition language dynamically before starting
         recognitionRef.current.lang = selectedLanguage.code;
         recognitionRef.current?.start();
         setIsListening(true);
@@ -220,9 +225,20 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     }
   };
 
-  // --- BACKGROUND AUDIO PRE-FETCHER ---
+  // --- FILE UPLOAD LOGIC ---
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAttachedFile(file);
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachedFile(null);
+    if(fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const fetchAudioInBackground = async (messageId, text, ttsApiKey) => {
-      // 1. SAFETY CHECK: Prevent the crash if text is missing or undefined
       if (!text || typeof text !== 'string') {
         console.warn("fetchAudioInBackground: 'text' is undefined or empty. Skipping TTS.");
         setMessages(prev => prev.map(msg => 
@@ -236,12 +252,10 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
         const targetVoiceName = BEST_VOICES[selectedLanguage.code];
         const targetLangCode = selectedLanguage.code === 'zh-CN' ? 'cmn-CN' : selectedLanguage.code;
 
-        // Point directly to Google Cloud TTS API instead of your backend
         const fetchTTS = async (voiceConfig) => {
           return await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${ttsApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Note the new structure required by Google's API:
             body: JSON.stringify({
               input: { text: cleanText },
               voice: voiceConfig,
@@ -250,23 +264,18 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
           });
         };
 
-        // ATTEMPT 1: Try Premium Voice (if we mapped one)
         let voiceConfig = targetVoiceName 
           ? { languageCode: targetLangCode, name: targetVoiceName }
           : { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
 
         let response = await fetchTTS(voiceConfig);
 
-        // ATTEMPT 2: If Premium fails (400 Bad Request), instantly fallback to Standard Female
         if (!response.ok) {
           console.warn(`Premium voice failed or unavailable for ${selectedLanguage.code}. Falling back to standard female voice.`);
-          
-          // Strip the name and just ask for the best available female voice
           voiceConfig = { languageCode: selectedLanguage.code, ssmlGender: 'FEMALE' };
           response = await fetchTTS(voiceConfig);
         }
 
-        // If it still fails, throw the error
         if (!response.ok) {
           const errorData = await response.json();
           console.error('Google Cloud TTS Error Details:', errorData);
@@ -274,12 +283,9 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
         }
 
         const data = await response.json();
-        
-        // Google returns the base64 string directly in audioContent
         const audioSrc = `data:audio/mp3;base64,${data.audioContent}`;
         const audioElement = new Audio(audioSrc);
 
-        // Success! Update UI
         setMessages(prev => prev.map(msg => 
           msg.id === messageId ? { ...msg, audioElement: audioElement, audioLoading: false } : msg
         ));
@@ -291,7 +297,7 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
         ));
       }
     };
-  // --- INSTANT AUDIO PLAYER ---
+
   const handleSpeak = (msg) => {
     if (speakingId === msg.id) {
       stopAudio();
@@ -316,7 +322,7 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
       });
     }
   };
-  // --- UPDATED SCROLL LOGIC ---
+
   useEffect(() => {
     if (isLoading || (messages.length > 0 && messages[messages.length - 1].role === 'user')) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -334,7 +340,6 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     }
   }, [messages.length, isLoading]);
 
-  // --- ROUTE TRACKING TOOLTIP LOGIC ---
   useEffect(() => {
     setShowTooltip(true);
     const timer = setTimeout(() => {
@@ -343,7 +348,6 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  // --- FIRESTORE DATA FETCHING & SANITIZATION ---
   useEffect(() => {
     const fetchNodes = async () => {
       try {
@@ -392,9 +396,10 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     setMessages([]);
     stopAudio();
     setSpeakingId(null);
+    setIsExpanded(false); // Reset Phase 1 visual state
+    setCurrentVisual(null);
   };
 
-  // --- SCROLL HANDLER TO SHOW/HIDE DOWN ARROW ---
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
@@ -422,10 +427,13 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
     });
   };
 
-const triggerSend = async (messageText) => {
-    if (!messageText.trim() || isLoading) return;
+  const triggerSend = async (messageText) => {
+    const fullMessage = attachedFile 
+        ? `[Uploaded Document: ${attachedFile.name}]\n\n${messageText}` 
+        : messageText;
+
+    if (!fullMessage.trim() || isLoading) return;
     
-    // Stop listening/speaking if starting a text request
     if (isListening) toggleListen();
     stopAudio();
     setSpeakingId(null);
@@ -433,18 +441,17 @@ const triggerSend = async (messageText) => {
     setIsLangDropdownOpen(false);
 
     const userMessageId = Date.now().toString();
-    const userMessage = { id: userMessageId, role: 'user', text: messageText.trim() };
+    const userMessage = { id: userMessageId, role: 'user', text: fullMessage.trim() };
     
     let newHistory = [...messages, userMessage];
     setMessages(newHistory);
     setInput('');
+    removeAttachment(); 
     setIsLoading(true);
 
     try {
-      // 1. Initialize the Google Gen AI SDK directly on the frontend
       const ai = new GoogleGenAI({ apiKey: apiKey });
 
-      // 2. Format history for Gemini API
       let apiHistory = [...newHistory];
       if (apiHistory.length > 0 && apiHistory[0].role === 'model') {
         apiHistory = apiHistory.slice(1);
@@ -455,7 +462,6 @@ const triggerSend = async (messageText) => {
         parts: [{ text: msg.text || "" }]
       }));
 
-      // 3. Build Dynamic Variables for System Prompt
       const partnerServiceNames = parsedSolutions ? parsedSolutions.map(s => s.solutionName) : [];
       const allAvailableServices = [...CORE_SERVICES, ...partnerServiceNames]
         .map(name => `"${name}"`)
@@ -463,21 +469,26 @@ const triggerSend = async (messageText) => {
 
       const currentSystemPrompt = getSystemPrompt(selectedLanguage.name, solutionsData, allAvailableServices);
 
-      // --- MODEL FALLBACK PIPELINE ---
-      // Ordered from least cost to most cost
-      const fallbackModels = [
-        'gemini-3.1-flash-lite',
-        'gemini-2.5-flash',
-        'gemini-2.5-pro',
-        'gemini-3.0-pro',
-        'gemini-3.1-pro'
-      ];
+      // Model waterfall logic for redundancy
+      // Prioritize pro models when file is attached for better analysis
+      const fallbackModels = attachedFile
+        ? [
+            'gemini-2.5-pro',
+            'gemini-3.0-pro',
+            'gemini-2.5-flash',
+            'gemini-3.1-flash-lite'
+          ]
+        : [
+            'gemini-3.1-flash-lite',
+            'gemini-2.5-flash',
+            'gemini-2.5-pro',
+            'gemini-3.0-pro'
+          ];
 
       let response = null;
       let apiSuccess = false;
       let lastError = null;
 
-      // 4. Iterate through models until one succeeds
       for (const modelName of fallbackModels) {
         try {
           console.log(`[Gemini API] Attempting generation with model: ${modelName}`);
@@ -488,69 +499,30 @@ const triggerSend = async (messageText) => {
             config: {
               systemInstruction: currentSystemPrompt,
               responseMimeType: "application/json",
-              // Enforce the exact structure your previous backend provided
-              responseSchema: {
-                type: "OBJECT",
-                properties: {
-                  text: { 
-                    type: "STRING", 
-                    description: "The main conversational response formatted in markdown." 
-                  },
-                  suggestedFollowUps: { 
-                    type: "ARRAY", 
-                    items: { type: "STRING" }, 
-                    description: "Exactly 3 short follow-up questions." 
-                  },
-                  shouldShowCalendar: { 
-                    type: "BOOLEAN", 
-                    description: "Always false since we don't show the calendar button." 
-                  },
-                  shouldRedirectToContact: { 
-                    type: "BOOLEAN", 
-                    description: "Always true to show the contact button." 
-                  },
-                  selectedServices: { 
-                    type: "ARRAY", 
-                    items: { type: "STRING" }, 
-                    description: "Map to the EXACT names from the capabilities if implied." 
-                  },
-                  prefilledMessage: { 
-                    type: "STRING", 
-                    description: "Provide a short 1st-person summary if redirecting to contact." 
-                  }
-                },
-                required: ["text"]
-              }
             }
           });
 
-          // If we reach this line, the API call succeeded!
           apiSuccess = true;
           console.log(`[Gemini API] Success using: ${modelName}`);
-          break; // Exit the loop
-          
+          break; 
         } catch (err) {
           console.warn(`[Gemini API] Model ${modelName} failed. Falling back... Error:`, err.message);
           lastError = err;
-          // Loop continues to the next model in the array
         }
       }
 
-      // If the loop finished and ALL models failed, throw to the outer catch block
       if (!apiSuccess || !response) {
         throw new Error(`All fallback models failed. Last error: ${lastError?.message}`);
       }
-      // -------------------------------
 
-      // 5. Parse the direct JSON response
       const responseText = response.text;
       const payload = JSON.parse(responseText);
 
       let finalBotText = payload.text || "";
 
-      // Fallback: Dynamically extract nested Objects/Arrays just in case
+      // Robust fallback parsing in case the LLM deviates from strict JSON schema
       for (const key in payload) {
-        const isNotRoutingKey = !['text', 'response', 'message', 'content', 'suggestedFollowUps', 'selectedServices', 'prefilledMessage', 'shouldShowCalendar', 'shouldRedirectToContact'].includes(key);
+        const isNotRoutingKey = !['text', 'response', 'message', 'suggestedFollowUps', 'selectedServices', 'prefilledMessage', 'shouldShowCalendar', 'shouldRedirectToContact', 'visualStage'].includes(key);
         
         if (isNotRoutingKey && typeof payload[key] === 'object' && payload[key] !== null) {
           if (Array.isArray(payload[key])) {
@@ -575,15 +547,13 @@ const triggerSend = async (messageText) => {
         }
       }
 
-      // 6. Final Safety Check
       if (!finalBotText) {
-        console.error("Gemini returned an unexpected payload:", payload);
         throw new Error("Missing text content in AI response");
       }
 
       const botMessageId = (Date.now() + 1).toString();
 
-      // 7. Map the payload to your UI state exactly as before
+      // Properly mapping the contactRouting object based on new prompt schema
       const botMessage = { 
         id: botMessageId,
         role: 'model', 
@@ -592,16 +562,28 @@ const triggerSend = async (messageText) => {
         audioLoading: true,     
         audioError: false,
         contactRouting: {
+          shouldRedirect: payload.shouldRedirectToContact === true,
           services: payload.selectedServices || [],
           message: payload.prefilledMessage || ""
         },
-        calendarRouting: false, // Always false since we removed the calendar button
+        calendarRouting: false,
         suggestedFollowUps: payload.suggestedFollowUps || [] 
       };
 
+      // Handle Visual Stage Triggers with Mobile Awareness
+      if (payload.visualStage && payload.visualStage.shouldExpand && payload.visualStage.type !== 'none') {
+        setCurrentVisual(payload.visualStage);
+        
+        // Auto-expand ONLY on desktop/tablets (Tailwind 'md' breakpoint is 768px).
+        // On mobile, the pulsing Activity icon will appear in the header for them to click.
+        if (window.innerWidth >= 768) {
+          setIsExpanded(true);
+        } else {
+          setIsExpanded(false); 
+        }
+      }
+
       setMessages((prev) => [...prev, botMessage]);
-      
-      // 8. Fetch audio in background using the new TTS API key from props
       fetchAudioInBackground(botMessageId, finalBotText, ttsApiKey);
       
     } catch (error) {
@@ -609,7 +591,7 @@ const triggerSend = async (messageText) => {
       const errorMessage = { 
         id: Date.now().toString(), 
         role: 'model', 
-        text: 'Sorry, I encountered an error generating a response. Please try again.', 
+        text: 'Sorry, I encountered an error generating a response. Our servers are currently optimizing your request. Please try again.', 
         audioLoading: false 
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -622,315 +604,581 @@ const triggerSend = async (messageText) => {
     e.preventDefault();
     triggerSend(input);
   };
+  // --- ENHANCED VISUAL STAGE RENDERER WITH CHARTS ---
+  const [visualTab, setVisualTab] = useState('overview'); // Track active tab
+  
+  const renderChart = (chartData) => {
+    if (!chartData || chartData.type === 'none') return null;
+    
+    const points = chartData.dataPoints || [];
+    if (points.length === 0) return null;
 
-  return (
+    const maxY = Math.max(...points.map(p => p.y || 0), 100);
+    const minY = 0;
+    const range = maxY - minY;
+    const width = 600;
+    const height = 280;
+    const padding = 40;
+    const graphWidth = width - 2 * padding;
+    const graphHeight = height - 2 * padding;
+    const stepX = graphWidth / (points.length - 1 || 1);
+
+    if (chartData.type === 'line') {
+      const pathData = points
+        .map((point, idx) => {
+          const x = padding + idx * stepX;
+          const y = height - padding - ((point.y - minY) / range) * graphHeight;
+          return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
+        })
+        .join(' ');
+
+      return (
+        <svg width={width} height={height} className="mx-auto my-4">
+          {/* Grid lines */}
+          {[0, 1, 2, 3, 4].map(i => (
+            <line key={`grid-${i}`} x1={padding} y1={padding + (i * graphHeight / 4)} x2={width - padding} y2={padding + (i * graphHeight / 4)} stroke="#1f2333" strokeDasharray="2,2" />
+          ))}
+          {/* Axes */}
+          <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#4b5563" strokeWidth="2"/>
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#4b5563" strokeWidth="2"/>
+          {/* Data line */}
+          <path d={pathData} fill="none" stroke="#00e5ff" strokeWidth="2.5" vectorEffect="non-scaling-stroke"/>
+          {/* Data points */}
+          {points.map((point, idx) => {
+            const x = padding + idx * stepX;
+            const y = height - padding - ((point.y - minY) / range) * graphHeight;
+            return <circle key={`point-${idx}`} cx={x} cy={y} r="4" fill="#00e5ff" stroke="#0f1117" strokeWidth="2"/>;
+          })}
+          {/* Y-axis label */}
+          <text x="10" y={padding - 10} fontSize="12" fill="#6b7280" textAnchor="start">{chartData.yAxisLabel || 'Value'}</text>
+        </svg>
+      );
+    }
+
+    if (chartData.type === 'bar') {
+      const barWidth = graphWidth / points.length * 0.7;
+      const barSpacing = graphWidth / points.length;
+      return (
+        <svg width={width} height={height} className="mx-auto my-4">
+          {/* Grid */}
+          {[0, 1, 2, 3, 4].map(i => (
+            <line key={`grid-${i}`} x1={padding} y1={padding + (i * graphHeight / 4)} x2={width - padding} y2={padding + (i * graphHeight / 4)} stroke="#1f2333" strokeDasharray="2,2" />
+          ))}
+          {/* Axes */}
+          <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#4b5563" strokeWidth="2"/>
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#4b5563" strokeWidth="2"/>
+          {/* Bars */}
+          {points.map((point, idx) => {
+            const x = padding + idx * barSpacing + (barSpacing - barWidth) / 2;
+            const barHeight = ((point.y - minY) / range) * graphHeight;
+            const y = height - padding - barHeight;
+            return <rect key={`bar-${idx}`} x={x} y={y} width={barWidth} height={barHeight} fill="#00e5ff" opacity="0.8" rx="2"/>;
+          })}
+          {/* X-axis labels */}
+          {chartData.labels?.map((label, idx) => {
+            const x = padding + idx * barSpacing + barSpacing / 2;
+            return <text key={`label-${idx}`} x={x} y={height - padding + 20} fontSize="11" fill="#6b7280" textAnchor="middle">{label}</text>;
+          })}
+        </svg>
+      );
+    }
+
+    return null;
+  };
+
+const renderVisualStage = () => {
+    if (!currentVisual || !currentVisual.shouldExpand) return null;
+
+    return (
+      <div className="flex-1 flex flex-col bg-[#0a0c10] overflow-hidden relative">
+        {/* Header */}
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-[#1f2333] bg-[#0f1117]/80 backdrop-blur-md z-10 flex justify-between items-start shadow-sm">
+          <div className="flex gap-4 items-center">
+            {currentVisual.complexityScore && (
+              <div className="flex flex-col items-center justify-center bg-[#171a24] border border-[#00e5ff]/30 rounded-lg p-2 min-w-[50px] shadow-[0_0_15px_rgba(0,229,255,0.1)]">
+                <span className="text-[10px] text-[#00e5ff] font-bold uppercase tracking-wider">Score</span>
+                <span className="text-lg font-black text-[#e8eaf0] leading-none mt-1">{currentVisual.complexityScore}</span>
+              </div>
+            )}
+            <div>
+              <h3 className="text-[#e8eaf0] font-['Syne'] font-bold text-[14px] sm:text-[15px] tracking-wide flex items-center gap-2.5">
+                <Activity className="text-[#00e5ff]" size={18} />
+                {currentVisual.title || "Project Triage Blueprint"}
+              </h3>
+              {currentVisual.description ? (
+                <p className="text-[11px] sm:text-[11.5px] text-[#8a91a6] mt-1.5">{currentVisual.description}</p>
+              ) : (
+                <p className="text-[11px] sm:text-[11.5px] text-[#8a91a6] mt-1.5">Proprietary architecture logic withheld for security.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Blueprint Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171a24]/30 via-[#0a0c10] to-[#0a0c10] custom-scrollbar flex flex-col gap-6">
+          
+          {/* Critical Risk Signals */}
+          {currentVisual.criticalRisks && currentVisual.criticalRisks.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+                <AlertTriangle size={12} className="text-amber-500" />
+                Critical Risk Signals Detected
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                {currentVisual.criticalRisks.map((riskObj, idx) => (
+                  <div key={idx} className="bg-amber-950/10 border border-amber-500/30 rounded-lg p-3 sm:p-4 flex items-start gap-3 shadow-sm transition-all hover:bg-amber-950/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0 animate-pulse" />
+                    <div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold uppercase mb-1.5 inline-block">
+                        {riskObj.impact || 'High'} Impact
+                      </span>
+                      <p className="text-[12px] sm:text-[13px] text-[#e8eaf0] font-medium leading-relaxed">{riskObj.risk}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Gated Delivery Phases */}
+          {currentVisual.phases && currentVisual.phases.length > 0 && (
+            <div className="flex flex-col gap-4 mt-2">
+              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+                <CheckCircle2 size={12} className="text-[#00e5ff]" />
+                Estimated Delivery Pathway
+              </h4>
+              <div className="flex flex-col relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-[#00e5ff]/50 before:to-transparent">
+                {currentVisual.phases.map((phase, idx) => (
+                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group mb-4 sm:mb-6 last:mb-0" style={{ animation: `fadeUp 0.4s ease forwards ${idx * 0.1}s`, opacity: 0 }}>
+                    {/* Timeline Dot */}
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[#0a0c10] bg-[#171a24] shadow-[0_0_10px_rgba(0,229,255,0.2)] absolute left-0 md:left-1/2 md:-translate-x-1/2 z-10 text-[#00e5ff]">
+                      <span className="text-[10px] font-bold">{phase.step || idx + 1}</span>
+                    </div>
+                    {/* Phase Card */}
+                    <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-2rem)] p-3 sm:p-4 rounded-xl border border-[#1f2333] bg-[#0f1117]/80 backdrop-blur-sm shadow-md transition-all group-hover:border-[#00e5ff]/40 flex justify-between items-center gap-2">
+                      <span className="text-[12px] sm:text-[13px] font-bold text-[#e8eaf0]">{phase.name}</span>
+                      {/* Lock Icon - Visual reinforcement of withheld IP */}
+                      <div className="bg-[#171a24] p-1.5 rounded text-[#6b7280]" title="Technical specifics withheld">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer CTA driving urgency */}
+        <div className="px-5 sm:px-6 py-4 border-t border-[#1f2333] bg-[#0f1117] flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-[10px] text-[#6b7280] text-center sm:text-left">
+            *This triage estimate is session-based.
+          </p>
+          <button 
+            onClick={() => {
+              // Generate automated message from blueprint data
+              const blueprintSummary = currentVisual 
+                ? `I'm interested in implementing the ${currentVisual.title || 'Project Triage Blueprint'} we just reviewed. 
+
+Key Details:
+- Complexity Score: ${currentVisual.complexityScore || 'N/A'}
+- Delivery Phases: ${currentVisual.phases?.length || 0} phases outlined
+- Critical Risks Identified: ${currentVisual.criticalRisks?.length || 0} key considerations
+
+${currentVisual.criticalRisks?.length > 0 ? `Risks to Address:\n${currentVisual.criticalRisks.map(r => `• ${r.risk} (${r.impact})`).join('\n')}\n` : ''}
+I'd like to schedule a consultation to discuss the detailed engagement roadmap and next steps.`
+                : "I'd like to discuss our AI project requirements and get started with your team.";
+
+              const blueprintServices = currentVisual?.phases
+                ?.map(phase => phase.name)
+                .slice(0, 3) || [];
+
+              setIsExpanded(false);
+              toggleChat();
+              navigate("/contact", { 
+                state: { 
+                  prefilledMessage: blueprintSummary,
+                  selectedServices: blueprintServices
+                }
+              });
+            }}
+            className="w-full sm:w-auto px-4 py-2 bg-[#00e5ff]/10 border border-[#00e5ff]/40 text-[#00e5ff] rounded-lg text-[11px] font-bold hover:bg-[#00e5ff]/20 transition-colors shadow-[0_0_10px_rgba(0,229,255,0.1)]"
+          >
+            Lock in Blueprint & Discuss Solutions
+          </button>
+        </div>
+
+      </div>
+    );
+  };
+  
+return (
     <>
       {/* Tooltip Popup */}
-      <div className={`fixed bottom-[96px] right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div className={`fixed bottom-[96px] right-4 sm:right-7 z-[9999] bg-[#171a24] border border-[#1f2333] shadow-[0_4px_24px_rgba(0,229,255,0.15)] text-[#e8eaf0] text-[12px] font-medium py-2 px-4 rounded-xl transition-all duration-700 ease-in-out font-['DM_Sans',sans-serif] ${showTooltip && !isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         Need AI assistance? Chat with us! 👋
         <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-[#171a24] border-b border-r border-[#1f2333] transform rotate-45"></div>
       </div>
 
       {/* Launcher Button */}
-      <button onClick={toggleChat} title="Chat with us" className={`fixed bottom-7 right-7 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] border-none cursor-pointer flex items-center justify-center shadow-[0_4px_24px_rgba(0,229,255,0.35)] hover:scale-105 hover:shadow-[0_6px_32px_rgba(0,229,255,0.5)] transition-all z-[9999] ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+      <button onClick={toggleChat} title="Chat with us" className={`fixed bottom-7 right-4 sm:right-7 w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] border-none cursor-pointer flex items-center justify-center shadow-[0_4px_24px_rgba(0,229,255,0.35)] hover:scale-105 hover:shadow-[0_6px_32px_rgba(0,229,255,0.5)] transition-all z-[9999] ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
         <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px]">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </button>
 
-      {/* Chat Window */}
-      <div className={`fixed bottom-[100px] right-7 w-[380px] max-w-[calc(100vw-40px)] h-[560px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,229,255,0.08),0_0_0_1px_rgba(0,229,255,0.05)] flex flex-col overflow-hidden z-[9998] lining-nums font-sans origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-12 scale-[0.85] opacity-0 pointer-events-none'}`}>
-        {/* Header */}
-        <div className={`px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0 transition-all duration-500 delay-100 ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
-          <div className="flex-1">
-            <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
-            <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
-              <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
-            </div>
-          </div>
-          
-          {/* LANGUAGE SELECTOR DROPDOWN (Dark Theme) */}
-          <div className="relative" ref={langDropdownRef}>
-            <button 
-              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)} 
-              className="text-[11px] font-bold text-[#6b7280] flex items-center gap-1 bg-[#171a24] border border-[#1f2333] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30 px-2 py-1.5 rounded-lg transition-colors mr-1 shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
-              title="Select Language"
-            >
-              {selectedLanguage.name} <ChevronDown size={12} className={`transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`}/>
-            </button>
-
-            {isLangDropdownOpen && (
-              <div className="absolute top-full right-0 mt-2 w-44 bg-[#0f1117] border border-[#1f2333] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 flex flex-col overflow-hidden">
-                <div className="p-2 border-b border-[#1f2333] bg-[#171a24] flex items-center gap-2">
-                  <Search size={14} className="text-[#6b7280]" />
-                  <input 
-                    type="text" 
-                    placeholder="Search language..." 
-                    value={langSearch}
-                    onChange={(e) => setLangSearch(e.target.value)}
-                    className="text-[11px] font-medium bg-transparent focus:outline-none w-full text-[#e8eaf0] placeholder-[#6b7280]"
-                    autoFocus
-                  />
-                </div>
-                <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
-                  {SUPPORTED_LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase())).map(lang => (
+      {/* Chat Window (Dynamic Width Expansion & Mobile Responsiveness) */}
+      <div className={`fixed bottom-[100px] right-4 sm:right-7 w-[calc(100vw-32px)] sm:w-[380px] h-[620px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex overflow-hidden z-[9998] lining-nums font-sans origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-12 scale-[0.85] opacity-0 pointer-events-none'} ${isExpanded ? 'md:w-[1000px] flex-row' : 'flex-col'}`}>
+        
+        {/* LEFT STAGE: Visual Triage (Absolute overlay on mobile, flex-1 on desktop) */}
+        {isExpanded && (
+            <div className="absolute inset-0 z-[100] md:relative md:z-auto md:flex-1 flex flex-col border-r border-[#1f2333] bg-[#0a0c10] animate-in fade-in zoom-in-95 md:zoom-in-100 duration-300">
+                <div className="absolute top-4 right-4 sm:right-6 z-20 flex gap-2">
+                    {/* <button className="hidden sm:flex bg-[#171a24]/80 backdrop-blur border border-[#1f2333] px-3 py-1.5 rounded-md text-[11px] text-[#00e5ff] items-center gap-2 hover:bg-[#1f2333] transition-colors shadow-sm">
+                        <CheckCircle2 size={14}/> Explain Insights
+                    </button> */}
                     <button 
-                      key={lang.code}
-                      onClick={() => { 
-                        setSelectedLanguage(lang); 
-                        setIsLangDropdownOpen(false); 
-                        setLangSearch('');
-                        // NO AUTO MESSAGE HERE
-                      }}
-                      className={`w-full text-left px-3 py-2 text-[11px] font-bold rounded-lg transition-colors ${selectedLanguage.code === lang.code ? 'bg-gradient-to-r from-[#00e5ff] to-[#00b3cc] text-[#07080d]' : 'text-[#e8eaf0] hover:bg-[#1f2333] hover:text-[#00e5ff]'}`}
+                      onClick={() => setIsExpanded(false)} 
+                      className="bg-[#171a24]/80 backdrop-blur border border-[#1f2333] p-1.5 rounded-md text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] transition-colors shadow-sm" 
+                      title="Close Visual Stage"
                     >
-                      {lang.name}
+                        <X size={16} className="sm:hidden" />
+                        <Minimize2 size={16} className="hidden sm:block" />
                     </button>
-                  ))}
-                  {SUPPORTED_LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase())).length === 0 && (
-                    <div className="px-3 py-2 text-[11px] text-[#6b7280] text-center">No results found</div>
-                  )}
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Clear History Button */}
-          {messages.length > 0 && (
-            <button 
-              onClick={clearHistory} 
-              title="Clear Chat" 
-              className="text-[#6b7280] hover:text-[#ff4d4d] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center mr-1"
-            >
-              <Trash2 size={16} />
-            </button>
-          )}
-
-          {/* Close Button */}
-          <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Scroll To Bottom Button (Floating) */}
-        {showScrollBottom && (
-          <div className="absolute bottom-[170px] left-0 right-0 flex justify-center z-40 pointer-events-none transition-all duration-300">
-            <button
-              onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              className="pointer-events-auto bg-[#171a24]/95 backdrop-blur-sm border border-[#1f2333] text-[#00e5ff] p-2 rounded-full shadow-[0_4px_12px_rgba(0,229,255,0.15)] hover:bg-[#1f2333] hover:scale-105 hover:border-[#00e5ff]/50 transition-all duration-300 animate-in fade-in zoom-in-95"
-              title="Scroll to bottom"
-            >
-              <ArrowDown size={16} />
-            </button>
-          </div>
+                {renderVisualStage()}
+            </div>
         )}
 
-        {/* Messages Area */}
-        <div 
-          ref={chatContainerRef}
-          onScroll={handleScroll}
-          className={`relative flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d] transition-all duration-500 delay-[150ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} 
-          style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
-        >
-          
-          {messages.length === 0 && (
-            <div className="flex gap-2 max-w-[100%] self-start animate-[fadeUp_0.25s_ease]">
-              <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
-              <div>
-                <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
-                  <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
-                  I'm here to guide you through our enterprise AI and technology solutions. Select a topic below or type your question!
+        {/* RIGHT STAGE: Chat Interface */}
+        <div className={`flex flex-col h-full bg-[#0f1117] transition-all duration-300 w-full ${isExpanded ? 'md:w-[380px] md:shrink-0' : ''}`}>
+            {/* Header */}
+            <div className={`px-4 sm:px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0`}>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
+              <div className="flex-1">
+                <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
+                <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
+                  <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
                 </div>
-              </div>
-            </div>
-          )}
-          {/* Chat History */}
-          {messages.map((msg, index) => (
-            <div 
-              key={msg.id || index} 
-              ref={index === messages.length - 1 ? lastMessageRef : null} 
-              className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
-            >
-              <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
-                {msg.role === 'user' ? '👤' : '🤖'}
               </div>
               
-              <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words relative ${
-                  msg.role === 'user'
-                    ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
-                    : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
-                }`}>
-                  
-                  {/* --- TEXT-TO-SPEECH BUTTON MOVED TO TOP --- */}
-                  {msg.role === 'model' && msg.id && (
-                    <div className="mb-3 flex justify-end">
-                      {msg.audioLoading ? (
-                        <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-[#00e5ff]/20 bg-[#00e5ff]/5 text-[#00e5ff] shadow-sm">
-                          <Loader2 size={14} className="animate-spin text-[#00e5ff]" /> 
-                          <span>Preparing Audio...</span>
-                        </div>
-                      ) : msg.audioError ? (
-                        <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm">
-                          <VolumeX size={14} />
-                          <span>Audio Unavailable</span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => handleSpeak(msg)}
-                          className={`flex items-center gap-2 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all duration-300 shadow-sm ${
-                            speakingId === msg.id 
-                              ? 'bg-[#00e5ff]/15 border-[#00e5ff]/40 text-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.2)] scale-[1.02]' 
-                              : 'bg-[#171a24] border-[#2a2f45] text-[#a1a1aa] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30'
-                          }`}
-                          title={speakingId === msg.id ? "Stop speaking" : "Read aloud"}
-                        >
-                          {speakingId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                          <span className="tracking-wide">{speakingId === msg.id ? 'STOP' : 'LISTEN'}</span>
-                        </button>
-                      )}
+              {/* LANGUAGE SELECTOR DROPDOWN */}
+              <div className="relative" ref={langDropdownRef}>
+                <button 
+                  onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)} 
+                  className="text-[11px] font-bold text-[#6b7280] flex items-center gap-1 bg-[#171a24] border border-[#1f2333] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30 px-2 py-1.5 rounded-lg transition-colors mr-1 shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
+                  title="Select Language"
+                >
+                  {selectedLanguage.name} <ChevronDown size={12} className={`transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`}/>
+                </button>
+
+                {isLangDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-44 bg-[#0f1117] border border-[#1f2333] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 flex flex-col overflow-hidden">
+                    <div className="p-2 border-b border-[#1f2333] bg-[#171a24] flex items-center gap-2">
+                      <Search size={14} className="text-[#6b7280]" />
+                      <input 
+                        type="text" 
+                        placeholder="Search language..." 
+                        value={langSearch}
+                        onChange={(e) => setLangSearch(e.target.value)}
+                        className="text-[11px] font-medium bg-transparent focus:outline-none w-full text-[#e8eaf0] placeholder-[#6b7280]"
+                        autoFocus
+                      />
                     </div>
-                  )}
-
-                  {/* Chat Text now renders below the button */}
-                  <div>{formatMarkdown(msg.text)}</div>
-                  
-                </div>
-
-                {/* --- DYNAMIC FOLLOW-UP SUGGESTIONS --- */}
-                {msg.role === 'model' && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && index === messages.length - 1 && !isLoading && (
-                  <div className="mt-2.5 flex flex-col gap-1.5 w-full">
-                    <div className="flex flex-wrap gap-1.5">
-                      {msg.suggestedFollowUps.map((suggestion, idx) => (
+                    <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                      {SUPPORTED_LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase())).map(lang => (
                         <button 
-                          key={idx}
-                          onClick={() => triggerSend(suggestion)}
-                          className="text-left text-[11px] leading-tight px-3 py-1.5 rounded-lg border border-[#00e5ff]/20 text-[#00e5ff] bg-[#00e5ff]/5 hover:bg-[#00e5ff]/15 hover:border-[#00e5ff]/40 transition-all"
+                          key={lang.code}
+                          onClick={() => { 
+                            setSelectedLanguage(lang); 
+                            setIsLangDropdownOpen(false); 
+                            setLangSearch('');
+                          }}
+                          className={`w-full text-left px-3 py-2 text-[11px] font-bold rounded-lg transition-colors ${selectedLanguage.code === lang.code ? 'bg-gradient-to-r from-[#00e5ff] to-[#00b3cc] text-[#07080d]' : 'text-[#e8eaf0] hover:bg-[#1f2333] hover:text-[#00e5ff]'}`}
                         >
-                          {suggestion}
+                          {lang.name}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* --- SMART CONTACT ROUTING BUTTON --- */}
-                {msg.contactRouting && (
-                  <div className="mt-2 w-full max-w-[240px]">
-                    <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
-                      <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
-                      <button 
-                        onClick={() => {
-                          toggleChat()
-                          navigate("/contact", { 
-                          state: { 
-                            prefilledMessage: msg.contactRouting.message,
-                            selectedServices: msg.contactRouting.services
-                          }
-                        })}}
-                        className="block w-full py-1.5 px-3 border border-[#00e5ff] text-[#00e5ff] text-center rounded-lg text-[12px] font-bold hover:bg-[#00e5ff]/10 hover:scale-[1.02] transition-all"
-                      >
-                        Contact Our Experts
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
 
-          {/* Loading Indicator */}
-          {isLoading && (
-            <div className="flex gap-2 max-w-[88%] self-start animate-[fadeUp_0.25s_ease]">
-              <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
-              <div className="px-4 py-3 bg-[#0f1117] border border-[#1f2333] rounded-xl rounded-tl-sm flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+              {messages.length > 0 && (
+                <button 
+                  onClick={clearHistory} 
+                  title="Clear Chat" 
+                  className="text-[#6b7280] hover:text-[#ff4d4d] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center mr-1"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
 
-        {/* --- PERSISTENT QUICK ACTIONS BAR (MOBILE OPTIMIZED) --- */}
-        <div className={`bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar transition-all duration-500 delay-[200ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          
-          <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
-          
-          {/* Dynamic Dropdown from Firebase - MADE SMALLER */}
-          {parsedSolutions.length > 0 && (
-            <select 
-              onChange={(e) => {
-                if(e.target.value) {
-                  triggerSend(`Can you tell me more about the ${e.target.value} solution?`);
-                  e.target.value = ""; // Reset dropdown after selection
-                }
-              }}
-              className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 max-w-[130px] truncate focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
-              title="Explore specific AI Solutions"
-            >
-              <option value="">▼ AI Solutions</option>
-              {parsedSolutions.map((sol, idx) => (
-                <option key={idx} value={sol.solutionName}>{sol.solutionName}</option>
-              ))}
-            </select>
-          )}
-          
-          {/* Static Quick Action Chips */}
-          <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
-          <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
-          <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
-          <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Schedule a Consultation</button>
-        </div>
+              {/* Expand Toggle (Premium Styling) */}
+              {!isExpanded && currentVisual && (
+                  <button 
+                    onClick={() => setIsExpanded(true)} 
+                    className="text-[#00e5ff] bg-[#00e5ff]/10 border border-[#00e5ff]/20 hover:bg-[#00e5ff]/20 p-1.5 rounded-md transition-colors flex items-center justify-center mr-1 animate-pulse" 
+                    title="Open Visual Stage"
+                  >
+                      <Activity size={16} />
+                  </button>
+              )}
 
-        {/* Input Area with MIC BUTTON */}
-        <div className={`bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0 transition-all duration-500 delay-[250ms] ease-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <form onSubmit={handleFormSubmit} className="p-3.5 flex gap-2 items-center">
-            <div className="flex-1 relative flex items-center">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={isListening ? "Listening..." : "Ask me anything about our services…"}
-                disabled={isLoading}
-                className={`w-full bg-[#07080d] border border-[#1f2333] rounded-lg text-[#e8eaf0] text-[13.5px] pl-3.5 pr-10 py-2.5 focus:outline-none focus:border-[#00e5ff]/40 transition-colors placeholder-[#6b7280] disabled:opacity-50 ${isListening ? 'border-red-400/50 shadow-[0_0_10px_rgba(248,113,113,0.2)]' : ''}`}
-              />
-              
-              {/* Mic Button positioned absolutely inside the input */}
-              <button
-                type="button"
-                onClick={toggleListen}
-                className={`absolute right-2 p-1.5 rounded-md transition-colors ${
-                  isListening 
-                    ? 'text-red-400 bg-red-400/10 animate-pulse' 
-                    : 'text-slate-400 hover:text-[#00e5ff] hover:bg-[#1f2333]'
-                }`}
-                title={isListening ? "Stop listening" : "Voice input"}
-              >
-                {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+              <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
+                <X size={18} />
               </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              className="w-[38px] h-[38px] rounded-lg bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center shrink-0 transition-all hover:scale-105 hover:opacity-90 disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed text-[#07080d]"
-              title="Send"
+            {/* Scroll To Bottom Button */}
+            {showScrollBottom && (
+              <div className="absolute bottom-[230px] right-0 w-full md:w-[380px] flex justify-center z-40 pointer-events-none transition-all duration-300">
+                <button
+                  onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                  className="pointer-events-auto bg-[#171a24]/95 backdrop-blur-sm border border-[#1f2333] text-[#00e5ff] p-2 rounded-full shadow-[0_4px_12px_rgba(0,229,255,0.15)] hover:bg-[#1f2333] hover:scale-105 hover:border-[#00e5ff]/50 transition-all duration-300 animate-in fade-in zoom-in-95"
+                  title="Scroll to bottom"
+                >
+                  <ArrowDown size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* Messages Area */}
+            <div 
+              ref={chatContainerRef}
+              onScroll={handleScroll}
+              className={`relative flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3 bg-[#07080d]`} 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#1f2333 transparent' }}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </button>
-          </form>
-          <div className="text-center text-[10px] text-[#6b7280] pb-2">
-            Powered by <a href="https://one-tech-ai.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
-          </div>
+              
+              {messages.length === 0 && (
+                <div className="flex gap-2 max-w-[100%] self-start animate-[fadeUp_0.25s_ease]">
+                  <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
+                  <div>
+                    <div className="bg-[#171a24] border border-[#1f2333] rounded-xl p-3.5 text-[13px] text-[#6b7280] leading-[1.6]">
+                      <strong className="text-[#e8eaf0] font-['Syne',sans-serif] block mb-1 text-[14px]">Welcome to 1TECHUB! 👋</strong>
+                      I'm here to guide you through our enterprise AI and technology solutions. Upload your project brief, select a topic, or type your question!
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Chat History */}
+              {messages.map((msg, index) => (
+                <div 
+                  key={msg.id || index} 
+                  ref={index === messages.length - 1 ? lastMessageRef : null} 
+                  className={`flex gap-2 max-w-[88%] animate-[fadeUp_0.25s_ease] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
+                >
+                  <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold ${msg.role === 'user' ? 'bg-[#1a1f35] border border-[#1f2333]' : 'bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]'}`}>
+                    {msg.role === 'user' ? '👤' : '🤖'}
+                  </div>
+                  
+                  <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words relative ${
+                      msg.role === 'user'
+                        ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
+                        : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
+                    }`}>
+                      
+                      {/* TTS Button */}
+                      {msg.role === 'model' && msg.id && (
+                        <div className="mb-3 flex justify-end">
+                          {msg.audioLoading ? (
+                            <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-[#00e5ff]/20 bg-[#00e5ff]/5 text-[#00e5ff] shadow-sm">
+                              <Loader2 size={14} className="animate-spin text-[#00e5ff]" /> 
+                              <span>Preparing Audio...</span>
+                            </div>
+                          ) : msg.audioError ? (
+                            <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm">
+                              <VolumeX size={14} />
+                              <span>Audio Unavailable</span>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleSpeak(msg)}
+                              className={`flex items-center gap-2 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all duration-300 shadow-sm ${
+                                speakingId === msg.id 
+                                  ? 'bg-[#00e5ff]/15 border-[#00e5ff]/40 text-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.2)] scale-[1.02]' 
+                                  : 'bg-[#171a24] border-[#2a2f45] text-[#a1a1aa] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30'
+                              }`}
+                              title={speakingId === msg.id ? "Stop speaking" : "Read aloud"}
+                            >
+                              {speakingId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                              <span className="tracking-wide">{speakingId === msg.id ? 'STOP' : 'LISTEN'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <div>{formatMarkdown(msg.text)}</div>
+                    </div>
+
+                    {/* Follow-up Suggestions */}
+                    {msg.role === 'model' && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && index === messages.length - 1 && !isLoading && (
+                      <div className="mt-2.5 flex flex-col gap-1.5 w-full">
+                        <div className="flex flex-wrap gap-1.5">
+                          {msg.suggestedFollowUps.map((suggestion, idx) => (
+                            <button 
+                              key={idx}
+                              onClick={() => triggerSend(suggestion)}
+                              className="text-left text-[11px] leading-tight px-3 py-1.5 rounded-lg border border-[#00e5ff]/20 text-[#00e5ff] bg-[#00e5ff]/5 hover:bg-[#00e5ff]/15 hover:border-[#00e5ff]/40 transition-all"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contact Routing Card */}
+                    {msg.contactRouting && msg.contactRouting.shouldRedirect && (
+                      <div className="mt-2 w-full max-w-[240px]">
+                        <div className="bg-[#171a24] border border-[#00e5ff]/30 rounded-xl p-3 shadow-[0_4px_12px_rgba(0,229,255,0.05)]">
+                          <p className="text-[11px] text-[#e8eaf0] mb-2 text-center font-medium">Ready to discuss your project?</p>
+                          <button 
+                            onClick={() => {
+                              toggleChat()
+                              navigate("/contact", { 
+                                state: { 
+                                  prefilledMessage: msg.contactRouting.message,
+                                  selectedServices: msg.contactRouting.services
+                                }
+                              })
+                            }}
+                            className="block w-full py-1.5 px-3 border border-[#00e5ff] text-[#00e5ff] text-center rounded-lg text-[12px] font-bold hover:bg-[#00e5ff]/10 hover:scale-[1.02] transition-all"
+                          >
+                            Contact Our Experts
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-2 max-w-[88%] self-start animate-[fadeUp_0.25s_ease]">
+                  <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7]">🤖</div>
+                  <div className="px-4 py-3 bg-[#0f1117] border border-[#1f2333] rounded-xl rounded-tl-sm flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-1.5 h-1.5 bg-[#6b7280] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* QUICK ACTIONS BAR */}
+            <div className={`bg-[#0f1117] border-t border-[#1f2333] px-3 pt-3 pb-4 flex flex-wrap gap-2 justify-center items-start shrink-0 w-full max-h-[150px] overflow-y-auto hide-scrollbar`}>
+              
+              <button onClick={() => triggerSend('I want to start a custom AI project. How do we begin?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Discuss AI Advisory</button>
+              
+              {parsedSolutions.length > 0 && (
+                <select 
+                  onChange={(e) => {
+                    if(e.target.value) {
+                      triggerSend(`Can you tell me more about the ${e.target.value} solution?`);
+                      e.target.value = ""; 
+                    }
+                  }}
+                  className="bg-[#171a24] border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 max-w-[130px] truncate focus:outline-none shrink-0 cursor-pointer appearance-none outline-none"
+                  title="Explore specific AI Solutions"
+                >
+                  <option value="">▼ AI Solutions</option>
+                  {parsedSolutions.map((sol, idx) => (
+                    <option key={idx} value={sol.solutionName}>{sol.solutionName}</option>
+                  ))}
+                </select>
+              )}
+              
+              <button onClick={() => triggerSend('Tell me about your Generative AI and NLP solutions.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Gen AI & NLP</button>
+              <button onClick={() => triggerSend('I need help with Data Engineering and Predictive Machine Learning.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Data & ML</button>
+              <button onClick={() => triggerSend('How do your Autonomous Intelligent Systems work?')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">AI Agents</button>
+              <button onClick={() => triggerSend('I would like to schedule a call with your team.')} className="bg-transparent border border-[#1f2333] rounded-full text-[#00e5ff] text-[11px] px-2.5 py-1.5 hover:bg-[#00e5ff]/5 hover:border-[#00e5ff]/40 transition-colors shrink-0 whitespace-nowrap">Schedule a Consultation</button>
+            </div>
+
+            {/* INPUT FORM AREA */}
+            <div className={`bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0`}>
+              
+              {/* Attachment Preview UI */}
+              {attachedFile && (
+                <div className="px-3.5 pt-2 flex items-center gap-2">
+                    <div className="bg-[#1f2333] border border-[#2a2f45] rounded-md px-2 py-1 flex items-center gap-2 text-[11px] text-[#e8eaf0]">
+                        <Paperclip size={12} className="text-[#00e5ff]" />
+                        <span className="truncate max-w-[150px]">{attachedFile.name}</span>
+                        <button onClick={removeAttachment} className="hover:text-red-400 ml-1"><X size={12}/></button>
+                    </div>
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} className="p-3 sm:p-3.5 flex gap-2 items-center">
+                <div className="flex-1 relative flex items-center bg-[#07080d] border border-[#1f2333] rounded-lg">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={isListening ? "Listening..." : "Upload specs or ask anything..."}
+                    disabled={isLoading}
+                    className={`w-full bg-transparent text-[#e8eaf0] text-[13.5px] pl-3.5 pr-20 py-2.5 focus:outline-none rounded-lg transition-colors placeholder-[#6b7280] disabled:opacity-50 ${isListening ? 'shadow-[inset_0_0_10px_rgba(248,113,113,0.1)]' : ''}`}
+                  />
+                  
+                  {/* File Upload Hidden Input */}
+                  <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileUpload}
+                      className="hidden" 
+                      accept=".pdf,.txt,.doc,.docx,.csv" 
+                  />
+
+                  <div className="absolute right-1 flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-1.5 text-slate-400 hover:text-[#00e5ff] hover:bg-[#1f2333] rounded-md transition-colors"
+                        title="Attach Requirements"
+                      >
+                        <Paperclip size={16} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={toggleListen}
+                        className={`p-1.5 rounded-md transition-colors ${
+                          isListening 
+                            ? 'text-red-400 bg-red-400/10 animate-pulse' 
+                            : 'text-slate-400 hover:text-[#00e5ff] hover:bg-[#1f2333]'
+                        }`}
+                        title={isListening ? "Stop listening" : "Voice input"}
+                      >
+                        {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+                      </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || (!input.trim() && !attachedFile)}
+                  className="w-[38px] h-[38px] rounded-lg bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center shrink-0 transition-all hover:scale-105 hover:opacity-90 disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed text-[#07080d]"
+                  title="Send"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </button>
+              </form>
+              <div className="text-center text-[10px] text-[#6b7280] pb-2">
+                Powered by <a href="https://1techub.com/" target="_blank" rel="noopener noreferrer" className="text-[#00e5ff] hover:underline decoration-[#00e5ff]/50">1TECHUB</a>
+              </div>
+            </div>
         </div>
       </div>
+
+
+
+
 
       <style>{`
         @keyframes fadeUp {
