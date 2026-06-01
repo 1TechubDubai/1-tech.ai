@@ -85,6 +85,28 @@ When generating the Visual Triage, provide:
 2. "phases": 3 to 5 high-level delivery stages tailored to their documented needs. Set status to "gated" to show we protect IP.
 3. "criticalRisks": Identify 2 to 3 HIGHLY SPECIFIC bottlenecks or threats based on the uploaded materials or prompt to prove expertise (e.g., "Latency during real-time DB sync", "Compliance gap in PII handling"). Do not invent numbers.
 
+[PHASE EXPLANATION IN MESSAGE TEXT]
+CRITICAL: When you output a visualStage with phases, you MUST ALSO include a detailed explanation of those phases in the main "text" field BEFORE the visual stage is rendered. 
+
+For each phase in the visualStage, provide:
+- Phase number and name
+- What happens in that phase
+- Expected outcomes or deliverables
+- Why it matters for their specific project
+
+Example format in text field:
+"Based on your uploaded requirements, here's your strategic engagement roadmap:
+
+**Phase 1 - [Phase Name]**: [Specific description of what happens, tailored to their needs]
+
+**Phase 2 - [Phase Name]**: [Description of deliverables and next steps]
+
+...and so on for each phase.
+
+Full visual blueprint with complexity scoring and risk factors shown in the panel on the right."
+
+DO NOT leave phases only in the visual section—include comprehensive explanations in the main message text.
+
 [OUTPUT RULES]
 Always output STRICT JSON.
 Always set "shouldRedirectToContact": true and "shouldShowCalendar": false.
@@ -689,91 +711,184 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
 const renderVisualStage = () => {
     if (!currentVisual || !currentVisual.shouldExpand) return null;
 
+    // Extract complexity number for visual calculations
+    const complexityNum = parseFloat(currentVisual.complexityScore) || 5;
+    const complexityPercent = (complexityNum / 10) * 100;
+    const complexityLevel = complexityNum > 7.5 ? 'CRITICAL' : complexityNum > 5 ? 'HIGH' : 'MODERATE';
+    const complexityColor = complexityNum > 7.5 ? '#ff4d4f' : complexityNum > 5 ? '#ff9c6e' : '#ffc53d';
+    
+    // Count services needed based on risks
+    const servicesCount = currentVisual.phases?.length || 3;
+
     return (
       <div className="flex-1 flex flex-col bg-[#0a0c10] overflow-hidden relative">
-        {/* Header */}
-        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-[#1f2333] bg-[#0f1117]/80 backdrop-blur-md z-10 flex justify-between items-start shadow-sm">
-          <div className="flex gap-4 items-center">
-            {currentVisual.complexityScore && (
-              <div className="flex flex-col items-center justify-center bg-[#171a24] border border-[#00e5ff]/30 rounded-lg p-2 min-w-[50px] shadow-[0_0_15px_rgba(0,229,255,0.1)]">
-                <span className="text-[10px] text-[#00e5ff] font-bold uppercase tracking-wider">Score</span>
-                <span className="text-lg font-black text-[#e8eaf0] leading-none mt-1">{currentVisual.complexityScore}</span>
+        {/* Enhanced Header with Visual Metrics */}
+        <div className="px-5 sm:px-6 py-5 sm:py-6 border-b border-[#1f2333] bg-gradient-to-r from-[#0f1117]/80 to-[#171a24]/40 backdrop-blur-md z-10 shadow-sm">
+          <div className="flex flex-col gap-4">
+            {/* Title Section */}
+            <div className="flex gap-4 items-start">
+              <div>
+                <h3 className="text-[#e8eaf0] font-['Syne'] font-bold text-[15px] sm:text-[16px] tracking-wide flex items-center gap-2.5">
+                  <Activity className="text-[#00e5ff]" size={20} />
+                  {currentVisual.title || "Project Triage Blueprint"}
+                </h3>
+                {currentVisual.description ? (
+                  <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2">{currentVisual.description}</p>
+                ) : (
+                  <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2">Proprietary architecture logic withheld for security.</p>
+                )}
               </div>
-            )}
-            <div>
-              <h3 className="text-[#e8eaf0] font-['Syne'] font-bold text-[14px] sm:text-[15px] tracking-wide flex items-center gap-2.5">
-                <Activity className="text-[#00e5ff]" size={18} />
-                {currentVisual.title || "Project Triage Blueprint"}
-              </h3>
-              {currentVisual.description ? (
-                <p className="text-[11px] sm:text-[11.5px] text-[#8a91a6] mt-1.5">{currentVisual.description}</p>
-              ) : (
-                <p className="text-[11px] sm:text-[11.5px] text-[#8a91a6] mt-1.5">Proprietary architecture logic withheld for security.</p>
-              )}
+            </div>
+
+            {/* Visual Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Complexity Score Card */}
+              <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
+                <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Complexity</div>
+                <div className="flex items-center gap-2.5">
+                  <div className="flex-1">
+                    <div className="h-2 bg-[#0a0c10] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${complexityPercent}%`, backgroundColor: complexityColor }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-[13px] font-bold text-[#e8eaf0] min-w-[2.5rem]">{currentVisual.complexityScore}</span>
+                </div>
+                <div className="text-[10px] text-[#00e5ff] font-bold mt-1.5">{complexityLevel}</div>
+              </div>
+
+              {/* Phases Card */}
+              <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
+                <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Phases</div>
+                <div className="text-[18px] font-black text-[#00e5ff]">{servicesCount}</div>
+                <div className="text-[10px] text-[#6b7280] mt-1">Delivery stages</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Scrollable Blueprint Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171a24]/30 via-[#0a0c10] to-[#0a0c10] custom-scrollbar flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171a24]/20 via-[#0a0c10] to-[#0a0c10] custom-scrollbar flex flex-col gap-8">
           
           {/* Critical Risk Signals */}
           {currentVisual.criticalRisks && currentVisual.criticalRisks.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
-                <AlertTriangle size={12} className="text-amber-500" />
-                Critical Risk Signals Detected
-              </h4>
-              <div className="grid grid-cols-1 gap-3">
-                {currentVisual.criticalRisks.map((riskObj, idx) => (
-                  <div key={idx} className="bg-amber-950/10 border border-amber-500/30 rounded-lg p-3 sm:p-4 flex items-start gap-3 shadow-sm transition-all hover:bg-amber-950/20">
-                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0 animate-pulse" />
-                    <div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold uppercase mb-1.5 inline-block">
-                        {riskObj.impact || 'High'} Impact
-                      </span>
-                      <p className="text-[12px] sm:text-[13px] text-[#e8eaf0] font-medium leading-relaxed">{riskObj.risk}</p>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+                  <AlertTriangle size={13} className="text-amber-500" />
+                  Key Areas Identified
+                </h4>
+                <span className="text-[10px] bg-amber-500/20 text-amber-400 font-bold px-2 py-1 rounded">{currentVisual.criticalRisks.length} Factors</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2.5">
+                {currentVisual.criticalRisks.map((riskObj, idx) => {
+                  const impactColor = riskObj.impact === 'Critical' ? '#ff4d4f' : riskObj.impact === 'High' ? '#ff9c6e' : '#ffc53d';
+                  const impactBg = riskObj.impact === 'Critical' ? 'bg-red-950/15 border-red-500/30' : riskObj.impact === 'High' ? 'bg-orange-950/15 border-orange-500/30' : 'bg-yellow-950/15 border-yellow-500/30';
+                  const dotColor = riskObj.impact === 'Critical' ? 'bg-red-500' : riskObj.impact === 'High' ? 'bg-orange-500' : 'bg-yellow-500';
+                  
+                  return (
+                    <div key={idx} className={`${impactBg} border rounded-lg p-3 sm:p-4 flex items-start gap-3 transition-all hover:scale-[1.02] cursor-pointer`}>
+                      <div className={`w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0 animate-pulse`} />
+                      <div className="flex-1">
+                        <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase inline-block mb-2" style={{ backgroundColor: `${impactColor}20`, color: impactColor }}>
+                          {riskObj.impact} Factor
+                        </span>
+                        <p className="text-[12px] sm:text-[13px] text-[#e8eaf0] font-medium leading-relaxed">{riskObj.risk}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+              </div>
+              <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-[11px] text-[#8a91a6] text-center">
+                These factors benefit from strategic guidance to ensure optimal outcomes
               </div>
             </div>
           )}
 
           {/* Gated Delivery Phases */}
           {currentVisual.phases && currentVisual.phases.length > 0 && (
-            <div className="flex flex-col gap-4 mt-2">
-              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
-                <CheckCircle2 size={12} className="text-[#00e5ff]" />
-                Estimated Delivery Pathway
-              </h4>
-              <div className="flex flex-col relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-[#00e5ff]/50 before:to-transparent">
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+                  <CheckCircle2 size={13} className="text-[#00e5ff]" />
+                  Estimated Delivery Pathway
+                </h4>
+                <span className="text-[10px] bg-[#00e5ff]/20 text-[#00e5ff] font-bold px-2 py-1 rounded">{currentVisual.phases.length} Phases</span>
+              </div>
+              
+              {/* Phase Cards Grid */}
+              <div className="space-y-3">
                 {currentVisual.phases.map((phase, idx) => (
-                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group mb-4 sm:mb-6 last:mb-0" style={{ animation: `fadeUp 0.4s ease forwards ${idx * 0.1}s`, opacity: 0 }}>
-                    {/* Timeline Dot */}
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[#0a0c10] bg-[#171a24] shadow-[0_0_10px_rgba(0,229,255,0.2)] absolute left-0 md:left-1/2 md:-translate-x-1/2 z-10 text-[#00e5ff]">
-                      <span className="text-[10px] font-bold">{phase.step || idx + 1}</span>
-                    </div>
+                  <div 
+                    key={idx} 
+                    className="relative group"
+                    style={{ animation: `fadeUp 0.4s ease forwards ${idx * 0.1}s`, opacity: 0 }}
+                  >
+                    {/* Connection Line */}
+                    {idx < currentVisual.phases.length - 1 && (
+                      <div className="absolute left-[19px] top-[48px] w-0.5 h-6 bg-gradient-to-b from-[#00e5ff]/50 to-[#00e5ff]/10"></div>
+                    )}
+                    
                     {/* Phase Card */}
-                    <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-2rem)] p-3 sm:p-4 rounded-xl border border-[#1f2333] bg-[#0f1117]/80 backdrop-blur-sm shadow-md transition-all group-hover:border-[#00e5ff]/40 flex justify-between items-center gap-2">
-                      <span className="text-[12px] sm:text-[13px] font-bold text-[#e8eaf0]">{phase.name}</span>
-                      {/* Lock Icon - Visual reinforcement of withheld IP */}
-                      <div className="bg-[#171a24] p-1.5 rounded text-[#6b7280]" title="Technical specifics withheld">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <div className="flex items-start gap-3.5">
+                      {/* Step Number Circle */}
+                      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#00e5ff] bg-[#0a0c10] text-[#00e5ff] font-bold text-[12px] relative z-10 group-hover:bg-[#00e5ff] group-hover:text-[#0a0c10] transition-all shadow-[0_0_10px_rgba(0,229,255,0.2)] group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                        {phase.step || idx + 1}
+                      </div>
+                      
+                      {/* Phase Details Card */}
+                      <div className="flex-1 pt-1 group-hover:translate-x-1 transition-transform">
+                        <div className="bg-gradient-to-r from-[#171a24] to-[#0f1117] border border-[#1f2333] rounded-lg p-4 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_15px_rgba(0,229,255,0.1)] transition-all">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <h5 className="text-[13px] sm:text-[14px] font-bold text-[#e8eaf0] group-hover:text-[#00e5ff] transition-colors">{phase.name}</h5>
+                              <p className="text-[11px] text-[#6b7280] mt-1">Phase {phase.step || idx + 1} — Strategic milestone</p>
+                            </div>
+                            {/* Lock Icon */}
+                            <div className="bg-[#0f1117] p-2 rounded border border-[#1f2333] text-[#6b7280] group-hover:border-[#00e5ff]/20 group-hover:text-[#00e5ff] transition-all" title="Technical specifics withheld">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </div>
+                          </div>
+                          
+                          {/* Progress Bar */}
+                          <div className="mt-3 flex items-center gap-2">
+                            <div className="h-1.5 flex-1 bg-[#0a0c10] rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] rounded-full transition-all duration-700"
+                                style={{ width: `${((idx + 1) / currentVisual.phases.length) * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-[#6b7280] font-bold">{Math.round(((idx + 1) / currentVisual.phases.length) * 100)}%</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {/* Completion Summary */}
+              <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-center">
+                <p className="text-[11px] text-[#8a91a6]">
+                  Full engagement cycle: <span className="text-[#00e5ff] font-bold">{currentVisual.phases.length} phases</span> with gated IP protection
+                </p>
               </div>
             </div>
           )}
         </div>
 
         {/* Footer CTA driving urgency */}
-        <div className="px-5 sm:px-6 py-4 border-t border-[#1f2333] bg-[#0f1117] flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-[10px] text-[#6b7280] text-center sm:text-left">
-            *This triage estimate is session-based.
-          </p>
+        <div className="px-5 sm:px-6 py-5 border-t border-[#1f2333] bg-gradient-to-r from-[#0f1117] via-[#171a24]/40 to-[#0f1117] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-center sm:text-left">
+            <p className="text-[11px] text-[#6b7280] font-medium">
+              ✓ Analysis complete — Ready for engagement
+            </p>
+            <p className="text-[10px] text-[#6b7280] mt-1">
+              Next: Schedule your strategy session
+            </p>
+          </div>
           <button 
             onClick={() => {
               // Generate automated message from blueprint data
@@ -802,9 +917,12 @@ I'd like to schedule a consultation to discuss the detailed engagement roadmap a
                 }
               });
             }}
-            className="w-full sm:w-auto px-4 py-2 bg-[#00e5ff]/10 border border-[#00e5ff]/40 text-[#00e5ff] rounded-lg text-[11px] font-bold hover:bg-[#00e5ff]/20 transition-colors shadow-[0_0_10px_rgba(0,229,255,0.1)]"
+            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] border border-[#00e5ff]/40 text-[#07080d] rounded-lg text-[12px] font-bold hover:from-[#00e5ff] hover:to-[#8c6eb8] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2 group"
           >
-            Lock in Blueprint & Discuss Solutions
+            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            Lock in Blueprint & Discuss
           </button>
         </div>
 
@@ -1186,6 +1304,16 @@ return (
           to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-16px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+          50% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
+        }
+
         /* Hide scrollbar for the quick actions bar but keep functionality */
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
@@ -1199,6 +1327,30 @@ return (
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* Phase card enhancements */
+        .phase-card {
+          animation: slideInLeft 0.4s ease forwards;
+        }
+
+        /* Metric card hover effects */
+        .metric-card {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .metric-card:hover {
+          border-color: rgba(0, 229, 255, 0.4);
+          box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+
+        /* Progress bar animation */
+        @keyframes fillWidth {
+          from { width: 0%; }
+        }
+
+        .progress-animated {
+          animation: fillWidth 0.8s ease-out forwards;
+        }
       `}</style>
     </>
   );
