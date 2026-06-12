@@ -13,6 +13,7 @@ import {
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -167,6 +168,11 @@ const Partners = () => {
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
   ` }} />
       
+      <SEO 
+        title="Solutions & Partners | Enterprise AI Ecosystem" 
+        description="Explore 1TecHub's specialized AI solutions and partner ecosystem. We enable global AI and cloud hyperscalers to localize and scale within regional enterprise markets." 
+        url="https://1techub.ai/solutions"
+      />
       {/* Navbar */}
       <div className="fixed top-0 w-full z-50">
          <Navbar />

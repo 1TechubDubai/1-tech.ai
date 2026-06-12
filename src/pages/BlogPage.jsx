@@ -5,6 +5,7 @@ import { db } from "../firebaseConfig"; // Adjust path if necessary
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ArrowLeft, Calendar, User, Clock, Share2, Bookmark, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import SEO from "../components/SEO";
 
 const BlogPage = () => {
   const { id } = useParams();
@@ -88,7 +89,15 @@ const BlogPage = () => {
       ` }} />
 
       <Navbar />
-
+        {
+          post && (
+            <SEO 
+              title={`${post.title}`} 
+              description={post.excerpt || post.summary} 
+              url={`https://1techub.ai/blogs/${post.id}`}
+            />
+          )
+        }
       <main className="relative pt-24 sm:pt-32 pb-20 px-6 max-w-4xl mx-auto min-h-[80vh]">
         
         {/* ── TOP NAV / BREADCRUMBS ── */}

@@ -4,6 +4,7 @@ import { BarChart3, Database, Cpu, Settings, Globe, ShieldCheck, ArrowRight, Tar
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 
 /* ─────────────────────────────────────────────
    GLOBAL AMBIENT CSS
@@ -428,6 +429,11 @@ const AIAdvisoryPage = () => {
       <AuroraBackground />
       <ShootingStars />
       <ParticleField />
+      <SEO 
+        title="Strategic AI Advisory | Architecting Intelligence" 
+        description="Bridge the gap between technical potential and business execution. 1TecHub's advisory blueprint takes you from AI ambiguity to enterprise-wide execution." 
+        url="https://1techub.ai/ai-advisory"
+      />
 
       <Navbar />
 

@@ -10,6 +10,7 @@ import Footer from "../components/Footer";
 import { Globe, ArrowRight, Zap, Check, ShieldAlert, Linkedin, Mail } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import SEO from "../components/SEO"; // <-- IMPORT YOUR SEO COMPONENT HERE
 
 
 const Card = ({ title, description, image, index = 0 }) => (
@@ -831,6 +832,11 @@ const About = () => {
               <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
       ` }} />
+      <SEO 
+        title="About Us | Global AI Solutions Partner" 
+        description="1TecHub is a premium AI consulting and Go-to-Market company headquartered in Dubai. We act as your strategic partner in the autonomous revolution." 
+        url="https://1techub.ai/about"
+      />
 
       <Navbar />
 

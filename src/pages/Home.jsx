@@ -2,6 +2,7 @@ import Intro from "../Buttons/Intro";
 import Navbar from "../components/Navbar";
 import Stat from "../components/Stat";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 import { useState, useRef } from "react";
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -1475,6 +1476,11 @@ const Home = () => {
           }}
         />
       </div>
+      <SEO 
+        title="Enterprise AI & Autonomous Systems" 
+        description="Orchestrating intelligence for the autonomous age. 1TecHub transforms complex business challenges into streamlined digital solutions through AI, LLMs, and big data." 
+        url="https://1techub.ai"
+      />
       <Navbar />
       <style>{`
         @keyframes flowGradient1 {

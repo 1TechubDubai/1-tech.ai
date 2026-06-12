@@ -66,9 +66,9 @@ const Navbar = () => {
             max-w-5xl w-full
           "
         >
-          {/* Logo */}
+          {/* Logo - Size increased here */}
           <Link to="/" className="flex items-center gap-2 z-50">
-            <img src={logo} alt="1TecHub" className="h-7 sm:h-8 w-auto" />
+            <img src={logo} alt="1TecHub" className="h-10 sm:h-12 w-auto" />
           </Link>
 
           {/* --- DESKTOP MENU --- */}
@@ -210,7 +210,7 @@ const Navbar = () => {
 
               {/* Bottom CTA - Fixed at bottom */}
               <div className="w-full pt-4 flex-shrink-0">
-                                 {/* <button 
+                                   {/* <button 
   onClick={(e) => {
     e.preventDefault(); // Stops any form submissions or default link behaviors
     e.stopPropagation(); // Stops the click from bubbling up to the mobile menu background
@@ -242,36 +242,36 @@ const Navbar = () => {
               {/* Services Grid - 2 columns for better space usage, no scrolling needed */}
               <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                 {allServicesData.map((service) => {
-                   const Icon = service.sections?.[0]?.icon;
-                   const isActive = location.pathname === `/services/${service.slug}`;
-                   return (
-                    <Link
-                      key={service.id}
-                      to={`/services/${service.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`
-                        flex flex-col items-center gap-1.5 p-4 rounded-lg
-                        transition-all
-                        ${isActive 
-                          ? 'bg-cyan-500/20 border border-cyan-500/50' 
-                          : 'bg-[#0a0f1d] border border-slate-800 active:bg-slate-800'
-                        }
-                      `}
-                    >
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                        isActive 
-                          ? 'bg-cyan-500/30 text-cyan-400' 
-                          : 'bg-cyan-900/30 text-cyan-400'
-                      }`}>
-                        {Icon && <Icon size={20} />}
-                      </div>
-                      <span className={`text-[12px] font-bold leading-tight text-center line-clamp-2 mt-2 transition-colors ${
-                        isActive ? 'text-cyan-400' : 'text-slate-200'
-                      }`}>
-                        {service.title}
-                      </span>
-                    </Link>
-                   )
+                    const Icon = service.sections?.[0]?.icon;
+                    const isActive = location.pathname === `/services/${service.slug}`;
+                    return (
+                     <Link
+                       key={service.id}
+                       to={`/services/${service.slug}`}
+                       onClick={() => setMobileMenuOpen(false)}
+                       className={`
+                         flex flex-col items-center gap-1.5 p-4 rounded-lg
+                         transition-all
+                         ${isActive 
+                           ? 'bg-cyan-500/20 border border-cyan-500/50' 
+                           : 'bg-[#0a0f1d] border border-slate-800 active:bg-slate-800'
+                         }
+                       `}
+                     >
+                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                         isActive 
+                           ? 'bg-cyan-500/30 text-cyan-400' 
+                           : 'bg-cyan-900/30 text-cyan-400'
+                       }`}>
+                         {Icon && <Icon size={20} />}
+                       </div>
+                       <span className={`text-[12px] font-bold leading-tight text-center line-clamp-2 mt-2 transition-colors ${
+                         isActive ? 'text-cyan-400' : 'text-slate-200'
+                       }`}>
+                         {service.title}
+                       </span>
+                     </Link>
+                    )
                 })}
               </div>
 

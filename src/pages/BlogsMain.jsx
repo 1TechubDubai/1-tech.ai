@@ -5,6 +5,7 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Search, ArrowRight, Settings, SlidersHorizontal, Clock, Loader2 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 // Adjusted categories to match your Admin Panel dropdown options
 const CATEGORIES = [
@@ -98,6 +99,12 @@ const BlogsMain = () => {
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
       ` }} />
+
+      <SEO 
+        title="Insights & Transmissions | 1TecHub Blog" 
+        description="Access our library of editorial blogs and technical articles. Deep dives into AI, autonomous systems, and the frameworks governing the future of enterprise." 
+        url="https://1techub.ai/blogs"
+      />
       
       <Navbar />
 

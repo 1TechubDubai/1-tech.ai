@@ -17,6 +17,7 @@ import BlogPage from './pages/BlogPage.jsx';
 
 // Component Imports
 import GeminiChatbot from './components/GeminiChatBot.jsx';
+import SEO from './components/SEO.jsx'; // <-- 1. IMPORT YOUR SEO COMPONENT HERE
 
 function App() {
   const [geminiKey, setGeminiKey] = useState(null);
@@ -80,6 +81,13 @@ function App() {
 
   return (
     <BrowserRouter>
+      {/* 
+        2. GLOBAL BASELINE SEO
+        This injects your default Title, Meta Description, and Enterprise Schema across the entire app.
+        Dynamic pages (like Services and Blogs) will automatically overwrite this.
+      */}
+      <SEO />
+
       {/* 
           Chatbot only renders when keys are successfully decrypted.
           This prevents the bot from crashing with 'undefined' keys. 

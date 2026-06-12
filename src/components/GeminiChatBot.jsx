@@ -70,11 +70,14 @@ Phase 03: Strategic Roadmap
 Phase 04: Performance Audits & Handover
 
 [DYNAMIC VISUAL TRIAGE BLUEPRINT]
-Use the visual panel ("shouldExpand": true) when the user provides meaningful discovery context INCLUDING:
-- Uploaded documents (PDFs, specs, improvement suggestions, RFPs)
-- Project details, architecture requests
-- Specific business problems or improvement areas
-- Software modernization or system enhancement needs
+Use the visual panel ("shouldExpand": true) ONLY when the user provides meaningful discovery context.
+- TRIGGER WHEN: The user uploads a document OR explicitly describes a complex, multi-phase technical problem.
+- STRICTLY FORBIDDEN: DO NOT generate a visualStage, phases, or criticalRisks if the user is simply asking for a list of services, selecting a service, or asking general questions. For general inquiries, you MUST set "shouldExpand": false and leave the visualStage fields empty.
+
+When generating the Visual Triage for valid complex requests, provide:
+1. "complexityScore": Estimate out of 10 based on the uploaded content.
+2. "phases": 3 to 5 high-level delivery stages tailored to their documented needs.
+3. "criticalRisks": Identify 2 to 3 SPECIFIC bottlenecks or threats.
 
 A document upload is ALWAYS sufficient context to trigger Visual Triage. Do NOT ask users to "describe the business problem" if they've already provided a document—analyze what they've uploaded.
 
@@ -709,227 +712,235 @@ const GeminiChatBot = ({apiKey, ttsApiKey}) => {
   };
 
 const renderVisualStage = () => {
-    if (!currentVisual || !currentVisual.shouldExpand) return null;
+  if (!currentVisual || !currentVisual.shouldExpand) return null;
 
-    // Extract complexity number for visual calculations
-    const complexityNum = parseFloat(currentVisual.complexityScore) || 5;
-    const complexityPercent = (complexityNum / 10) * 100;
-    const complexityLevel = complexityNum > 7.5 ? 'CRITICAL' : complexityNum > 5 ? 'HIGH' : 'MODERATE';
-    const complexityColor = complexityNum > 7.5 ? '#ff4d4f' : complexityNum > 5 ? '#ff9c6e' : '#ffc53d';
-    
-    // Count services needed based on risks
-    const servicesCount = currentVisual.phases?.length || 3;
+  // Extract complexity number for visual calculations
+  const complexityNum = parseFloat(currentVisual.complexityScore) || 5;
+  const complexityPercent = (complexityNum / 10) * 100;
+  const complexityLevel = complexityNum > 7.5 ? 'CRITICAL' : complexityNum > 5 ? 'HIGH' : 'MODERATE';
+  const complexityColor = complexityNum > 7.5 ? '#ff4d4f' : complexityNum > 5 ? '#ff9c6e' : '#ffc53d';
+  
+  // Count services needed based on risks
+  const servicesCount = currentVisual.phases?.length || 3;
 
-    return (
-      <div className="flex-1 flex flex-col bg-[#0a0c10] overflow-hidden relative">
-        {/* Enhanced Header with Visual Metrics */}
-        <div className="px-5 sm:px-6 py-5 sm:py-6 border-b border-[#1f2333] bg-gradient-to-r from-[#0f1117]/80 to-[#171a24]/40 backdrop-blur-md z-10 shadow-sm">
-          <div className="flex flex-col gap-4">
-            {/* Title Section */}
-            <div className="flex gap-4 items-start">
-              <div>
-                <h3 className="text-[#e8eaf0] font-['Syne'] font-bold text-[15px] sm:text-[16px] tracking-wide flex items-center gap-2.5">
+  return (
+    <div className="flex-1 flex flex-col bg-[#0a0c10] overflow-hidden relative">
+      {/* Enhanced Header with Visual Metrics */}
+      <div className="px-5 sm:px-6 py-5 sm:py-6 border-b border-[#1f2333] bg-gradient-to-r from-[#0f1117]/80 to-[#171a24]/40 backdrop-blur-md z-10 shadow-sm">
+        <div className="flex flex-col gap-4">
+          {/* Title Section */}
+          <div className="flex gap-4 items-start w-full">
+            <div className="flex-1 min-w-0"> {/* Added flex-1 and min-w-0 to contain width */}
+              <h3 className="text-[#e8eaf0] font-['Syne'] font-bold text-[15px] sm:text-[16px] tracking-wide flex items-start gap-2.5 break-words">
+                <div className="shrink-0 mt-[2px]"> {/* Added shrink-0 and margin for multi-line alignment */}
                   <Activity className="text-[#00e5ff]" size={20} />
+                </div>
+                <span className="flex-1">
                   {currentVisual.title || "Project Triage Blueprint"}
-                </h3>
-                {currentVisual.description ? (
-                  <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2">{currentVisual.description}</p>
-                ) : (
-                  <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2">Proprietary architecture logic withheld for security.</p>
-                )}
+                </span>
+              </h3>
+              {currentVisual.description ? (
+                <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2 break-words">
+                  {currentVisual.description}
+                </p>
+              ) : (
+                <p className="text-[11px] sm:text-[12px] text-[#8a91a6] mt-2 break-words">
+                  Proprietary architecture logic withheld for security.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Visual Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Complexity Score Card */}
+            <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
+              <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Complexity</div>
+              <div className="flex items-center gap-2.5">
+                <div className="flex-1">
+                  <div className="h-2 bg-[#0a0c10] rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${complexityPercent}%`, backgroundColor: complexityColor }}
+                    />
+                  </div>
+                </div>
+                <span className="text-[13px] font-bold text-[#e8eaf0] min-w-[2.5rem]">{currentVisual.complexityScore}</span>
               </div>
+              <div className="text-[10px] text-[#00e5ff] font-bold mt-1.5">{complexityLevel}</div>
             </div>
 
-            {/* Visual Metrics Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Complexity Score Card */}
-              <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
-                <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Complexity</div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex-1">
-                    <div className="h-2 bg-[#0a0c10] rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${complexityPercent}%`, backgroundColor: complexityColor }}
-                      />
-                    </div>
-                  </div>
-                  <span className="text-[13px] font-bold text-[#e8eaf0] min-w-[2.5rem]">{currentVisual.complexityScore}</span>
-                </div>
-                <div className="text-[10px] text-[#00e5ff] font-bold mt-1.5">{complexityLevel}</div>
-              </div>
-
-              {/* Phases Card */}
-              <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
-                <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Phases</div>
-                <div className="text-[18px] font-black text-[#00e5ff]">{servicesCount}</div>
-                <div className="text-[10px] text-[#6b7280] mt-1">Delivery stages</div>
-              </div>
+            {/* Phases Card */}
+            <div className="bg-[#171a24] border border-[#1f2333] rounded-lg p-3 hover:border-[#00e5ff]/30 transition-all">
+              <div className="text-[10px] text-[#8a91a6] font-bold uppercase tracking-wider mb-2">Phases</div>
+              <div className="text-[18px] font-black text-[#00e5ff]">{servicesCount}</div>
+              <div className="text-[10px] text-[#6b7280] mt-1">Delivery stages</div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Scrollable Blueprint Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171a24]/20 via-[#0a0c10] to-[#0a0c10] custom-scrollbar flex flex-col gap-8">
-          
-          {/* Critical Risk Signals */}
-          {currentVisual.criticalRisks && currentVisual.criticalRisks.length > 0 && (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+      {/* Scrollable Blueprint Content */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171a24]/20 via-[#0a0c10] to-[#0a0c10] custom-scrollbar flex flex-col gap-8">
+        
+        {/* Critical Risk Signals */}
+        {currentVisual.criticalRisks && currentVisual.criticalRisks.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-3"> {/* Updated to items-start + gap */}
+              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-start gap-2 flex-1 min-w-0 break-words">
+                <div className="shrink-0 mt-[1px]">
                   <AlertTriangle size={13} className="text-amber-500" />
-                  Key Areas Identified
-                </h4>
-                <span className="text-[10px] bg-amber-500/20 text-amber-400 font-bold px-2 py-1 rounded">{currentVisual.criticalRisks.length} Factors</span>
-              </div>
-              <div className="grid grid-cols-1 gap-2.5">
-                {currentVisual.criticalRisks.map((riskObj, idx) => {
-                  const impactColor = riskObj.impact === 'Critical' ? '#ff4d4f' : riskObj.impact === 'High' ? '#ff9c6e' : '#ffc53d';
-                  const impactBg = riskObj.impact === 'Critical' ? 'bg-red-950/15 border-red-500/30' : riskObj.impact === 'High' ? 'bg-orange-950/15 border-orange-500/30' : 'bg-yellow-950/15 border-yellow-500/30';
-                  const dotColor = riskObj.impact === 'Critical' ? 'bg-red-500' : riskObj.impact === 'High' ? 'bg-orange-500' : 'bg-yellow-500';
-                  
-                  return (
-                    <div key={idx} className={`${impactBg} border rounded-lg p-3 sm:p-4 flex items-start gap-3 transition-all hover:scale-[1.02] cursor-pointer`}>
-                      <div className={`w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0 animate-pulse`} />
-                      <div className="flex-1">
-                        <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase inline-block mb-2" style={{ backgroundColor: `${impactColor}20`, color: impactColor }}>
-                          {riskObj.impact} Factor
-                        </span>
-                        <p className="text-[12px] sm:text-[13px] text-[#e8eaf0] font-medium leading-relaxed">{riskObj.risk}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-[11px] text-[#8a91a6] text-center">
-                These factors benefit from strategic guidance to ensure optimal outcomes
-              </div>
+                </div>
+                <span>Key Areas Identified</span>
+              </h4>
+              <span className="text-[10px] bg-amber-500/20 text-amber-400 font-bold px-2 py-1 rounded shrink-0">
+                {currentVisual.criticalRisks.length} Factors
+              </span>
             </div>
-          )}
+            <div className="grid grid-cols-1 gap-2.5">
+              {currentVisual.criticalRisks.map((riskObj, idx) => {
+                const impactColor = riskObj.impact === 'Critical' ? '#ff4d4f' : riskObj.impact === 'High' ? '#ff9c6e' : '#ffc53d';
+                const impactBg = riskObj.impact === 'Critical' ? 'bg-red-950/15 border-red-500/30' : riskObj.impact === 'High' ? 'bg-orange-950/15 border-orange-500/30' : 'bg-yellow-950/15 border-yellow-500/30';
+                const dotColor = riskObj.impact === 'Critical' ? 'bg-red-500' : riskObj.impact === 'High' ? 'bg-orange-500' : 'bg-yellow-500';
+                
+                return (
+                  <div key={idx} className={`${impactBg} border rounded-lg p-3 sm:p-4 flex items-start gap-3 transition-all hover:scale-[1.02] cursor-pointer`}>
+                    <div className={`w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0 animate-pulse`} />
+                    <div className="flex-1 min-w-0"> {/* Added min-w-0 here */}
+                      <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase inline-block mb-2" style={{ backgroundColor: `${impactColor}20`, color: impactColor }}>
+                        {riskObj.impact} Factor
+                      </span>
+                      <p className="text-[12px] sm:text-[13px] text-[#e8eaf0] font-medium leading-relaxed break-words">{riskObj.risk}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-[11px] text-[#8a91a6] text-center break-words">
+              These factors benefit from strategic guidance to ensure optimal outcomes
+            </div>
+          </div>
+        )}
 
-          {/* Gated Delivery Phases */}
-          {currentVisual.phases && currentVisual.phases.length > 0 && (
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-center gap-2">
+        {/* Gated Delivery Phases */}
+        {currentVisual.phases && currentVisual.phases.length > 0 && (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-start justify-between gap-3"> {/* Updated to items-start + gap */}
+              <h4 className="text-[11px] text-[#8a91a6] uppercase tracking-widest font-bold flex items-start gap-2 flex-1 min-w-0 break-words">
+                <div className="shrink-0 mt-[1px]">
                   <CheckCircle2 size={13} className="text-[#00e5ff]" />
-                  Estimated Delivery Pathway
-                </h4>
-                <span className="text-[10px] bg-[#00e5ff]/20 text-[#00e5ff] font-bold px-2 py-1 rounded">{currentVisual.phases.length} Phases</span>
-              </div>
-              
-              {/* Phase Cards Grid */}
-              <div className="space-y-3">
-                {currentVisual.phases.map((phase, idx) => (
-                  <div 
-                    key={idx} 
-                    className="relative group"
-                    style={{ animation: `fadeUp 0.4s ease forwards ${idx * 0.1}s`, opacity: 0 }}
-                  >
-                    {/* Connection Line */}
-                    {idx < currentVisual.phases.length - 1 && (
-                      <div className="absolute left-[19px] top-[48px] w-0.5 h-6 bg-gradient-to-b from-[#00e5ff]/50 to-[#00e5ff]/10"></div>
-                    )}
+                </div>
+                <span>Estimated Delivery Pathway</span>
+              </h4>
+              <span className="text-[10px] bg-[#00e5ff]/20 text-[#00e5ff] font-bold px-2 py-1 rounded shrink-0">
+                {currentVisual.phases.length} Phases
+              </span>
+            </div>
+            
+            {/* Phase Cards Grid */}
+            <div className="space-y-3">
+              {currentVisual.phases.map((phase, idx) => (
+                <div 
+                  key={idx} 
+                  className="relative group"
+                  style={{ animation: `fadeUp 0.4s ease forwards ${idx * 0.1}s`, opacity: 0 }}
+                >
+                  {/* Connection Line */}
+                  {idx < currentVisual.phases.length - 1 && (
+                    <div className="absolute left-[19px] top-[48px] bottom-[-12px] w-0.5 bg-gradient-to-b from-[#00e5ff]/50 to-[#00e5ff]/10"></div>
+                  )}
+                  
+                  {/* Phase Card */}
+                  <div className="flex items-start gap-3.5 relative z-10">
+                    {/* Step Number Circle */}
+                    <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#00e5ff] bg-[#0a0c10] text-[#00e5ff] font-bold text-[12px] group-hover:bg-[#00e5ff] group-hover:text-[#0a0c10] transition-all shadow-[0_0_10px_rgba(0,229,255,0.2)] group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                      {phase.step || idx + 1}
+                    </div>
                     
-                    {/* Phase Card */}
-                    <div className="flex items-start gap-3.5">
-                      {/* Step Number Circle */}
-                      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#00e5ff] bg-[#0a0c10] text-[#00e5ff] font-bold text-[12px] relative z-10 group-hover:bg-[#00e5ff] group-hover:text-[#0a0c10] transition-all shadow-[0_0_10px_rgba(0,229,255,0.2)] group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)]">
-                        {phase.step || idx + 1}
-                      </div>
-                      
-                      {/* Phase Details Card */}
-                      <div className="flex-1 pt-1 group-hover:translate-x-1 transition-transform">
-                        <div className="bg-gradient-to-r from-[#171a24] to-[#0f1117] border border-[#1f2333] rounded-lg p-4 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_15px_rgba(0,229,255,0.1)] transition-all">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <h5 className="text-[13px] sm:text-[14px] font-bold text-[#e8eaf0] group-hover:text-[#00e5ff] transition-colors">{phase.name}</h5>
-                              <p className="text-[11px] text-[#6b7280] mt-1">Phase {phase.step || idx + 1} — Strategic milestone</p>
-                            </div>
-                            {/* Lock Icon */}
-                            <div className="bg-[#0f1117] p-2 rounded border border-[#1f2333] text-[#6b7280] group-hover:border-[#00e5ff]/20 group-hover:text-[#00e5ff] transition-all" title="Technical specifics withheld">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            </div>
+                    {/* Phase Details Card */}
+                    <div className="flex-1 min-w-0 pt-1 group-hover:translate-x-1 transition-transform"> {/* Added min-w-0 */}
+                      <div className="bg-gradient-to-r from-[#171a24] to-[#0f1117] border border-[#1f2333] rounded-lg p-4 group-hover:border-[#00e5ff]/40 group-hover:shadow-[0_0_15px_rgba(0,229,255,0.1)] transition-all">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0"> {/* Added min-w-0 */}
+                            <h5 className="text-[13px] sm:text-[14px] font-bold text-[#e8eaf0] group-hover:text-[#00e5ff] transition-colors break-words">
+                              {phase.name}
+                            </h5>
+                            <p className="text-[11px] text-[#6b7280] mt-1 break-words">Phase {phase.step || idx + 1} — Strategic milestone</p>
                           </div>
-                          
-                          {/* Progress Bar */}
-                          <div className="mt-3 flex items-center gap-2">
-                            <div className="h-1.5 flex-1 bg-[#0a0c10] rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] rounded-full transition-all duration-700"
-                                style={{ width: `${((idx + 1) / currentVisual.phases.length) * 100}%` }}
-                              />
-                            </div>
-                            <span className="text-[10px] text-[#6b7280] font-bold">{Math.round(((idx + 1) / currentVisual.phases.length) * 100)}%</span>
+                          {/* Lock Icon */}
+                          <div className="bg-[#0f1117] p-2 rounded border border-[#1f2333] text-[#6b7280] shrink-0 group-hover:border-[#00e5ff]/20 group-hover:text-[#00e5ff] transition-all" title="Technical specifics withheld">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           </div>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="h-1.5 flex-1 bg-[#0a0c10] rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] rounded-full transition-all duration-700"
+                              style={{ width: `${((idx + 1) / currentVisual.phases.length) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-[#6b7280] font-bold shrink-0">{Math.round(((idx + 1) / currentVisual.phases.length) * 100)}%</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              {/* Completion Summary */}
-              <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-center">
-                <p className="text-[11px] text-[#8a91a6]">
-                  Full engagement cycle: <span className="text-[#00e5ff] font-bold">{currentVisual.phases.length} phases</span> with gated IP protection
-                </p>
-              </div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-
-        {/* Footer CTA driving urgency */}
-        <div className="px-5 sm:px-6 py-5 border-t border-[#1f2333] bg-gradient-to-r from-[#0f1117] via-[#171a24]/40 to-[#0f1117] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="text-center sm:text-left">
-            <p className="text-[11px] text-[#6b7280] font-medium">
-              ✓ Analysis complete — Ready for engagement
-            </p>
-            <p className="text-[10px] text-[#6b7280] mt-1">
-              Next: Schedule your strategy session
-            </p>
+            
+            {/* Completion Summary */}
+            <div className="bg-[#171a24]/50 border border-dashed border-[#1f2333] rounded-lg p-3 text-center">
+              <p className="text-[11px] text-[#8a91a6] break-words">
+                Full engagement cycle: <span className="text-[#00e5ff] font-bold">{currentVisual.phases.length} phases</span> with gated IP protection
+              </p>
+            </div>
           </div>
-          <button 
-            onClick={() => {
-              // Generate automated message from blueprint data
-              const blueprintSummary = currentVisual 
-                ? `I'm interested in implementing the ${currentVisual.title || 'Project Triage Blueprint'} we just reviewed. 
-
-Key Details:
-- Complexity Score: ${currentVisual.complexityScore || 'N/A'}
-- Delivery Phases: ${currentVisual.phases?.length || 0} phases outlined
-- Critical Risks Identified: ${currentVisual.criticalRisks?.length || 0} key considerations
-
-${currentVisual.criticalRisks?.length > 0 ? `Risks to Address:\n${currentVisual.criticalRisks.map(r => `• ${r.risk} (${r.impact})`).join('\n')}\n` : ''}
-I'd like to schedule a consultation to discuss the detailed engagement roadmap and next steps.`
-                : "I'd like to discuss our AI project requirements and get started with your team.";
-
-              const blueprintServices = currentVisual?.phases
-                ?.map(phase => phase.name)
-                .slice(0, 3) || [];
-
-              setIsExpanded(false);
-              toggleChat();
-              navigate("/contact", { 
-                state: { 
-                  prefilledMessage: blueprintSummary,
-                  selectedServices: blueprintServices
-                }
-              });
-            }}
-            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] border border-[#00e5ff]/40 text-[#07080d] rounded-lg text-[12px] font-bold hover:from-[#00e5ff] hover:to-[#8c6eb8] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2 group"
-          >
-            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-            Lock in Blueprint & Discuss
-          </button>
-        </div>
-
+        )}
       </div>
-    );
-  };
-  
+
+      {/* Footer CTA driving urgency */}
+      <div className="px-5 sm:px-6 py-5 border-t border-[#1f2333] bg-gradient-to-r from-[#0f1117] via-[#171a24]/40 to-[#0f1117] flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="text-center sm:text-left flex-1 min-w-0">
+          <p className="text-[11px] text-[#6b7280] font-medium break-words">
+            ✓ Analysis complete — Ready for engagement
+          </p>
+          <p className="text-[10px] text-[#6b7280] mt-1 break-words">
+            Next: Schedule your strategy session
+          </p>
+        </div>
+        <button 
+          onClick={() => {
+            const blueprintSummary = currentVisual 
+              ? `I'm interested in implementing the ${currentVisual.title || 'Project Triage Blueprint'} we just reviewed. \n\nKey Details:\n- Complexity Score: ${currentVisual.complexityScore || 'N/A'}\n- Delivery Phases: ${currentVisual.phases?.length || 0} phases outlined\n- Critical Risks Identified: ${currentVisual.criticalRisks?.length || 0} key considerations\n\n${currentVisual.criticalRisks?.length > 0 ? `Risks to Address:\n${currentVisual.criticalRisks.map(r => `• ${r.risk} (${r.impact})`).join('\n')}\n` : ''}I'd like to schedule a consultation to discuss the detailed engagement roadmap and next steps.`
+              : "I'd like to discuss our AI project requirements and get started with your team.";
+
+            const blueprintServices = currentVisual?.phases?.map(phase => phase.name).slice(0, 3) || [];
+
+            if(typeof setIsExpanded === 'function') setIsExpanded(false);
+            if(typeof toggleChat === 'function') toggleChat();
+            if(typeof navigate === 'function') navigate("/contact", { 
+              state: { 
+                prefilledMessage: blueprintSummary,
+                selectedServices: blueprintServices
+              }
+            });
+          }}
+          className="w-full sm:w-auto shrink-0 px-5 py-2.5 bg-gradient-to-r from-[#00e5ff] to-[#7b5ea7] border border-[#00e5ff]/40 text-[#07080d] rounded-lg text-[12px] font-bold hover:from-[#00e5ff] hover:to-[#8c6eb8] hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2 group"
+        >
+          <svg className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+          <span>Lock in Blueprint & Discuss</span>
+        </button>
+      </div>
+
+    </div>
+  );
+};
+
+
 return (
     <>
       {/* Tooltip Popup */}
@@ -948,13 +959,10 @@ return (
       {/* Chat Window (Dynamic Width Expansion & Mobile Responsiveness) */}
       <div className={`fixed bottom-[100px] right-4 sm:right-7 w-[calc(100vw-32px)] sm:w-[380px] h-[620px] max-h-[calc(100vh-130px)] bg-[#0f1117] border border-[#1f2333] rounded-[16px] shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex overflow-hidden z-[9998] lining-nums font-sans origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-y-0 scale-100 opacity-100 pointer-events-auto' : 'translate-y-12 scale-[0.85] opacity-0 pointer-events-none'} ${isExpanded ? 'md:w-[1000px] flex-row' : 'flex-col'}`}>
         
-        {/* LEFT STAGE: Visual Triage (Absolute overlay on mobile, flex-1 on desktop) */}
+        {/* LEFT STAGE: Visual Triage */}
         {isExpanded && (
             <div className="absolute inset-0 z-[100] md:relative md:z-auto md:flex-1 flex flex-col border-r border-[#1f2333] bg-[#0a0c10] animate-in fade-in zoom-in-95 md:zoom-in-100 duration-300">
                 <div className="absolute top-4 right-4 sm:right-6 z-20 flex gap-2">
-                    {/* <button className="hidden sm:flex bg-[#171a24]/80 backdrop-blur border border-[#1f2333] px-3 py-1.5 rounded-md text-[11px] text-[#00e5ff] items-center gap-2 hover:bg-[#1f2333] transition-colors shadow-sm">
-                        <CheckCircle2 size={14}/> Explain Insights
-                    </button> */}
                     <button 
                       onClick={() => setIsExpanded(false)} 
                       className="bg-[#171a24]/80 backdrop-blur border border-[#1f2333] p-1.5 rounded-md text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] transition-colors shadow-sm" 
@@ -973,15 +981,15 @@ return (
             {/* Header */}
             <div className={`px-4 sm:px-5 py-4 bg-[#171a24] border-b border-[#1f2333] flex items-center gap-3 shrink-0`}>
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00e5ff] to-[#7b5ea7] flex items-center justify-center text-base shrink-0">🤖</div>
-              <div className="flex-1">
-                <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif]">1TECHUB Assistant</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[14px] tracking-[0.03em] text-[#e8eaf0] text-left font-['Syne',sans-serif] truncate">1TECHUB Assistant</div>
                 <div className="text-[11px] text-[#00e5ff] flex items-center gap-1 mt-[1px]">
-                  <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse"></span> Online
+                  <span className="w-1.5 h-1.5 bg-[#00e5ff] rounded-full animate-pulse shrink-0"></span> Online
                 </div>
               </div>
               
               {/* LANGUAGE SELECTOR DROPDOWN */}
-              <div className="relative" ref={langDropdownRef}>
+              <div className="relative shrink-0" ref={langDropdownRef}>
                 <button 
                   onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)} 
                   className="text-[11px] font-bold text-[#6b7280] flex items-center gap-1 bg-[#171a24] border border-[#1f2333] hover:bg-[#1f2333] hover:text-[#00e5ff] hover:border-[#00e5ff]/30 px-2 py-1.5 rounded-lg transition-colors mr-1 shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
@@ -993,7 +1001,7 @@ return (
                 {isLangDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-44 bg-[#0f1117] border border-[#1f2333] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 flex flex-col overflow-hidden">
                     <div className="p-2 border-b border-[#1f2333] bg-[#171a24] flex items-center gap-2">
-                      <Search size={14} className="text-[#6b7280]" />
+                      <Search size={14} className="text-[#6b7280] shrink-0" />
                       <input 
                         type="text" 
                         placeholder="Search language..." 
@@ -1026,24 +1034,24 @@ return (
                 <button 
                   onClick={clearHistory} 
                   title="Clear Chat" 
-                  className="text-[#6b7280] hover:text-[#ff4d4d] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center mr-1"
+                  className="text-[#6b7280] hover:text-[#ff4d4d] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center mr-1 shrink-0"
                 >
                   <Trash2 size={16} />
                 </button>
               )}
 
-              {/* Expand Toggle (Premium Styling) */}
+              {/* Expand Toggle */}
               {!isExpanded && currentVisual && (
                   <button 
                     onClick={() => setIsExpanded(true)} 
-                    className="text-[#00e5ff] bg-[#00e5ff]/10 border border-[#00e5ff]/20 hover:bg-[#00e5ff]/20 p-1.5 rounded-md transition-colors flex items-center justify-center mr-1 animate-pulse" 
+                    className="text-[#00e5ff] bg-[#00e5ff]/10 border border-[#00e5ff]/20 hover:bg-[#00e5ff]/20 p-1.5 rounded-md transition-colors flex items-center justify-center mr-1 animate-pulse shrink-0" 
                     title="Open Visual Stage"
                   >
                       <Activity size={16} />
                   </button>
               )}
 
-              <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center">
+              <button onClick={toggleChat} className="text-[#6b7280] hover:text-[#e8eaf0] hover:bg-[#1f2333] p-1.5 rounded-md transition-colors flex items-center justify-center shrink-0">
                 <X size={18} />
               </button>
             </div>
@@ -1092,8 +1100,8 @@ return (
                     {msg.role === 'user' ? '👤' : '🤖'}
                   </div>
                   
-                  <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words relative ${
+                  <div className={`flex flex-col min-w-0 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div className={`px-3.5 py-2.5 rounded-xl text-[13.5px] leading-[1.6] break-words relative w-full ${
                       msg.role === 'user'
                         ? 'bg-gradient-to-br from-[#0e2a3a] to-[#1a1f35] border border-[#00e5ff]/20 rounded-tr-sm text-[#c5f5ff] text-right'
                         : 'bg-[#0f1117] border border-[#1f2333] rounded-tl-sm text-[#e8eaf0] text-left'
@@ -1220,19 +1228,19 @@ return (
             {/* INPUT FORM AREA */}
             <div className={`bg-[#171a24] border-t border-[#1f2333] flex flex-col shrink-0`}>
               
-              {/* Attachment Preview UI */}
+              {/* FIXED Attachment Preview UI */}
               {attachedFile && (
-                <div className="px-3.5 pt-2 flex items-center gap-2">
-                    <div className="bg-[#1f2333] border border-[#2a2f45] rounded-md px-2 py-1 flex items-center gap-2 text-[11px] text-[#e8eaf0]">
-                        <Paperclip size={12} className="text-[#00e5ff]" />
-                        <span className="truncate max-w-[150px]">{attachedFile.name}</span>
-                        <button onClick={removeAttachment} className="hover:text-red-400 ml-1"><X size={12}/></button>
+                <div className="px-3.5 pt-2 flex w-full min-w-0">
+                    <div className="bg-[#1f2333] border border-[#2a2f45] rounded-md px-2 py-1 flex items-center gap-2 text-[11px] text-[#e8eaf0] max-w-full overflow-hidden">
+                        <Paperclip size={12} className="text-[#00e5ff] shrink-0" />
+                        <span className="truncate min-w-0">{attachedFile.name}</span>
+                        <button onClick={removeAttachment} className="hover:text-red-400 ml-1 shrink-0"><X size={12}/></button>
                     </div>
                 </div>
               )}
 
               <form onSubmit={handleFormSubmit} className="p-3 sm:p-3.5 flex gap-2 items-center">
-                <div className="flex-1 relative flex items-center bg-[#07080d] border border-[#1f2333] rounded-lg">
+                <div className="flex-1 min-w-0 relative flex items-center bg-[#07080d] border border-[#1f2333] rounded-lg">
                   <input
                     type="text"
                     value={input}
@@ -1251,7 +1259,7 @@ return (
                       accept=".pdf,.txt,.doc,.docx,.csv" 
                   />
 
-                  <div className="absolute right-1 flex items-center gap-1">
+                  <div className="absolute right-1 flex items-center gap-1 shrink-0">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
@@ -1293,10 +1301,6 @@ return (
             </div>
         </div>
       </div>
-
-
-
-
 
       <style>{`
         @keyframes fadeUp {
@@ -1353,7 +1357,7 @@ return (
         }
       `}</style>
     </>
-  );
+);
 };
 
 export default GeminiChatBot;

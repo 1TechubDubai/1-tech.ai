@@ -10,6 +10,7 @@ import {
   Rocket 
 } from 'lucide-react';
 import { BrandWhatsapp } from 'tabler-icons-react';
+import SEO from "../components/SEO"; 
 
 const Contact = () => {
   return (
@@ -20,6 +21,11 @@ const Contact = () => {
   ` }} />
       
       {/* Navbar (Fixed z-index handled inside component) */}
+      <SEO 
+        title="Contact Us | Get Started with AI" 
+        description="Ready to lead the AI revolution? Connect with 1TecHub's experts to book a strategy call, discuss AI integration, and start your digital transformation journey." 
+        url="https://1techub.ai/contact"
+      />
       <Navbar />
 
       {/* --- MAIN CONTENT WRAPPER --- */}

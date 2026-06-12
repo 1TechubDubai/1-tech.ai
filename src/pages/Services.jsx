@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom'; 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO"; // <-- IMPORTED SEO COMPONENT
 import { allServicesData } from "../data/ServicesData"; 
 import { ArrowRight, X, Menu } from 'lucide-react';
 
@@ -56,7 +57,6 @@ const FeatureCard = ({ item, index = 0 }) => (
 // --- FIXED SCROLLNAV COMPONENT ---
 const ScrollNav = ({ sections, activeSection, scrollToSection, isMobileVisible }) => {
   const navRefs = useRef([]);
-  // Fixed: Use useState for style, not useRef
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0, top: '0px', height: '0px' });
 
   useEffect(() => {
@@ -223,8 +223,7 @@ const Services = () => {
         setIsMobileNavVisible(false);
       }, 2000);
 
-      // Instead of relying on offsetTop, we check if the element's bounding rect has hit the trigger point (just below the navbar)
-      const triggerPoint = 150; // Adjust this number if it triggers too early/late
+      const triggerPoint = 150; 
       
       let currentActiveId = null;
 
@@ -232,14 +231,12 @@ const Services = () => {
         const element = document.getElementById(section.id);
         if (element) {
              const rect = element.getBoundingClientRect();
-             // If the top of the element is above our trigger line, mark it as the active one
              if (rect.top <= triggerPoint) {
                  currentActiveId = section.id;
              }
         }
       });
 
-      // Update state only if we found an active section
       if (currentActiveId) {
         setActiveSection(currentActiveId);
       }
@@ -259,11 +256,9 @@ const Services = () => {
     const container = containerRef.current;
     
     if (element && container) {
-      // Calculate precise distance using screen coordinates
       const elementRect = element.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
       
-      // Target scroll = current scroll + (element's relative distance from container top) - navbar height offset
       const targetPosition = container.scrollTop + (elementRect.top - containerRect.top) - 120; 
 
       container.scrollTo({
@@ -278,6 +273,12 @@ const Services = () => {
   if (!currentService) {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+        {/* Fallback SEO for 404 */}
+        <SEO 
+          title="Service Not Found" 
+          description="The requested enterprise AI service could not be found." 
+          url="https://1techub.com/services"
+        />
         <Navbar />
         <h1 className="text-4xl font-bold mb-4">Service Not Found</h1>
         <p className="text-slate-400 mb-8">We couldn't find the service you're looking for.</p>
@@ -292,7 +293,16 @@ const Services = () => {
       className="fixed left-0 top-0 w-full h-full bg-[#020617] min-h-screen text-white font-sans selection:bg-cyan-500/30 overflow-y-scroll scroll-smooth"
       style={{ fontFamily: "'Syne', sans-serif" }}
     >
-        <style dangerouslySetInnerHTML={{ __html: `
+      {/* --- DYNAMIC SEO INJECTION --- */}
+      <SEO 
+        title={currentService.title} 
+        description={currentService.hero.description}
+        url={`https://1techub.com/services/${currentService.slug}`}
+        isServicePage={true}
+        serviceData={currentService}
+      />
+
+      <style dangerouslySetInnerHTML={{ __html: `
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
   ` }} />
       
@@ -336,7 +346,7 @@ const Services = () => {
         <div className="absolute inset-0 z-0">
           <img 
             src={currentService.hero.backgroundImage} 
-            alt="Hero Background" 
+            alt={`${currentService.title} Background`} 
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/50 via-[#020617]/80 to-transparent"></div>
